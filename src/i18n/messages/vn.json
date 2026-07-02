@@ -1,0 +1,31 @@
+{
+  "common": {
+    "title": "BaziVN",
+    "homeCta": "Lập lá số Bát Tự"
+  },
+  "home": {
+    "title": "Bát Tự — Bản đồ vận mệnh",
+    "subtitle": "Lá số chuẩn nghiệp vụ: Giờ Dạ Tý, tiết khí, giới tính, Đại vận. Thiết kế BaziVN Atlas — không sao chép."
+  },
+  "bazi": {
+    "title": "Lập lá số Bát Tự",
+    "subtitle": "Nhập ngày giờ sinh theo giờ địa phương. Giới tính ảnh hưởng chiều Đại vận.",
+    "backToForm": "Lập lá số mới",
+    "form": {
+      "fullName": "Họ và tên",
+      "fullNamePlaceholder": "Nguyễn Văn A",
+      "gender": "Giới tính",
+      "male": "Nam",
+      "female": "Nữ",
+      "birthDate": "Ngày sinh (dương lịch)",
+      "birthTime": "Giờ sinh",
+      "timezone": "Múi giờ nơi sinh",
+      "submit": "Lập lá số",
+      "calculating": "Đang lập lá số..."
+    },
+    "errors": {
+      "generic": "Không thể lập lá số. Vui lòng kiểm tra lại thông tin.",
+      "saveFailed": "Đã tính xong nhưng không lưu được lá số."
+    }
+  }
+}

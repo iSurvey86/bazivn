@@ -1,0 +1,31 @@
+{
+  "common": {
+    "title": "BaziVN",
+    "homeCta": "创建八字"
+  },
+  "home": {
+    "title": "八字 — 命运图谱",
+    "subtitle": "专业排盘：晚子时、节气、性别大运。"
+  },
+  "bazi": {
+    "title": "八字排盘",
+    "subtitle": "请输入出生地当地时间。性别影响大运方向。",
+    "backToForm": "重新排盘",
+    "form": {
+      "fullName": "姓名",
+      "fullNamePlaceholder": "张三",
+      "gender": "性别",
+      "male": "男",
+      "female": "女",
+      "birthDate": "出生日期（阳历）",
+      "birthTime": "出生时间",
+      "timezone": "出生时区",
+      "submit": "排盘",
+      "calculating": "排盘中..."
+    },
+    "errors": {
+      "generic": "无法排盘。",
+      "saveFailed": "计算完成但无法保存。"
+    }
+  }
+}

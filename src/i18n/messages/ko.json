@@ -1,0 +1,31 @@
+{
+  "common": {
+    "title": "BaziVN",
+    "homeCta": "사주 작성"
+  },
+  "home": {
+    "title": "사주 — 운명 지도",
+    "subtitle": "야자시, 절기, 성별 대운 반영."
+  },
+  "bazi": {
+    "title": "사주 작성",
+    "subtitle": "출생지 현지 시간을 입력하세요. 성별은 대운 방향에 영향을 줍니다.",
+    "backToForm": "새 차트",
+    "form": {
+      "fullName": "이름",
+      "fullNamePlaceholder": "홍길동",
+      "gender": "성별",
+      "male": "남",
+      "female": "여",
+      "birthDate": "생년월일 (양력)",
+      "birthTime": "출생 시간",
+      "timezone": "출생 지역 시간대",
+      "submit": "사주 작성",
+      "calculating": "작성 중..."
+    },
+    "errors": {
+      "generic": "사주를 작성할 수 없습니다.",
+      "saveFailed": "계산은 완료되었으나 저장에 실패했습니다."
+    }
+  }
+}

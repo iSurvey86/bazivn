@@ -1,0 +1,31 @@
+{
+  "common": {
+    "title": "BaziVN",
+    "homeCta": "Create BaZi Chart"
+  },
+  "home": {
+    "title": "BaZi — Destiny Atlas",
+    "subtitle": "Professional chart with Late Rat Hour, solar terms, gender-aware luck cycles."
+  },
+  "bazi": {
+    "title": "BaZi Chart",
+    "subtitle": "Enter local birth time. Gender affects Da Yun direction.",
+    "backToForm": "New chart",
+    "form": {
+      "fullName": "Full name",
+      "fullNamePlaceholder": "John Doe",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "birthDate": "Birth date (solar)",
+      "birthTime": "Birth time",
+      "timezone": "Birth timezone",
+      "submit": "Create chart",
+      "calculating": "Creating chart..."
+    },
+    "errors": {
+      "generic": "Unable to create chart.",
+      "saveFailed": "Calculated but could not save chart."
+    }
+  }
+}

@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f2ec;
+  --foreground: #1a1714;
+  --surface: #ffffff;
+  --surface-muted: #ebe6de;
+  --border: #d9d0c4;
+  --border-strong: #bfb3a3;
+  --muted: #4a433c;
+  --accent: #7a5c0f;
+  --accent-light: #f0e6c8;
+  --accent-hover: #5c4609;
+  --shadow: 0 1px 2px rgb(26 23 20 / 8%);
+  --shadow-lg: 0 2px 6px rgb(26 23 20 / 10%);
+  --radius: 0.75rem;
+  --radius-lg: 1rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-hover: var(--accent-hover);
+  --font-sans: var(--font-be-vietnam);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-be-vietnam), system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeLegibility;
+}
+
+/* Flat page background — no soft gradient wash */
+.bazi-page-bg {
+  background-color: var(--background);
+}
+
+.bazi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.bazi-card-elevated {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Scrollbar for horizontal timelines */
+.bazi-scroll-x {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.bazi-scroll-x::-webkit-scrollbar {
+  height: 6px;
+}
+
+.bazi-scroll-x::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+/* Lá số: font mỏng, nét sắc */
+.bazi-chart-crisp {
+  color: #0a0a0a;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+.bazi-chart-crisp .bazi-label-col {
+  font-weight: 500;
+}
+
+.bazi-chart-crisp .bazi-pillar-char {
+  font-weight: 500;
+}
+
+.bazi-chart-crisp .bazi-day-master {
+  font-weight: 600;
+}
+
+.bazi-chart-crisp dt,
+.bazi-chart-crisp .text-muted-chart {
+  color: #333;
+  font-weight: 400;
+}
+
+.bazi-pillar-char {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
