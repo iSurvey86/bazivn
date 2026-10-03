@@ -1,11 +1,20 @@
 {
-  "exportedAt": "2026-10-03T07:10:13.638Z",
+  "exportedAt": "2026-10-03T07:25:40.521Z",
+  "purpose": "Acceptance pack Core BaziVN — nghiệm thu sau 6 hạng mục Sprint 2",
+  "sprint2Fixes": [
+    "1. Hybrid TZ DoD-B′: Year/Month/Jie/Yun trên libraryTermClock (Asia/Shanghai khi instant_consistent); Day/Hour giữ localCivil + Dạ Tý.",
+    "2. relations[]: thêm sourceId; transformStatus combineOnly|transformCandidate (Core không tự transformed); contested/contestedWith cho tranh hợp.",
+    "3. Tam hình: branchPunishmentPair (2/3, vd 寅申刑) vs branchThreePunishment (3/3 đủ bộ); không gắn 寅巳申刑 khi thiếu 巳.",
+    "4. nearZiBoundary thu hẹp ±10′ quanh 23:00/00:00; cửa sổ rộng 22:00–00:59 → nearZiWindowWide (không feed timezoneSensitive).",
+    "5. Same-UTC multi-TZ tests: HCM / Shanghai / New_York cùng absolute → Year/Month/Jie/Yun term nhất quán.",
+    "6. Release: engine 0.3.1-core · rule-set bazi-core-2026-10-03-sprint2 · acceptance pack workingTreeDirty=false."
+  ],
   "versionScope": {
-    "gitCommit": "36947a4a5b79e17261a704f0c48685f4924ee397",
-    "gitCommitShort": "36947a4",
+    "gitCommit": "d29fddbc37cc3e3198bbd0928c26db16dea3bd7e",
+    "gitCommitShort": "d29fddb",
     "gitBranch": "main",
     "workingTreeDirty": false,
-    "buildId": "acceptance-36947a4-sprint2",
+    "buildId": "acceptance-d29fddb-sprint2",
     "packageVersion": "0.1.1",
     "engineVersion": "0.3.1-core",
     "ruleSetVersion": "bazi-core-2026-10-03-sprint2",
@@ -94,6 +103,228 @@
       "detail": "usefulGod=null; directions=null"
     }
   ],
+  "checklistSummary": {
+    "pass": 13,
+    "fail": 0,
+    "total": 13
+  },
+  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (26 tests) 73ms\n Test Files  1 passed (1)\n      Tests  26 passed (26)",
+  "highlights": {
+    "tamHinhCaseA": [
+      {
+        "type": "branchPunishmentPair",
+        "name": "寅申刑",
+        "members": [
+          "year.zhi.寅",
+          "day.zhi.申"
+        ]
+      }
+    ],
+    "relationsSourceId": true,
+    "transformStatusSamples": [
+      {
+        "name": "乙庚合",
+        "transformStatus": "combineOnly"
+      },
+      {
+        "name": "寅亥合",
+        "transformStatus": "combineOnly"
+      }
+    ],
+    "contestedSamples": [],
+    "nearZiBoundary": {
+      "note": "tight ±10′; wide = nearZiWindowWide",
+      "sampleCaseBBoundaries": {
+        "nearZiBoundary": false,
+        "nearZiWindowWide": true,
+        "nearHourBoundary": false,
+        "nearJieBoundary": false,
+        "nearLiChunBoundary": false,
+        "timezoneSensitive": false
+      }
+    },
+    "sameUtcMultiTz": {
+      "name": "DoD-B′ hybrid Case B + same-UTC multi-TZ",
+      "status": "PASS",
+      "detail": "lib=2026-05-06 00:46:00; min=298; day=己卯; absMatch=true"
+    },
+    "caseBPrimeAuditFlat": {
+      "birthLocal": "2026-05-05 23:46:00",
+      "birthAbsolute": "2026-05-05T16:46:00.000Z",
+      "clockForJieYun": "2026-05-06 00:46:00",
+      "libraryTermClock": "2026-05-06 00:46:00",
+      "prevJie": {
+        "name": "立夏",
+        "solar": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 19,
+          "minute": 48,
+          "second": 44
+        },
+        "ymdHms": "2026-05-05 19:48:44"
+      },
+      "nextJie": {
+        "name": "芒种",
+        "solar": {
+          "year": 2026,
+          "month": 6,
+          "day": 5,
+          "hour": 23,
+          "minute": 48,
+          "second": 21
+        },
+        "ymdHms": "2026-06-05 23:48:21"
+      },
+      "minutesFromPrevJie": 298,
+      "daysFromJie": 0.21,
+      "monthCommand": {
+        "branch": "巳",
+        "daysFromJie": 0.21,
+        "commandingStem": "戊",
+        "phase": "Mậu Thổ tư lệnh",
+        "phaseIndex": 0,
+        "mode": "ziPingZhenQuan_v1",
+        "ruleSet": "monthCommand.ziPingZhenQuan.v1",
+        "sourceId": "monthCommand.ziPingZhenQuan.v1",
+        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
+        "tableVersion": "1.0.0",
+        "method": "days_elapsed_from_month_jie",
+        "schedule": [
+          {
+            "stem": "戊",
+            "days": 5,
+            "label": "Mậu Thổ tư lệnh"
+          },
+          {
+            "stem": "庚",
+            "days": 9,
+            "label": "Canh Kim tư lệnh"
+          },
+          {
+            "stem": "丙",
+            "days": 16,
+            "label": "Bính Hỏa tư lệnh"
+          }
+        ],
+        "note": "Sau giao Jie ~0.21 ngày → Mậu Thổ tư lệnh."
+      },
+      "dayBoundaryMode": "midnight_00",
+      "dayPillar": "己卯",
+      "hourPillar": "丙子",
+      "relations": [
+        {
+          "type": "fiveElementControl",
+          "name": "水克火",
+          "nameVi": "水 khắc 火",
+          "members": [
+            "month.gan.癸",
+            "year.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "year.gan.丙",
+            "day.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "土克水",
+          "nameVi": "土 khắc 水",
+          "members": [
+            "day.gan.己",
+            "month.gan.癸"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "水克火",
+          "nameVi": "水 khắc 火",
+          "members": [
+            "month.gan.癸",
+            "hour.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "hour.gan.丙",
+            "day.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "branchDestruction",
+          "name": "卯午破",
+          "nameVi": "卯午 phá",
+          "members": [
+            "year.zhi.午",
+            "day.zhi.卯"
+          ],
+          "evidence": "địa chi 午卯",
+          "sourceId": "relations.branchDestruction.v1"
+        },
+        {
+          "type": "branchClash",
+          "name": "子午冲",
+          "nameVi": "子午 xung",
+          "members": [
+            "year.zhi.午",
+            "hour.zhi.子"
+          ],
+          "evidence": "địa chi 午子",
+          "sourceId": "relations.branchClash.v1"
+        },
+        {
+          "type": "branchPunishmentPair",
+          "name": "子卯刑",
+          "nameVi": "子卯 hình",
+          "members": [
+            "day.zhi.卯",
+            "hour.zhi.子"
+          ],
+          "evidence": "vô lễ hình",
+          "sourceId": "relations.branchPunishment.wuli.v1"
+        }
+      ],
+      "yunStartRaw": {
+        "year": 2026,
+        "month": 5,
+        "day": 30,
+        "hour": 20,
+        "minute": 46,
+        "second": 0,
+        "ymdHms": "2026-05-30 20:46:00"
+      },
+      "yunStartLocal": {
+        "year": 2026,
+        "month": 5,
+        "day": 30,
+        "hour": 19,
+        "minute": 46,
+        "second": 0,
+        "ymdHms": "2026-05-30 19:46:00"
+      },
+      "usefulGod": null,
+      "directions": null
+    }
+  },
   "caseA": {
     "label": "Case A — 12/11/1986 17:45 Phú Thọ Nam",
     "place": "Phú Thọ",
@@ -109,11 +340,17 @@
       "monthCommandSchool": "ziPingZhenQuan_v1",
       "trueSolarTimeEnabled": false
     },
+    "dayBoundaryMode": "midnight_00",
     "birthLocal": "1986-11-12 17:45:00",
     "birthAbsolute": "1986-11-12T10:45:00.000Z",
+    "clockForJieYun": "1986-11-12 17:45:00",
     "libraryTermClock": "1986-11-12 17:45:00",
     "timeBasisMode": "vn_civil",
     "libraryTermTimezone": "Asia/Ho_Chi_Minh",
+    "dayPillar": "庚申",
+    "hourPillar": "乙酉",
+    "dayPillarVi": "Canh Thân",
+    "hourPillarVi": "Ất Dậu",
     "pillars": {
       "year": "丙寅",
       "month": "己亥",
@@ -723,6 +960,30 @@
         "sourceId": "relations.branchPunishment.pair.v1"
       }
     ],
+    "relationsMeta": {
+      "allHaveSourceId": true,
+      "withTransformStatus": [
+        {
+          "name": "乙庚合",
+          "transformStatus": "combineOnly"
+        },
+        {
+          "name": "寅亥合",
+          "transformStatus": "combineOnly"
+        }
+      ],
+      "contested": [],
+      "punishments": [
+        {
+          "type": "branchPunishmentPair",
+          "name": "寅申刑",
+          "members": [
+            "year.zhi.寅",
+            "day.zhi.申"
+          ]
+        }
+      ]
+    },
     "yunStartRaw": {
       "year": 1995,
       "month": 3,
@@ -3942,6 +4203,236 @@
     },
     "isLateRatHour": false,
     "dayBoundaryLabel": "Dạ Tý: đổi Nhật trụ lúc 00:00 (midnight_00 / Late Rat)",
+    "boundaries": {
+      "nearZiBoundary": false,
+      "nearZiWindowWide": false,
+      "nearHourBoundary": false,
+      "nearJieBoundary": false,
+      "nearLiChunBoundary": false,
+      "timezoneSensitive": false
+    },
+    "auditFlat": {
+      "birthLocal": "1986-11-12 17:45:00",
+      "birthAbsolute": "1986-11-12T10:45:00.000Z",
+      "clockForJieYun": "1986-11-12 17:45:00",
+      "libraryTermClock": "1986-11-12 17:45:00",
+      "prevJie": {
+        "name": "立冬",
+        "solar": {
+          "year": 1986,
+          "month": 11,
+          "day": 8,
+          "hour": 1,
+          "minute": 12,
+          "second": 49
+        },
+        "ymdHms": "1986-11-08 01:12:49"
+      },
+      "nextJie": {
+        "name": "大雪",
+        "solar": {
+          "year": 1986,
+          "month": 12,
+          "day": 7,
+          "hour": 18,
+          "minute": 0,
+          "second": 56
+        },
+        "ymdHms": "1986-12-07 18:00:56"
+      },
+      "minutesFromPrevJie": 6753,
+      "daysFromJie": 4.69,
+      "monthCommand": {
+        "branch": "亥",
+        "daysFromJie": 4.69,
+        "commandingStem": "戊",
+        "phase": "Mậu Thổ tư lệnh",
+        "phaseIndex": 0,
+        "mode": "ziPingZhenQuan_v1",
+        "ruleSet": "monthCommand.ziPingZhenQuan.v1",
+        "sourceId": "monthCommand.ziPingZhenQuan.v1",
+        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
+        "tableVersion": "1.0.0",
+        "method": "days_elapsed_from_month_jie",
+        "schedule": [
+          {
+            "stem": "戊",
+            "days": 7,
+            "label": "Mậu Thổ tư lệnh"
+          },
+          {
+            "stem": "甲",
+            "days": 7,
+            "label": "Giáp Mộc tư lệnh"
+          },
+          {
+            "stem": "壬",
+            "days": 16,
+            "label": "Nhâm Thủy tư lệnh"
+          }
+        ],
+        "note": "Sau giao Jie ~4.69 ngày → Mậu Thổ tư lệnh."
+      },
+      "dayBoundaryMode": "midnight_00",
+      "dayPillar": "庚申",
+      "hourPillar": "乙酉",
+      "relations": [
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "year.gan.丙",
+            "month.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "火克金",
+          "nameVi": "火 khắc 金",
+          "members": [
+            "year.gan.丙",
+            "day.gan.庚"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "木生火",
+          "nameVi": "木 sinh 火",
+          "members": [
+            "hour.gan.乙",
+            "year.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "土生金",
+          "nameVi": "土 sinh 金",
+          "members": [
+            "month.gan.己",
+            "day.gan.庚"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "木克土",
+          "nameVi": "木 khắc 土",
+          "members": [
+            "hour.gan.乙",
+            "month.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "stemCombination",
+          "name": "乙庚合",
+          "nameVi": "乙庚 hợp",
+          "members": [
+            "day.gan.庚",
+            "hour.gan.乙"
+          ],
+          "evidence": "thiên can 庚乙",
+          "sourceId": "relations.stemCombination.wuHe.v1",
+          "transformStatus": "combineOnly"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "金克木",
+          "nameVi": "金 khắc 木",
+          "members": [
+            "day.gan.庚",
+            "hour.gan.乙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "branchSixHarmony",
+          "name": "寅亥合",
+          "nameVi": "寅亥 hợp",
+          "members": [
+            "year.zhi.寅",
+            "month.zhi.亥"
+          ],
+          "evidence": "địa chi 寅亥",
+          "sourceId": "relations.branchSixHarmony.v1",
+          "transformStatus": "combineOnly"
+        },
+        {
+          "type": "branchDestruction",
+          "name": "寅亥破",
+          "nameVi": "寅亥 phá",
+          "members": [
+            "year.zhi.寅",
+            "month.zhi.亥"
+          ],
+          "evidence": "địa chi 寅亥",
+          "sourceId": "relations.branchDestruction.v1"
+        },
+        {
+          "type": "branchClash",
+          "name": "寅申冲",
+          "nameVi": "寅申 xung",
+          "members": [
+            "year.zhi.寅",
+            "day.zhi.申"
+          ],
+          "evidence": "địa chi 寅申",
+          "sourceId": "relations.branchClash.v1"
+        },
+        {
+          "type": "branchHarm",
+          "name": "申亥害",
+          "nameVi": "申亥 hại",
+          "members": [
+            "month.zhi.亥",
+            "day.zhi.申"
+          ],
+          "evidence": "địa chi 亥申",
+          "sourceId": "relations.branchHarm.v1"
+        },
+        {
+          "type": "branchPunishmentPair",
+          "name": "寅申刑",
+          "nameVi": "寅申 hình",
+          "members": [
+            "year.zhi.寅",
+            "day.zhi.申"
+          ],
+          "evidence": "tam hình thiếu chi (2/3 của 寅巳申) — không gắn tên đủ bộ",
+          "sourceId": "relations.branchPunishment.pair.v1"
+        }
+      ],
+      "yunStartRaw": {
+        "year": 1995,
+        "month": 3,
+        "day": 13,
+        "hour": 23,
+        "minute": 45,
+        "second": 0,
+        "ymdHms": "1995-03-13 23:45:00"
+      },
+      "yunStartLocal": {
+        "year": 1995,
+        "month": 3,
+        "day": 13,
+        "hour": 23,
+        "minute": 45,
+        "second": 0,
+        "ymdHms": "1995-03-13 23:45:00"
+      },
+      "usefulGod": null,
+      "directions": null
+    },
     "rawDebug10": {
       "birthLocal": "1986-11-12 17:45:00",
       "birthAbsolute": "1986-11-12T10:45:00.000Z",
@@ -4038,11 +4529,17 @@
       "monthCommandSchool": "ziPingZhenQuan_v1",
       "trueSolarTimeEnabled": false
     },
+    "dayBoundaryMode": "midnight_00",
     "birthLocal": "2026-05-05 23:46:00",
     "birthAbsolute": "2026-05-05T16:46:00.000Z",
+    "clockForJieYun": "2026-05-05 23:46:00",
     "libraryTermClock": "2026-05-05 23:46:00",
     "timeBasisMode": "vn_civil",
     "libraryTermTimezone": "Asia/Ho_Chi_Minh",
+    "dayPillar": "己卯",
+    "hourPillar": "丙子",
+    "dayPillarVi": "Kỷ Mão",
+    "hourPillarVi": "Bính Tý",
     "pillars": {
       "year": "丙午",
       "month": "癸巳",
@@ -4565,6 +5062,21 @@
         "sourceId": "relations.branchPunishment.wuli.v1"
       }
     ],
+    "relationsMeta": {
+      "allHaveSourceId": true,
+      "withTransformStatus": [],
+      "contested": [],
+      "punishments": [
+        {
+          "type": "branchPunishmentPair",
+          "name": "子卯刑",
+          "members": [
+            "day.zhi.卯",
+            "hour.zhi.子"
+          ]
+        }
+      ]
+    },
     "yunStartRaw": {
       "year": 2026,
       "month": 5,
@@ -7749,6 +8261,190 @@
     },
     "isLateRatHour": true,
     "dayBoundaryLabel": "Dạ Tý: đổi Nhật trụ lúc 00:00 (midnight_00 / Late Rat)",
+    "boundaries": {
+      "nearZiBoundary": false,
+      "nearZiWindowWide": true,
+      "nearHourBoundary": false,
+      "nearJieBoundary": false,
+      "nearLiChunBoundary": false,
+      "timezoneSensitive": false
+    },
+    "auditFlat": {
+      "birthLocal": "2026-05-05 23:46:00",
+      "birthAbsolute": "2026-05-05T16:46:00.000Z",
+      "clockForJieYun": "2026-05-05 23:46:00",
+      "libraryTermClock": "2026-05-05 23:46:00",
+      "prevJie": {
+        "name": "立夏",
+        "solar": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 19,
+          "minute": 48,
+          "second": 44
+        },
+        "ymdHms": "2026-05-05 19:48:44"
+      },
+      "nextJie": {
+        "name": "芒种",
+        "solar": {
+          "year": 2026,
+          "month": 6,
+          "day": 5,
+          "hour": 23,
+          "minute": 48,
+          "second": 21
+        },
+        "ymdHms": "2026-06-05 23:48:21"
+      },
+      "minutesFromPrevJie": 238,
+      "daysFromJie": 0.17,
+      "monthCommand": {
+        "branch": "巳",
+        "daysFromJie": 0.17,
+        "commandingStem": "戊",
+        "phase": "Mậu Thổ tư lệnh",
+        "phaseIndex": 0,
+        "mode": "ziPingZhenQuan_v1",
+        "ruleSet": "monthCommand.ziPingZhenQuan.v1",
+        "sourceId": "monthCommand.ziPingZhenQuan.v1",
+        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
+        "tableVersion": "1.0.0",
+        "method": "days_elapsed_from_month_jie",
+        "schedule": [
+          {
+            "stem": "戊",
+            "days": 5,
+            "label": "Mậu Thổ tư lệnh"
+          },
+          {
+            "stem": "庚",
+            "days": 9,
+            "label": "Canh Kim tư lệnh"
+          },
+          {
+            "stem": "丙",
+            "days": 16,
+            "label": "Bính Hỏa tư lệnh"
+          }
+        ],
+        "note": "Sau giao Jie ~0.17 ngày → Mậu Thổ tư lệnh."
+      },
+      "dayBoundaryMode": "midnight_00",
+      "dayPillar": "己卯",
+      "hourPillar": "丙子",
+      "relations": [
+        {
+          "type": "fiveElementControl",
+          "name": "水克火",
+          "nameVi": "水 khắc 火",
+          "members": [
+            "month.gan.癸",
+            "year.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "year.gan.丙",
+            "day.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "土克水",
+          "nameVi": "土 khắc 水",
+          "members": [
+            "day.gan.己",
+            "month.gan.癸"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "水克火",
+          "nameVi": "水 khắc 火",
+          "members": [
+            "month.gan.癸",
+            "hour.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "hour.gan.丙",
+            "day.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "branchDestruction",
+          "name": "卯午破",
+          "nameVi": "卯午 phá",
+          "members": [
+            "year.zhi.午",
+            "day.zhi.卯"
+          ],
+          "evidence": "địa chi 午卯",
+          "sourceId": "relations.branchDestruction.v1"
+        },
+        {
+          "type": "branchClash",
+          "name": "子午冲",
+          "nameVi": "子午 xung",
+          "members": [
+            "year.zhi.午",
+            "hour.zhi.子"
+          ],
+          "evidence": "địa chi 午子",
+          "sourceId": "relations.branchClash.v1"
+        },
+        {
+          "type": "branchPunishmentPair",
+          "name": "子卯刑",
+          "nameVi": "子卯 hình",
+          "members": [
+            "day.zhi.卯",
+            "hour.zhi.子"
+          ],
+          "evidence": "vô lễ hình",
+          "sourceId": "relations.branchPunishment.wuli.v1"
+        }
+      ],
+      "yunStartRaw": {
+        "year": 2026,
+        "month": 5,
+        "day": 25,
+        "hour": 19,
+        "minute": 46,
+        "second": 0,
+        "ymdHms": "2026-05-25 19:46:00"
+      },
+      "yunStartLocal": {
+        "year": 2026,
+        "month": 5,
+        "day": 25,
+        "hour": 19,
+        "minute": 46,
+        "second": 0,
+        "ymdHms": "2026-05-25 19:46:00"
+      },
+      "usefulGod": null,
+      "directions": null
+    },
     "rawDebug10": {
       "birthLocal": "2026-05-05 23:46:00",
       "birthAbsolute": "2026-05-05T16:46:00.000Z",
@@ -7846,11 +8542,17 @@
       "trueSolarTimeEnabled": false,
       "timeBasisMode": "instant_consistent"
     },
+    "dayBoundaryMode": "midnight_00",
     "birthLocal": "2026-05-05 23:46:00",
     "birthAbsolute": "2026-05-05T16:46:00.000Z",
+    "clockForJieYun": "2026-05-06 00:46:00",
     "libraryTermClock": "2026-05-06 00:46:00",
     "timeBasisMode": "instant_consistent",
     "libraryTermTimezone": "Asia/Shanghai",
+    "dayPillar": "己卯",
+    "hourPillar": "丙子",
+    "dayPillarVi": "Kỷ Mão",
+    "hourPillarVi": "Bính Tý",
     "pillars": {
       "year": "丙午",
       "month": "癸巳",
@@ -8373,6 +9075,21 @@
         "sourceId": "relations.branchPunishment.wuli.v1"
       }
     ],
+    "relationsMeta": {
+      "allHaveSourceId": true,
+      "withTransformStatus": [],
+      "contested": [],
+      "punishments": [
+        {
+          "type": "branchPunishmentPair",
+          "name": "子卯刑",
+          "members": [
+            "day.zhi.卯",
+            "hour.zhi.子"
+          ]
+        }
+      ]
+    },
     "yunStartRaw": {
       "year": 2026,
       "month": 5,
@@ -11557,6 +12274,190 @@
     },
     "isLateRatHour": true,
     "dayBoundaryLabel": "Dạ Tý: đổi Nhật trụ lúc 00:00 (midnight_00 / Late Rat)",
+    "boundaries": {
+      "nearZiBoundary": false,
+      "nearZiWindowWide": true,
+      "nearHourBoundary": false,
+      "nearJieBoundary": false,
+      "nearLiChunBoundary": false,
+      "timezoneSensitive": false
+    },
+    "auditFlat": {
+      "birthLocal": "2026-05-05 23:46:00",
+      "birthAbsolute": "2026-05-05T16:46:00.000Z",
+      "clockForJieYun": "2026-05-06 00:46:00",
+      "libraryTermClock": "2026-05-06 00:46:00",
+      "prevJie": {
+        "name": "立夏",
+        "solar": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 19,
+          "minute": 48,
+          "second": 44
+        },
+        "ymdHms": "2026-05-05 19:48:44"
+      },
+      "nextJie": {
+        "name": "芒种",
+        "solar": {
+          "year": 2026,
+          "month": 6,
+          "day": 5,
+          "hour": 23,
+          "minute": 48,
+          "second": 21
+        },
+        "ymdHms": "2026-06-05 23:48:21"
+      },
+      "minutesFromPrevJie": 298,
+      "daysFromJie": 0.21,
+      "monthCommand": {
+        "branch": "巳",
+        "daysFromJie": 0.21,
+        "commandingStem": "戊",
+        "phase": "Mậu Thổ tư lệnh",
+        "phaseIndex": 0,
+        "mode": "ziPingZhenQuan_v1",
+        "ruleSet": "monthCommand.ziPingZhenQuan.v1",
+        "sourceId": "monthCommand.ziPingZhenQuan.v1",
+        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
+        "tableVersion": "1.0.0",
+        "method": "days_elapsed_from_month_jie",
+        "schedule": [
+          {
+            "stem": "戊",
+            "days": 5,
+            "label": "Mậu Thổ tư lệnh"
+          },
+          {
+            "stem": "庚",
+            "days": 9,
+            "label": "Canh Kim tư lệnh"
+          },
+          {
+            "stem": "丙",
+            "days": 16,
+            "label": "Bính Hỏa tư lệnh"
+          }
+        ],
+        "note": "Sau giao Jie ~0.21 ngày → Mậu Thổ tư lệnh."
+      },
+      "dayBoundaryMode": "midnight_00",
+      "dayPillar": "己卯",
+      "hourPillar": "丙子",
+      "relations": [
+        {
+          "type": "fiveElementControl",
+          "name": "水克火",
+          "nameVi": "水 khắc 火",
+          "members": [
+            "month.gan.癸",
+            "year.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "year.gan.丙",
+            "day.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "土克水",
+          "nameVi": "土 khắc 水",
+          "members": [
+            "day.gan.己",
+            "month.gan.癸"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementControl",
+          "name": "水克火",
+          "nameVi": "水 khắc 火",
+          "members": [
+            "month.gan.癸",
+            "hour.gan.丙"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.control.v1"
+        },
+        {
+          "type": "fiveElementGenerate",
+          "name": "火生土",
+          "nameVi": "火 sinh 土",
+          "members": [
+            "hour.gan.丙",
+            "day.gan.己"
+          ],
+          "evidence": "ngũ hành thiên can",
+          "sourceId": "relations.fiveElement.generate.v1"
+        },
+        {
+          "type": "branchDestruction",
+          "name": "卯午破",
+          "nameVi": "卯午 phá",
+          "members": [
+            "year.zhi.午",
+            "day.zhi.卯"
+          ],
+          "evidence": "địa chi 午卯",
+          "sourceId": "relations.branchDestruction.v1"
+        },
+        {
+          "type": "branchClash",
+          "name": "子午冲",
+          "nameVi": "子午 xung",
+          "members": [
+            "year.zhi.午",
+            "hour.zhi.子"
+          ],
+          "evidence": "địa chi 午子",
+          "sourceId": "relations.branchClash.v1"
+        },
+        {
+          "type": "branchPunishmentPair",
+          "name": "子卯刑",
+          "nameVi": "子卯 hình",
+          "members": [
+            "day.zhi.卯",
+            "hour.zhi.子"
+          ],
+          "evidence": "vô lễ hình",
+          "sourceId": "relations.branchPunishment.wuli.v1"
+        }
+      ],
+      "yunStartRaw": {
+        "year": 2026,
+        "month": 5,
+        "day": 30,
+        "hour": 20,
+        "minute": 46,
+        "second": 0,
+        "ymdHms": "2026-05-30 20:46:00"
+      },
+      "yunStartLocal": {
+        "year": 2026,
+        "month": 5,
+        "day": 30,
+        "hour": 19,
+        "minute": 46,
+        "second": 0,
+        "ymdHms": "2026-05-30 19:46:00"
+      },
+      "usefulGod": null,
+      "directions": null
+    },
     "rawDebug10": {
       "birthLocal": "2026-05-05 23:46:00",
       "birthAbsolute": "2026-05-05T16:46:00.000Z",
@@ -11637,6 +12538,404 @@
         "ymdHms": "2026-05-30 19:46:00"
       }
     }
+  },
+  "caseAAuditFlat": {
+    "birthLocal": "1986-11-12 17:45:00",
+    "birthAbsolute": "1986-11-12T10:45:00.000Z",
+    "clockForJieYun": "1986-11-12 17:45:00",
+    "libraryTermClock": "1986-11-12 17:45:00",
+    "prevJie": {
+      "name": "立冬",
+      "solar": {
+        "year": 1986,
+        "month": 11,
+        "day": 8,
+        "hour": 1,
+        "minute": 12,
+        "second": 49
+      },
+      "ymdHms": "1986-11-08 01:12:49"
+    },
+    "nextJie": {
+      "name": "大雪",
+      "solar": {
+        "year": 1986,
+        "month": 12,
+        "day": 7,
+        "hour": 18,
+        "minute": 0,
+        "second": 56
+      },
+      "ymdHms": "1986-12-07 18:00:56"
+    },
+    "minutesFromPrevJie": 6753,
+    "daysFromJie": 4.69,
+    "monthCommand": {
+      "branch": "亥",
+      "daysFromJie": 4.69,
+      "commandingStem": "戊",
+      "phase": "Mậu Thổ tư lệnh",
+      "phaseIndex": 0,
+      "mode": "ziPingZhenQuan_v1",
+      "ruleSet": "monthCommand.ziPingZhenQuan.v1",
+      "sourceId": "monthCommand.ziPingZhenQuan.v1",
+      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
+      "tableVersion": "1.0.0",
+      "method": "days_elapsed_from_month_jie",
+      "schedule": [
+        {
+          "stem": "戊",
+          "days": 7,
+          "label": "Mậu Thổ tư lệnh"
+        },
+        {
+          "stem": "甲",
+          "days": 7,
+          "label": "Giáp Mộc tư lệnh"
+        },
+        {
+          "stem": "壬",
+          "days": 16,
+          "label": "Nhâm Thủy tư lệnh"
+        }
+      ],
+      "note": "Sau giao Jie ~4.69 ngày → Mậu Thổ tư lệnh."
+    },
+    "dayBoundaryMode": "midnight_00",
+    "dayPillar": "庚申",
+    "hourPillar": "乙酉",
+    "relations": [
+      {
+        "type": "fiveElementGenerate",
+        "name": "火生土",
+        "nameVi": "火 sinh 土",
+        "members": [
+          "year.gan.丙",
+          "month.gan.己"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.generate.v1"
+      },
+      {
+        "type": "fiveElementControl",
+        "name": "火克金",
+        "nameVi": "火 khắc 金",
+        "members": [
+          "year.gan.丙",
+          "day.gan.庚"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.control.v1"
+      },
+      {
+        "type": "fiveElementGenerate",
+        "name": "木生火",
+        "nameVi": "木 sinh 火",
+        "members": [
+          "hour.gan.乙",
+          "year.gan.丙"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.generate.v1"
+      },
+      {
+        "type": "fiveElementGenerate",
+        "name": "土生金",
+        "nameVi": "土 sinh 金",
+        "members": [
+          "month.gan.己",
+          "day.gan.庚"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.generate.v1"
+      },
+      {
+        "type": "fiveElementControl",
+        "name": "木克土",
+        "nameVi": "木 khắc 土",
+        "members": [
+          "hour.gan.乙",
+          "month.gan.己"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.control.v1"
+      },
+      {
+        "type": "stemCombination",
+        "name": "乙庚合",
+        "nameVi": "乙庚 hợp",
+        "members": [
+          "day.gan.庚",
+          "hour.gan.乙"
+        ],
+        "evidence": "thiên can 庚乙",
+        "sourceId": "relations.stemCombination.wuHe.v1",
+        "transformStatus": "combineOnly"
+      },
+      {
+        "type": "fiveElementControl",
+        "name": "金克木",
+        "nameVi": "金 khắc 木",
+        "members": [
+          "day.gan.庚",
+          "hour.gan.乙"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.control.v1"
+      },
+      {
+        "type": "branchSixHarmony",
+        "name": "寅亥合",
+        "nameVi": "寅亥 hợp",
+        "members": [
+          "year.zhi.寅",
+          "month.zhi.亥"
+        ],
+        "evidence": "địa chi 寅亥",
+        "sourceId": "relations.branchSixHarmony.v1",
+        "transformStatus": "combineOnly"
+      },
+      {
+        "type": "branchDestruction",
+        "name": "寅亥破",
+        "nameVi": "寅亥 phá",
+        "members": [
+          "year.zhi.寅",
+          "month.zhi.亥"
+        ],
+        "evidence": "địa chi 寅亥",
+        "sourceId": "relations.branchDestruction.v1"
+      },
+      {
+        "type": "branchClash",
+        "name": "寅申冲",
+        "nameVi": "寅申 xung",
+        "members": [
+          "year.zhi.寅",
+          "day.zhi.申"
+        ],
+        "evidence": "địa chi 寅申",
+        "sourceId": "relations.branchClash.v1"
+      },
+      {
+        "type": "branchHarm",
+        "name": "申亥害",
+        "nameVi": "申亥 hại",
+        "members": [
+          "month.zhi.亥",
+          "day.zhi.申"
+        ],
+        "evidence": "địa chi 亥申",
+        "sourceId": "relations.branchHarm.v1"
+      },
+      {
+        "type": "branchPunishmentPair",
+        "name": "寅申刑",
+        "nameVi": "寅申 hình",
+        "members": [
+          "year.zhi.寅",
+          "day.zhi.申"
+        ],
+        "evidence": "tam hình thiếu chi (2/3 của 寅巳申) — không gắn tên đủ bộ",
+        "sourceId": "relations.branchPunishment.pair.v1"
+      }
+    ],
+    "yunStartRaw": {
+      "year": 1995,
+      "month": 3,
+      "day": 13,
+      "hour": 23,
+      "minute": 45,
+      "second": 0,
+      "ymdHms": "1995-03-13 23:45:00"
+    },
+    "yunStartLocal": {
+      "year": 1995,
+      "month": 3,
+      "day": 13,
+      "hour": 23,
+      "minute": 45,
+      "second": 0,
+      "ymdHms": "1995-03-13 23:45:00"
+    },
+    "usefulGod": null,
+    "directions": null
+  },
+  "caseBInstantAuditFlat": {
+    "birthLocal": "2026-05-05 23:46:00",
+    "birthAbsolute": "2026-05-05T16:46:00.000Z",
+    "clockForJieYun": "2026-05-06 00:46:00",
+    "libraryTermClock": "2026-05-06 00:46:00",
+    "prevJie": {
+      "name": "立夏",
+      "solar": {
+        "year": 2026,
+        "month": 5,
+        "day": 5,
+        "hour": 19,
+        "minute": 48,
+        "second": 44
+      },
+      "ymdHms": "2026-05-05 19:48:44"
+    },
+    "nextJie": {
+      "name": "芒种",
+      "solar": {
+        "year": 2026,
+        "month": 6,
+        "day": 5,
+        "hour": 23,
+        "minute": 48,
+        "second": 21
+      },
+      "ymdHms": "2026-06-05 23:48:21"
+    },
+    "minutesFromPrevJie": 298,
+    "daysFromJie": 0.21,
+    "monthCommand": {
+      "branch": "巳",
+      "daysFromJie": 0.21,
+      "commandingStem": "戊",
+      "phase": "Mậu Thổ tư lệnh",
+      "phaseIndex": 0,
+      "mode": "ziPingZhenQuan_v1",
+      "ruleSet": "monthCommand.ziPingZhenQuan.v1",
+      "sourceId": "monthCommand.ziPingZhenQuan.v1",
+      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
+      "tableVersion": "1.0.0",
+      "method": "days_elapsed_from_month_jie",
+      "schedule": [
+        {
+          "stem": "戊",
+          "days": 5,
+          "label": "Mậu Thổ tư lệnh"
+        },
+        {
+          "stem": "庚",
+          "days": 9,
+          "label": "Canh Kim tư lệnh"
+        },
+        {
+          "stem": "丙",
+          "days": 16,
+          "label": "Bính Hỏa tư lệnh"
+        }
+      ],
+      "note": "Sau giao Jie ~0.21 ngày → Mậu Thổ tư lệnh."
+    },
+    "dayBoundaryMode": "midnight_00",
+    "dayPillar": "己卯",
+    "hourPillar": "丙子",
+    "relations": [
+      {
+        "type": "fiveElementControl",
+        "name": "水克火",
+        "nameVi": "水 khắc 火",
+        "members": [
+          "month.gan.癸",
+          "year.gan.丙"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.control.v1"
+      },
+      {
+        "type": "fiveElementGenerate",
+        "name": "火生土",
+        "nameVi": "火 sinh 土",
+        "members": [
+          "year.gan.丙",
+          "day.gan.己"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.generate.v1"
+      },
+      {
+        "type": "fiveElementControl",
+        "name": "土克水",
+        "nameVi": "土 khắc 水",
+        "members": [
+          "day.gan.己",
+          "month.gan.癸"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.control.v1"
+      },
+      {
+        "type": "fiveElementControl",
+        "name": "水克火",
+        "nameVi": "水 khắc 火",
+        "members": [
+          "month.gan.癸",
+          "hour.gan.丙"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.control.v1"
+      },
+      {
+        "type": "fiveElementGenerate",
+        "name": "火生土",
+        "nameVi": "火 sinh 土",
+        "members": [
+          "hour.gan.丙",
+          "day.gan.己"
+        ],
+        "evidence": "ngũ hành thiên can",
+        "sourceId": "relations.fiveElement.generate.v1"
+      },
+      {
+        "type": "branchDestruction",
+        "name": "卯午破",
+        "nameVi": "卯午 phá",
+        "members": [
+          "year.zhi.午",
+          "day.zhi.卯"
+        ],
+        "evidence": "địa chi 午卯",
+        "sourceId": "relations.branchDestruction.v1"
+      },
+      {
+        "type": "branchClash",
+        "name": "子午冲",
+        "nameVi": "子午 xung",
+        "members": [
+          "year.zhi.午",
+          "hour.zhi.子"
+        ],
+        "evidence": "địa chi 午子",
+        "sourceId": "relations.branchClash.v1"
+      },
+      {
+        "type": "branchPunishmentPair",
+        "name": "子卯刑",
+        "nameVi": "子卯 hình",
+        "members": [
+          "day.zhi.卯",
+          "hour.zhi.子"
+        ],
+        "evidence": "vô lễ hình",
+        "sourceId": "relations.branchPunishment.wuli.v1"
+      }
+    ],
+    "yunStartRaw": {
+      "year": 2026,
+      "month": 5,
+      "day": 30,
+      "hour": 20,
+      "minute": 46,
+      "second": 0,
+      "ymdHms": "2026-05-30 20:46:00"
+    },
+    "yunStartLocal": {
+      "year": 2026,
+      "month": 5,
+      "day": 30,
+      "hour": 19,
+      "minute": 46,
+      "second": 0,
+      "ymdHms": "2026-05-30 19:46:00"
+    },
+    "usefulGod": null,
+    "directions": null
   },
   "caseBRaw10": {
     "birthLocal": "2026-05-05 23:46:00",
@@ -11797,6 +13096,5 @@
       "second": 0,
       "ymdHms": "2026-05-30 19:46:00"
     }
-  },
-  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (26 tests) 74ms\n Test Files  1 passed (1)\n      Tests  26 passed (26)"
+  }
 }
