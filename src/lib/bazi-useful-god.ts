@@ -1,5 +1,7 @@
 /**
- * Simplified 用神 (Dụng thần) + favorable directions for display.
+ * @deprecated Core Calculator MUST NOT call these functions.
+ * Kept only for historical reference / offline experiments.
+ * Useful-god belongs to Structural Reasoning Engine (not implemented yet).
  */
 
 import type { BaZiChartResult } from "./astrology-engine";
@@ -20,22 +22,6 @@ const CONTROLS: Record<string, string> = {
   Thủy: "Hỏa",
   Hỏa: "Kim",
   Kim: "Mộc",
-};
-
-const ELEMENT_DIRECTIONS_GOOD: Record<string, string[]> = {
-  Mộc: ["Đông", "Đông Nam"],
-  Hỏa: ["Nam", "Đông Nam"],
-  Thổ: ["Tây Nam", "Đông Bắc", "Tây Bắc"],
-  Kim: ["Tây", "Tây Bắc"],
-  Thủy: ["Bắc", "Tây"],
-};
-
-const ELEMENT_DIRECTIONS_BAD: Record<string, string[]> = {
-  Mộc: ["Tây", "Tây Bắc"],
-  Hỏa: ["Bắc", "Tây Bắc"],
-  Thổ: ["Đông", "Đông Nam"],
-  Kim: ["Nam", "Đông Nam"],
-  Thủy: ["Tây Nam", "Đông Bắc"],
 };
 
 export interface UsefulGodResult {
@@ -67,6 +53,7 @@ function drainingElements(dayElement: string): string[] {
   return [output, wealth, officer].filter(Boolean);
 }
 
+/** @deprecated Do not use in Core or UI conclusions. */
 export function computeUsefulGod(chart: BaZiChartResult): UsefulGodResult {
   const dayElement = stemElement(chart.dayMaster);
   const monthElement = branchElement(chart.pillars.month.zhi);
@@ -96,7 +83,7 @@ export function computeUsefulGod(chart: BaZiChartResult): UsefulGodResult {
         (a, b) => elementScore(chart, b) - elementScore(chart, a),
       )[0] ?? dayElement;
     polarity = "tả tức";
-    reason = "Nhật chủ vượng — dụng thần tả tiết, khối chế quá vượng.";
+    reason = "[DEPRECATED heuristic] Nhật chủ vượng — tả tiết.";
   } else {
     const candidates = supportingElements(dayElement);
     element =
@@ -104,7 +91,7 @@ export function computeUsefulGod(chart: BaZiChartResult): UsefulGodResult {
         (a, b) => elementScore(chart, a) - elementScore(chart, b),
       )[0] ?? dayElement;
     polarity = "hỗ trợ";
-    reason = "Nhật chủ nhược — dụng thần sinh phù, bổ khuyết.";
+    reason = "[DEPRECATED heuristic] Nhật chủ nhược — sinh phù.";
   }
 
   const stem = representativeStemForElement(element);
@@ -116,9 +103,7 @@ export function computeUsefulGod(chart: BaZiChartResult): UsefulGodResult {
   };
 }
 
-export function computeDirections(usefulElement: string): DirectionResult {
-  return {
-    good: ELEMENT_DIRECTIONS_GOOD[usefulElement] ?? [],
-    bad: ELEMENT_DIRECTIONS_BAD[usefulElement] ?? [],
-  };
+/** @deprecated Do not use in Core or UI conclusions. */
+export function computeDirections(_usefulElement: string): DirectionResult {
+  return { good: [], bad: [] };
 }

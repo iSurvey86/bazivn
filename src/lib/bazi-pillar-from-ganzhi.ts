@@ -10,21 +10,19 @@ import {
   tenGodToVi,
 } from "./bazi-terminology";
 import { stemDisplayVi } from "./bazi-shen-sha";
+import { getChangSheng } from "./core/chang-sheng";
+import {
+  getHiddenStemsWithRoles,
+  type HiddenStemRole,
+} from "./core/hidden-stems";
 
 export interface HiddenStemCompact {
   gan: string;
   ganVi: string;
   tenGod: string;
   tenGodVi: string;
+  role: HiddenStemRole;
 }
-
-const ZHI_INDEX: Record<string, number> = Object.fromEntries(
-  (LunarUtil.ZHI as string[]).map((z, i) => [z, i]),
-);
-
-const GAN_INDEX: Record<string, number> = Object.fromEntries(
-  (LunarUtil.GAN as string[]).map((g, i) => [g, i]),
-);
 
 export interface CompactPillarDetail {
   gan: string;
@@ -40,19 +38,6 @@ export interface CompactPillarDetail {
   xunVi: string;
   xunKong: string;
   xunKongVi: string;
-}
-
-function diShiForBranch(dayGan: string, zhi: string): string {
-  const offset = LunarUtil.CHANG_SHENG_OFFSET[dayGan];
-  const zhiIndex = ZHI_INDEX[zhi];
-  const ganIndex = GAN_INDEX[dayGan];
-  if (offset === undefined || zhiIndex === undefined || ganIndex === undefined) {
-    return "";
-  }
-  let index = offset + (ganIndex % 2 === 0 ? zhiIndex : -zhiIndex);
-  if (index >= 12) index -= 12;
-  if (index < 0) index += 12;
-  return (LunarUtil.CHANG_SHENG as string[])[index] ?? "";
 }
 
 function tenGodForStem(dayGan: string, targetGan: string): string {
@@ -79,16 +64,17 @@ export function pillarFromGanZhi(
 ): CompactPillarDetail {
   const gan = ganZhi[0] ?? "";
   const zhi = ganZhi[1] ?? "";
-  const hideGanRaw = (LunarUtil.ZHI_HIDE_GAN[zhi] ?? []) as string[];
-  const tenGodZhi = hideGanRaw.map((g) => tenGodForStem(dayGan, g));
-  const hideGan: HiddenStemCompact[] = hideGanRaw.map((g, i) => ({
-    gan: g,
-    ganVi: stemDisplayVi(g),
+  const hideWithRoles = getHiddenStemsWithRoles(zhi);
+  const tenGodZhi = hideWithRoles.map((h) => tenGodForStem(dayGan, h.gan));
+  const hideGan: HiddenStemCompact[] = hideWithRoles.map((h, i) => ({
+    gan: h.gan,
+    ganVi: stemDisplayVi(h.gan),
     tenGod: tenGodZhi[i] ?? "",
     tenGodVi: tenGodToVi(tenGodZhi[i] ?? ""),
+    role: h.role,
   }));
   const naYin = LunarUtil.NAYIN[ganZhi] ?? "";
-  const diShi = diShiForBranch(dayGan, zhi);
+  const diShi = getChangSheng(dayGan, zhi);
   const xun = LunarUtil.getXun(ganZhi);
   const xunKong = LunarUtil.getXunKong(xun);
 

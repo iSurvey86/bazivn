@@ -180,6 +180,25 @@ export function naYinToVi(naYin: string) {
   return NA_YIN_VI[naYin] ?? naYin;
 }
 
+/** Ngũ hành của Nạp âm (từ chữ Hán hoặc nhãn Việt). */
+export function naYinElement(naYinOrVi: string): string {
+  if (!naYinOrVi) return "";
+  const zhLast = naYinOrVi[naYinOrVi.length - 1] ?? "";
+  const fromZh: Record<string, string> = {
+    金: "Kim",
+    木: "Mộc",
+    水: "Thủy",
+    火: "Hỏa",
+    土: "Thổ",
+  };
+  if (fromZh[zhLast]) return fromZh[zhLast];
+
+  for (const el of ["Kim", "Mộc", "Thủy", "Hỏa", "Thổ"] as const) {
+    if (naYinOrVi.endsWith(el)) return el;
+  }
+  return "";
+}
+
 export function solarTermToVi(term: string | null) {
   if (!term) return null;
   return SOLAR_TERM_VI[term] ?? term;

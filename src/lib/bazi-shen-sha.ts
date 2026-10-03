@@ -1,13 +1,22 @@
 /**
- * Classic BaZi pillar Shen Sha (神煞) rules — Vietnamese labels.
+ * Auxiliary Shen Sha (神煞) — phụ chứng only.
+ * Lộc / Nhận live in dayMasterQiStates (core/daymaster-qi.ts), not here.
  */
 
 import { STEM_VI } from "./bazi-terminology";
 
+export type ShenShaWeightClass = "auxiliary";
+
 export interface ShenShaItem {
   key: string;
   name: string;
-  type: "cat" | "hung";
+  /** @deprecated Display tone only — not logical weight. */
+  type?: "cat" | "hung" | "auxiliary";
+  /** Optional traditional folk label — not used as logic weight. */
+  traditionalTone?: "thien_cat" | "thien_hung" | "trung_tinh";
+  weightClass: ShenShaWeightClass;
+  sourceId?: string;
+  aliases?: string[];
 }
 
 export interface ShenShaYuanJu {
@@ -41,27 +50,6 @@ const DAY_STEM_WEN_CHANG: Record<string, string> = {
   壬: "寅",
   癸: "卯",
   己: "酉",
-};
-
-const DAY_STEM_LU: Record<string, string> = {
-  甲: "寅",
-  乙: "卯",
-  丙: "巳",
-  丁: "午",
-  戊: "巳",
-  己: "午",
-  庚: "申",
-  辛: "酉",
-  壬: "亥",
-  癸: "子",
-};
-
-const DAY_STEM_YANG_REN: Record<string, string> = {
-  甲: "卯",
-  丙: "午",
-  戊: "午",
-  庚: "酉",
-  壬: "子",
 };
 
 const DAY_STEM_BLOOD: Record<string, string> = {
@@ -167,20 +155,7 @@ const TAI_SATS: Record<string, string> = {
   未: "辰",
 };
 
-const HAM_CHI: Record<string, string> = {
-  亥: "子",
-  卯: "子",
-  未: "子",
-  寅: "卯",
-  午: "卯",
-  戌: "卯",
-  巳: "午",
-  酉: "午",
-  丑: "午",
-  申: "酉",
-  子: "酉",
-  辰: "酉",
-};
+/** Hàm Trì ≡ Đào Hoa (cùng bảng) — không dùng bảng riêng. */
 
 const GENERAL_STAR: Record<string, string> = {
   寅: "午",
@@ -227,7 +202,11 @@ const WIDOW_STAR: Record<string, string> = {
   丑: "戌",
 };
 
-const HEAVEN_HOOK_MONTH: Record<string, string> = {
+/**
+ * 天勾 — tháng chi +3 (命前三辰 pattern).
+ * Không phải 天狗 (lookup khác). Trước đây mistype "Thiên Cầu/Cẩu".
+ */
+const HEAVEN_GOU_MONTH: Record<string, string> = {
   寅: "巳",
   卯: "午",
   辰: "未",
@@ -242,14 +221,25 @@ const HEAVEN_HOOK_MONTH: Record<string, string> = {
   丑: "辰",
 };
 
+/** displayTone / traditionalTone: thuộc tính truyền thống — không phải trọng số logic. */
 function add(
   list: ShenShaItem[],
   key: string,
   name: string,
-  type: ShenShaItem["type"] = "cat",
+  sourceId?: string,
+  displayTone: "cat" | "hung" = "cat",
+  aliases?: string[],
 ) {
   if (!list.some((item) => item.key === key)) {
-    list.push({ key, name, type });
+    list.push({
+      key,
+      name,
+      type: displayTone,
+      traditionalTone: displayTone === "hung" ? "thien_hung" : "thien_cat",
+      weightClass: "auxiliary",
+      sourceId,
+      aliases,
+    });
   }
 }
 
@@ -266,40 +256,68 @@ function starsForBranch(
   const { dayStem, dayBranch, yearBranch, monthBranch } = refs;
 
   for (const zhi of DAY_STEM_NOBLE[dayStem] ?? []) {
-    if (pillarZhi === zhi) add(stars, "noble", "Thiên Ất Quý Nhân");
+    if (pillarZhi === zhi) {
+      add(stars, "noble", "Thiên Ất Quý Nhân", "shensha.tianyi.v1", "cat");
+    }
   }
 
   if (pillarZhi === DAY_STEM_WEN_CHANG[dayStem]) {
-    add(stars, "wenchang", "Văn Xương");
+    add(stars, "wenchang", "Văn Xương", "shensha.wenchang.v1", "cat");
   }
 
-  if (pillarZhi === DAY_STEM_LU[dayStem]) {
-    add(stars, "lu", "Lộc Thần");
-  }
-
-  if (pillarZhi === DAY_STEM_YANG_REN[dayStem]) {
-    add(stars, "yangren", "Dương Nhẫn", "hung");
-  }
+  // Lộc / Dương Nhận: removed — see computeDayMasterQiStates
 
   if (pillarZhi === DAY_STEM_BLOOD[dayStem]) {
-    add(stars, "blood", "Huyết Nhẫn", "hung");
+    add(stars, "blood", "Huyết Nhận", "shensha.xueren.v1", "hung");
   }
 
   for (const base of [dayBranch, yearBranch]) {
-    if (PEACH_BLOSSOM[base] === pillarZhi) add(stars, "peach", "Đào Hoa");
-    if (TRAVELING_HORSE[base] === pillarZhi) add(stars, "horse", "Dịch Mã");
-    if (CANOPY[base] === pillarZhi) add(stars, "canopy", "Hoa Cái");
-    if (JIE_SHA[base] === pillarZhi) add(stars, "jie", "Kiếp Sát", "hung");
-    if (VOID_SPIRIT[base] === pillarZhi) add(stars, "void", "Vong Thần", "hung");
-    if (TAI_SATS[base] === pillarZhi) add(stars, "tai", "Tai Sát", "hung");
-    if (HAM_CHI[base] === pillarZhi) add(stars, "hamchi", "Hàm Trì");
-    if (GENERAL_STAR[base] === pillarZhi) add(stars, "general", "Tướng Tinh");
-    if (LONELY_STAR[base] === pillarZhi) add(stars, "lonely", "Cô Thần", "hung");
-    if (WIDOW_STAR[base] === pillarZhi) add(stars, "widow", "Quả Tú", "hung");
+    // 桃花 = 咸池 — một entity duy nhất
+    if (PEACH_BLOSSOM[base] === pillarZhi) {
+      add(
+        stars,
+        "tao_hua_xian_chi",
+        "Đào Hoa (Hàm Trì)",
+        "shensha.taohua_xianchi.yearOrDay.v1",
+        "cat",
+        ["Đào Hoa", "Hàm Trì", "桃花", "咸池"],
+      );
+    }
+    if (TRAVELING_HORSE[base] === pillarZhi) {
+      add(stars, "horse", "Dịch Mã", "shensha.yima.yearOrDay.v1", "cat");
+    }
+    if (CANOPY[base] === pillarZhi) {
+      add(stars, "canopy", "Hoa Cái", "shensha.huagai.v1", "cat");
+    }
+    if (JIE_SHA[base] === pillarZhi) {
+      add(stars, "jie", "Kiếp Sát", "shensha.jiesha.v1", "hung");
+    }
+    if (VOID_SPIRIT[base] === pillarZhi) {
+      add(stars, "void", "Vong Thần", "shensha.wangshen.v1", "hung");
+    }
+    if (TAI_SATS[base] === pillarZhi) {
+      add(stars, "tai", "Tai Sát", "shensha.taisha.v1", "hung");
+    }
+    if (GENERAL_STAR[base] === pillarZhi) {
+      add(stars, "general", "Tướng Tinh", "shensha.jiangxing.v1", "cat");
+    }
+    if (LONELY_STAR[base] === pillarZhi) {
+      add(stars, "lonely", "Cô Thần", "shensha.guchen.v1", "hung");
+    }
+    if (WIDOW_STAR[base] === pillarZhi) {
+      add(stars, "widow", "Quả Tú", "shensha.guasu.v1", "hung");
+    }
   }
 
-  if (HEAVEN_HOOK_MONTH[monthBranch] === pillarZhi) {
-    add(stars, "hook", "Thiên Cầu", "hung");
+  if (HEAVEN_GOU_MONTH[monthBranch] === pillarZhi) {
+    add(
+      stars,
+      "tian_gou",
+      "Thiên Câu",
+      "shensha.tiangou.monthPlus3.v1",
+      "hung",
+      ["Thiên Cẩu", "Thiên Cầu", "天勾"],
+    );
   }
 
   return stars;
