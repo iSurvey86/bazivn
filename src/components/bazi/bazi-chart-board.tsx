@@ -63,6 +63,7 @@ export function BaziChartBoard({
       <BaziClassicChart
         ref={chartRef}
         chart={chart}
+        chartId={chartId}
         fullName={fullName}
         birthPlace={birthPlace}
         referenceYear={referenceYear}

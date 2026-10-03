@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         birthPlace: input.birthPlace ?? null,
         gender: input.gender,
         chart,
+        unknownHour: input.unknownHour,
       });
       chartId = saved.id;
     }

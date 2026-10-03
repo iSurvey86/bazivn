@@ -20,6 +20,7 @@ import {
 } from "@/lib/bazi-theme";
 import { BaziCloudDecor } from "./bazi-chart-decor";
 import { BaziDayunDetailPanel } from "./bazi-dayun-detail-panel";
+import { ReadingRegisterModal } from "@/components/reading/reading-register-modal";
 
 const SHEN_SHA_TEXT = {
   cat: "#2d5a40",
@@ -39,6 +40,8 @@ const C = {
   titleAccent: "#c45c26",
   downloadBg: "#c45c26",
   downloadHover: "#a34a1c",
+  readingBg: "#2f6f5e",
+  readingHover: "#255a4c",
   ink: "#000000",
 } as const;
 
@@ -60,6 +63,7 @@ const PILLAR_HEADERS: Record<PillarKey, string> = {
 
 type BaziClassicChartProps = {
   chart: BaZiChartResult;
+  chartId?: string | null;
   fullName?: string | null;
   birthPlace?: string | null;
   referenceYear: number;
@@ -339,6 +343,7 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
   function BaziClassicChart(
     {
       chart,
+      chartId = null,
       fullName,
       birthPlace,
       referenceYear,
@@ -358,12 +363,14 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
     const [selectedDaYunIndex, setSelectedDaYunIndex] = useState<number | null>(
       null,
     );
+    const [readingOpen, setReadingOpen] = useState(false);
     const selectedDaYun: DaYunDetail | null =
       selectedDaYunIndex == null
         ? null
         : (chart.yun.daYun.find((d) => d.index === selectedDaYunIndex) ?? null);
 
     return (
+      <>
       <div
         ref={ref}
         className="bazi-chart-crisp bazi-chart-export overflow-hidden border"
@@ -674,7 +681,7 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
           </table>
         </div>
 
-        {/* Đại vận — Export: 5 dòng; Web: click mở panel chi tiết */}
+        {/* Đại vận — cột đều: CanChi + 2 dòng phó tinh + Trường sinh + tuổi + năm; Web: click mở panel */}
         <div className="border-t" style={{ borderColor: C.border }}>
           <SectionTitle tone="dayun">Đại Vận</SectionTitle>
           <div
@@ -690,10 +697,6 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                 referenceYear >= period.startYear &&
                 referenceYear <= period.endYear;
               const selected = selectedDaYunIndex === period.index;
-              const tenLine = [
-                period.tenGodGanVi || "—",
-                period.tenGodChiMainVi || "—",
-              ].join(" · ");
               return (
                 <button
                   key={period.index}
@@ -703,7 +706,7 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                       cur === period.index ? null : period.index,
                     )
                   }
-                  className="bazi-compact-pillar flex min-w-0 flex-col items-center gap-0.5 border-r px-1 py-1.5 text-center font-inherit last:border-r-0"
+                  className="bazi-compact-pillar flex h-full min-w-0 flex-col items-center gap-0.5 border-r px-1 py-1.5 text-center font-inherit last:border-r-0"
                   style={{
                     borderColor: C.border,
                     backgroundColor:
@@ -720,11 +723,17 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                     size="xs"
                     layout="inline"
                   />
+                  {/* Phó tinh cố định 2 dòng — tránh cột nhấp nhổm khi tên dài */}
                   <span
-                    className="block w-full text-[9px] font-semibold leading-snug"
+                    className="grid h-[2.4em] w-full content-center text-[9px] font-semibold leading-tight"
                     style={{ color: C.ink }}
                   >
-                    {tenLine}
+                    <span className="block truncate">
+                      {period.tenGodGanVi || "—"}
+                    </span>
+                    <span className="block truncate">
+                      {period.tenGodChiMainVi || "—"}
+                    </span>
                   </span>
                   <span
                     className="block w-full text-[9px] font-medium"
@@ -1022,7 +1031,7 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
               </span>
             ))}
           </div>
-          <div className="bazi-no-export mt-3 flex justify-end">
+          <div className="bazi-no-export mt-3 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={onDownload}
@@ -1044,9 +1053,34 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
               </svg>
               {exporting ? "Đang tải ảnh…" : "Tải ảnh lá số"}
             </button>
+            <button
+              type="button"
+              onClick={() => setReadingOpen(true)}
+              className="inline-flex items-center gap-2 rounded-md px-5 py-2 text-sm font-medium text-white shadow-md transition hover:opacity-95"
+              style={{ backgroundColor: C.readingBg }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-4 w-4"
+                aria-hidden
+              >
+                <path d="M2.5 4.5A1.5 1.5 0 0 1 4 3h7.5a.75.75 0 0 1 0 1.5H4a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h7.25a.75.75 0 0 1 0 1.5H4A1.5 1.5 0 0 1 2.5 14.5v-10Z" />
+                <path d="M6 6.75A.75.75 0 0 1 6.75 6h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 6.75ZM6.75 9a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5h-1.5Z" />
+                <path d="M12.22 5.72a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-5.25 5.25a.75.75 0 0 1-.335.195l-2.5.625a.75.75 0 0 1-.91-.91l.625-2.5a.75.75 0 0 1 .195-.335l5.25-5.25Zm.53 1.59L15.19 9.75l-.97.97-2.44-2.44.97-.97Zm-1.5 1.5 2.44 2.44-3.03 3.03-.53-2.12 1.12-1.12.53-2.13Z" />
+              </svg>
+              Đăng ký luận giải
+            </button>
           </div>
         </div>
       </div>
+      <ReadingRegisterModal
+        open={readingOpen}
+        onClose={() => setReadingOpen(false)}
+        chartId={chartId}
+      />
+    </>
     );
   },
 );

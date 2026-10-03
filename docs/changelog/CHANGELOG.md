@@ -2,6 +2,23 @@
 
 Mới nhất ở trên. Chỉ thêm mục khi bump `version` trong `package.json`.
 
+## 0.3.0
+
+### Mới
+
+- Đăng ký luận giải / mệnh thư: chọn nguồn lá số, trường phái, khóa kiểm tra, thanh toán demo, cấp Mã mệnh thư.
+- Phương thức A (độc lập), B (nghiệm chứng quá khứ), C (hiệu chỉnh / tìm giờ sinh khi không rõ giờ).
+- Form sau thanh toán theo phương thức; QR thanh toán demo.
+
+### Cải thiện
+
+- Tick **Không rõ giờ sinh** trên form lập lá số và form sửa; dùng tạm 12:00, sau thanh toán mở C.
+- Mã mệnh thư alphabet an toàn, khóa lúc thanh toán; mô tả trường phái theo nhu cầu người dùng.
+
+### Sửa lỗi
+
+- Tách format mã khỏi module `fs` — hết lỗi build khi mở checkout trên client.
+
 ## 0.2.0
 
 ### Mới

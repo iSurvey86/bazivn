@@ -14,6 +14,8 @@ export interface SavedChartRecord {
   timezone: string;
   birthTimeUtc: string;
   baziData: BaZiChartResult;
+  /** Người dùng tick «Không rõ giờ sinh» lúc lập lá số */
+  unknownHour?: boolean;
   isPremium: boolean;
   createdAt: string;
 }
@@ -65,6 +67,7 @@ async function getChartLocal(id: string): Promise<SavedChartRecord | null> {
     return {
       ...record,
       birthPlace: record.birthPlace ?? null,
+      unknownHour: record.unknownHour ?? false,
       baziData: normalizeBaZiChart(record.baziData),
     };
   } catch {
@@ -77,6 +80,7 @@ export async function saveChart(params: {
   birthPlace?: string | null;
   gender: Gender;
   chart: BaZiChartResult;
+  unknownHour?: boolean;
 }): Promise<SavedChartRecord> {
   const id = randomUUID();
   const record: SavedChartRecord = {
@@ -87,6 +91,7 @@ export async function saveChart(params: {
     timezone: params.chart.timezone,
     birthTimeUtc: toBirthTimeUtc(params.chart),
     baziData: params.chart,
+    unknownHour: params.unknownHour ?? false,
     isPremium: false,
     createdAt: new Date().toISOString(),
   };

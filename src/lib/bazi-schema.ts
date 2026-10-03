@@ -17,6 +17,8 @@ export const baziCalculateSchema = z.object({
   timezone: z.string().min(1),
   /** Quy ước Giờ Tý — lưu kèm lá số (reproducibility). */
   dayBoundaryMode: dayBoundaryModeSchema.optional().default("midnight_00"),
+  /** Không rõ giờ sinh — vẫn tính placeholder (thường 12:00), gắn cờ để luận giải C. */
+  unknownHour: z.boolean().optional().default(false),
   save: z.boolean().optional().default(true),
 });
 

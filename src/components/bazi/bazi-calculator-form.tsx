@@ -12,6 +12,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { BaziButton, BaziCard, BaziField, BaziInput, BaziSelect } from "./bazi-ui";
+import { ReadingRegisterModal } from "@/components/reading/reading-register-modal";
 
 const TIMEZONE_OPTIONS = [
   { value: "Asia/Ho_Chi_Minh", label: "(GMT+07:00) Bangkok, Hanoi, Jakarta" },
@@ -46,6 +47,7 @@ export function BaziCalculatorForm() {
   const [year, setYear] = useState(1990);
   const [hour, setHour] = useState(12);
   const [minute, setMinute] = useState(0);
+  const [unknownHour, setUnknownHour] = useState(false);
   const [gender, setGender] = useState<Gender>("male");
   const [timezone, setTimezone] = useState("Asia/Ho_Chi_Minh");
   const [referenceYear, setReferenceYear] = useState(currentYear);
@@ -53,9 +55,13 @@ export function BaziCalculatorForm() {
     useState<DayBoundaryMode>("midnight_00");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [readingOpen, setReadingOpen] = useState(false);
 
   const maxDay = useMemo(() => daysInMonth(year, month), [year, month]);
-  const sensitiveHour = isDayBoundarySensitiveHour(hour);
+  const effectiveHour = unknownHour ? 12 : hour;
+  const effectiveMinute = unknownHour ? 0 : minute;
+  const sensitiveHour =
+    !unknownHour && isDayBoundarySensitiveHour(effectiveHour);
 
   useEffect(() => {
     if (!sensitiveHour) setDayBoundaryMode("midnight_00");
@@ -80,8 +86,8 @@ export function BaziCalculatorForm() {
         year,
         month,
         day: Math.min(day, maxDay),
-        hour,
-        minute,
+        hour: effectiveHour,
+        minute: effectiveMinute,
         second: 0,
       };
       const mid = calculateBaZi({
@@ -109,7 +115,17 @@ export function BaziCalculatorForm() {
     } catch {
       return null;
     }
-  }, [sensitiveHour, year, month, day, maxDay, hour, minute, gender, timezone]);
+  }, [
+    sensitiveHour,
+    year,
+    month,
+    day,
+    maxDay,
+    effectiveHour,
+    effectiveMinute,
+    gender,
+    timezone,
+  ]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -127,11 +143,12 @@ export function BaziCalculatorForm() {
           year,
           month,
           day: Math.min(day, maxDay),
-          hour,
-          minute,
+          hour: effectiveHour,
+          minute: effectiveMinute,
           second: 0,
           timezone,
           dayBoundaryMode: sensitiveHour ? dayBoundaryMode : "midnight_00",
+          unknownHour,
           save: true,
         }),
       });
@@ -236,6 +253,7 @@ export function BaziCalculatorForm() {
             <BaziSelect
               id="hour"
               value={hour}
+              disabled={unknownHour}
               onChange={(e) => setHour(Number(e.target.value))}
             >
               {Array.from({ length: 24 }, (_, i) => i).map((h) => (
@@ -249,6 +267,7 @@ export function BaziCalculatorForm() {
             <BaziSelect
               id="minute"
               value={minute}
+              disabled={unknownHour}
               onChange={(e) => setMinute(Number(e.target.value))}
             >
               {Array.from({ length: 60 }, (_, i) => i).map((m) => (
@@ -264,6 +283,31 @@ export function BaziCalculatorForm() {
             </BaziSelect>
           </BaziField>
         </div>
+
+        <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-border bg-surface-muted px-3 py-2.5 text-sm">
+          <input
+            type="checkbox"
+            className="mt-0.5 accent-[var(--accent)]"
+            checked={unknownHour}
+            onChange={(e) => {
+              const on = e.target.checked;
+              setUnknownHour(on);
+              if (on) {
+                setHour(12);
+                setMinute(0);
+              }
+            }}
+          />
+          <span>
+            <span className="font-semibold text-foreground">
+              Không rõ giờ sinh
+            </span>
+            <span className="mt-0.5 block text-xs text-muted">
+              Dùng tạm 12:00 để lập lá số; khi đăng ký luận giải sẽ mở phương
+              thức - hiệu chỉnh, tìm giờ sinh.
+            </span>
+          </span>
+        </label>
 
         {/* Giới tính · Múi giờ · Năm xem — 1 hàng */}
         <div className="grid grid-cols-[minmax(5.5rem,7rem)_minmax(0,1fr)_minmax(6.5rem,8rem)] gap-3">
@@ -358,10 +402,17 @@ export function BaziCalculatorForm() {
           </div>
         ) : null}
 
-        <div className="pt-1">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
           <BaziButton type="submit" disabled={isLoading}>
-            {isLoading ? t("form.calculating") : "Tạo lá số"}
+            {isLoading ? t("form.calculating") : t("form.submit")}
           </BaziButton>
+          <button
+            type="button"
+            onClick={() => setReadingOpen(true)}
+            className="inline-flex min-w-[8.5rem] items-center justify-center gap-2 rounded-lg bg-[#2f6f5e] px-6 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:opacity-95"
+          >
+            Đăng ký luận giải
+          </button>
         </div>
       </form>
 
@@ -370,6 +421,12 @@ export function BaziCalculatorForm() {
           {error}
         </div>
       ) : null}
+
+      <ReadingRegisterModal
+        open={readingOpen}
+        onClose={() => setReadingOpen(false)}
+        chartId={null}
+      />
     </BaziCard>
   );
 }

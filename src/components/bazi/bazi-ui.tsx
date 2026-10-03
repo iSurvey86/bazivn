@@ -170,7 +170,7 @@ export function BaziButton({
 
   return (
     <button
-      className={`inline-flex w-full cursor-pointer items-center justify-center rounded-lg px-4 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
+      className={`inline-flex w-auto min-w-[8.5rem] cursor-pointer items-center justify-center rounded-lg px-6 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
       {...props}
     >
       {children}

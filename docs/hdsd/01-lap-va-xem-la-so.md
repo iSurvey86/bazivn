@@ -4,7 +4,8 @@
 
 1. Vào trang chủ → **Lập lá số Bát Tự**, hoặc mở `/bazi`.
 2. Nhập họ tên, nơi sinh (tuỳ chọn), ngày giờ dương lịch, giới tính, múi giờ nơi sinh.
-3. Bấm **Tạo lá số**. Hệ thống tính trụ và mở trang xem lá số.
+3. Nếu không nhớ giờ: tick **Không rõ giờ sinh** (dùng tạm 12:00; đăng ký luận giải sẽ mở hiệu chỉnh).
+4. Bấm **Lập lá số**. Hệ thống tính trụ và mở trang xem lá số. Có thể **Đăng ký luận giải** từ form hoặc trang lá số — xem [02-dang-ky-luan-giai.md](./02-dang-ky-luan-giai.md).
 
 Giới tính ảnh hưởng chiều Đại vận. Giờ từ 23:00–23:59 áp dụng quy tắc Giờ Dạ Tý (trụ ngày giữ nguyên, trụ giờ sang Tý ngày kế).
 
