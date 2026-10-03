@@ -58,9 +58,9 @@ const SCHEDULE_ZI_PING_ZHEN_QUAN_V1: Record<string, MonthCommandPhase[]> = {
     { stem: "己", days: 18, label: "Kỷ Thổ tư lệnh" },
   ],
   申: [
-    { stem: "戊", days: 7, label: "Mậu Thổ tư lệnh" },
-    { stem: "壬", days: 7, label: "Nhâm Thủy tư lệnh" },
-    { stem: "庚", days: 16, label: "Canh Kim tư lệnh" },
+    { stem: "戊", days: 10, label: "Mậu Thổ tư lệnh" },
+    { stem: "壬", days: 3, label: "Nhâm Thủy tư lệnh" },
+    { stem: "庚", days: 17, label: "Canh Kim tư lệnh" },
   ],
   酉: [
     { stem: "庚", days: 10, label: "Canh Kim tư lệnh" },
@@ -73,8 +73,8 @@ const SCHEDULE_ZI_PING_ZHEN_QUAN_V1: Record<string, MonthCommandPhase[]> = {
   ],
   亥: [
     { stem: "戊", days: 7, label: "Mậu Thổ tư lệnh" },
-    { stem: "甲", days: 7, label: "Giáp Mộc tư lệnh" },
-    { stem: "壬", days: 16, label: "Nhâm Thủy tư lệnh" },
+    { stem: "甲", days: 5, label: "Giáp Mộc tư lệnh" },
+    { stem: "壬", days: 18, label: "Nhâm Thủy tư lệnh" },
   ],
   子: [
     { stem: "壬", days: 10, label: "Nhâm Thủy tư lệnh" },
@@ -95,8 +95,8 @@ export const MONTH_COMMAND_RULESETS: Record<
     mode: "ziPingZhenQuan_v1",
     sourceId: "monthCommand.ziPingZhenQuan.v1",
     sourceTitle:
-      "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-    tableVersion: "1.0.0",
+      "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+    tableVersion: "1.1.0",
     method: "days_elapsed_from_month_jie",
     schedule: SCHEDULE_ZI_PING_ZHEN_QUAN_V1,
   },

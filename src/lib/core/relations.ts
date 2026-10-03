@@ -18,6 +18,8 @@ export type RelationType =
   | "branchDestruction"
   | "branchThreeHarmony"
   | "branchHalfHarmony"
+  /** 2/3 tam hợp thiếu trung thần (拱合) */
+  | "branchArchHarmony"
   | "branchThreeMeeting";
 
 /** @deprecated Use branchPunishmentPair | branchThreePunishment | branchSelfPunishment */
@@ -113,7 +115,12 @@ const BRANCH_DESTRUCTION: [string, string, string][] = [
   ["未", "戌", "未戌破"],
 ];
 
-const THREE_HARMONY: { members: string[]; name: string; nameVi: string }[] = [
+/** members ordered head–middle–tail; middle = trung thần (bán hợp cần có). */
+const THREE_HARMONY: {
+  members: [string, string, string];
+  name: string;
+  nameVi: string;
+}[] = [
   { members: ["申", "子", "辰"], name: "申子辰合水", nameVi: "Thân Tý Thìn hợp Thủy" },
   { members: ["寅", "午", "戌"], name: "寅午戌合火", nameVi: "Dần Ngọ Tuất hợp Hỏa" },
   { members: ["巳", "酉", "丑"], name: "巳酉丑合金", nameVi: "Tỵ Dậu Sửu hợp Kim" },
@@ -156,6 +163,7 @@ const SRC = {
   punishWuLi: "relations.branchPunishment.wuli.v1",
   threeHarmony: "relations.branchThreeHarmony.v1",
   halfHarmony: "relations.branchHalfHarmony.v1",
+  archHarmony: "relations.branchArchHarmony.v1",
   threeMeeting: "relations.branchThreeMeeting.v1",
 } as const;
 
@@ -360,26 +368,41 @@ export function computeStemBranchRelations(pillars: {
 
   for (const group of THREE_HARMONY) {
     const hit = group.members.filter((z) => zhiSet.has(z));
+    const middle = group.members[1];
     if (hit.length === 3) {
       push({
         type: "branchThreeHarmony",
         name: group.name,
         nameVi: group.nameVi,
-        members: zhiMembers(group.members),
+        members: zhiMembers([...group.members]),
         evidence: "đủ tam hợp — Core không khẳng định đã hóa",
         sourceId: SRC.threeHarmony,
         transformStatus: "transformCandidate",
       });
     } else if (hit.length === 2) {
-      push({
-        type: "branchHalfHarmony",
-        name: `${hit.join("")}半合`,
-        nameVi: `${hit.join("")} bán hợp`,
-        members: zhiMembers(hit),
-        evidence: `bán hợp của ${group.name}`,
-        sourceId: SRC.halfHarmony,
-        transformStatus: "combineOnly",
-      });
+      const hasMiddle = hit.includes(middle);
+      const pairName = `${hit[0]}${hit[1]}`;
+      if (hasMiddle) {
+        push({
+          type: "branchHalfHarmony",
+          name: `${pairName}半合`,
+          nameVi: `${pairName} bán hợp`,
+          members: zhiMembers(hit),
+          evidence: `bán hợp (có trung thần ${middle}) của ${group.name}`,
+          sourceId: SRC.halfHarmony,
+          transformStatus: "combineOnly",
+        });
+      } else {
+        push({
+          type: "branchArchHarmony",
+          name: `${pairName}拱合`,
+          nameVi: `${pairName} củng hợp`,
+          members: zhiMembers(hit),
+          evidence: `củng hợp / 拱合 (thiếu trung thần ${middle}) của ${group.name}`,
+          sourceId: SRC.archHarmony,
+          transformStatus: "combineOnly",
+        });
+      }
     }
   }
 

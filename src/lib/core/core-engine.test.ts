@@ -56,15 +56,16 @@ describe("dayBoundaryMode", () => {
 
 describe("LiChun year boundary", () => {
   it("year pillar flips at立春 second, not 01/01", () => {
+    // Hybrid: Year uses Asia/Shanghai library clock — HCM civil = SH − 1h
     const before = calculateBaZi({
       timezone: "Asia/Ho_Chi_Minh",
       gender: "male",
-      local: { year: 2024, month: 2, day: 4, hour: 16, minute: 27, second: 6 },
+      local: { year: 2024, month: 2, day: 4, hour: 15, minute: 27, second: 6 },
     });
     const after = calculateBaZi({
       timezone: "Asia/Ho_Chi_Minh",
       gender: "male",
-      local: { year: 2024, month: 2, day: 4, hour: 16, minute: 27, second: 7 },
+      local: { year: 2024, month: 2, day: 4, hour: 15, minute: 27, second: 7 },
     });
     expect(before.lunar.yearInGanZhi).toBe("癸卯");
     expect(after.lunar.yearInGanZhi).toBe("甲辰");
@@ -218,13 +219,13 @@ describe("normalizeBaZiChart repairs stale diShi / structural stars", () => {
     // Simulate old saved chart: date only, no exact time
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (stale.yun as any).startSolarExact;
-    stale.yun.startSolarDate = { year: 1995, month: 3, day: 13 };
-    stale.yun.startAge = { years: 8, months: 4, days: 1, hours: 0 };
+    stale.yun.startSolarDate = { year: 1995, month: 3, day: 10 };
+    stale.yun.startAge = { years: 8, months: 3, days: 26, hours: 6 };
 
     const fixed = normalizeBaZiChart(stale);
     expect(fixed.yun.startSolarExact.year).toBe(1995);
     expect(fixed.yun.startSolarExact.month).toBe(3);
-    expect(fixed.yun.startSolarExact.day).toBe(13);
+    expect(fixed.yun.startSolarExact.day).toBe(10);
     expect(fixed.yun.startSolarExact.hour).toBe(23);
     expect(fixed.yun.startSolarExact.minute).toBe(45);
   });
@@ -238,21 +239,25 @@ describe("JieQi library sanity", () => {
 });
 
 describe("Yun startSolarExact (sect 2)", () => {
-  it("1986-11-12 17:45 male → 1995-03-13 23:45 not 00:00", () => {
+  it("1986-11-12 17:45 male hybrid → local 1995-03-10 23:45 (lib +1h)", () => {
     const chart = calculateBaZi({
       timezone: "Asia/Ho_Chi_Minh",
       gender: "male",
       local: { year: 1986, month: 11, day: 12, hour: 17, minute: 45, second: 0 },
     });
     const exact = chart.yun.startSolarExact;
+    expect(chart.timeBasis.mode).toBe("instant_consistent");
     expect(exact.year).toBe(1995);
     expect(exact.month).toBe(3);
-    expect(exact.day).toBe(13);
+    expect(exact.day).toBe(10);
     expect(exact.hour).toBe(23);
     expect(exact.minute).toBe(45);
-    expect(exact.ymdHms).toBe("1995-03-13 23:45:00");
+    expect(exact.ymdHms).toBe("1995-03-10 23:45:00");
+    expect(chart.yun.startSolarExactLibrary?.ymdHms).toBe(
+      "1995-03-11 00:45:00",
+    );
     expect(chart.yun.startAge.years).toBe(8);
-    expect(chart.yun.startAge.months).toBe(4);
+    expect(chart.yun.startAge.months).toBe(3);
     expect(chart.yun.startAgeXu).toBe(10);
   });
 });
@@ -292,7 +297,7 @@ describe("monthCommand + relations Fact Graph", () => {
     expect(chart.monthCommand.mode).toBe("ziPingZhenQuan_v1");
     expect(chart.monthCommand.sourceId).toBe("monthCommand.ziPingZhenQuan.v1");
     expect(chart.monthCommand.sourceTitle).toBeTruthy();
-    expect(chart.monthCommand.tableVersion).toBe("1.0.0");
+    expect(chart.monthCommand.tableVersion).toBe("1.1.0");
     expect(chart.monthCommand.branch).toBe("亥");
     expect(chart.monthCommand.daysFromJie).not.toBeNull();
     // 12/11 after Lập Đông (~7–8/11) → vài ngày, không được kẹt 0 vì dấu phút sai
@@ -316,6 +321,29 @@ describe("monthCommand + relations Fact Graph", () => {
     }
     const stemCombo = chart.relations.find((r) => r.name === "乙庚合");
     expect(stemCombo?.transformStatus).toBe("combineOnly");
+  });
+
+  it("splits bán hợp (có trung thần) vs củng hợp / 拱合 (thiếu trung thần)", () => {
+    const half = computeStemBranchRelations({
+      year: { gan: "甲", zhi: "申" },
+      month: { gan: "乙", zhi: "子" },
+      day: { gan: "丙", zhi: "丑" },
+      hour: { gan: "丁", zhi: "卯" },
+    });
+    const halfHit = half.find((r) => r.type === "branchHalfHarmony");
+    expect(halfHit?.name).toBe("申子半合");
+    expect(half.some((r) => r.type === "branchArchHarmony")).toBe(false);
+
+    const arch = computeStemBranchRelations({
+      year: { gan: "甲", zhi: "申" },
+      month: { gan: "乙", zhi: "辰" },
+      day: { gan: "丙", zhi: "丑" },
+      hour: { gan: "丁", zhi: "卯" },
+    });
+    const archHit = arch.find((r) => r.type === "branchArchHarmony");
+    expect(archHit?.name).toBe("申辰拱合");
+    expect(archHit?.sourceId).toBe("relations.branchArchHarmony.v1");
+    expect(arch.some((r) => r.type === "branchHalfHarmony")).toBe(false);
   });
 
   it("labels full three-punishment only when all 3 branches present", () => {
@@ -353,12 +381,15 @@ describe("monthCommand + relations Fact Graph", () => {
     });
     const combos = rels.filter((r) => r.type === "stemCombination");
     expect(combos.length).toBeGreaterThanOrEqual(2);
-    expect(combos.some((r) => r.contested === true)).toBe(true);
+    expect(combos.every((r) => r.contested === true)).toBe(true);
+    expect(combos[0]?.contestedWith?.length).toBeGreaterThanOrEqual(1);
+    // same-name 乙庚合 vẫn phân biệt bằng comboKey (members)
+    expect(new Set(combos.map((r) => r.name)).size).toBe(1);
   });
 });
 
 describe("timeBasis DoD-A / DoD-B adapter", () => {
-  it("HCM defaults to vn_civil — library clock equals birth civil", () => {
+  it("defaults to instant_consistent for HCM (product hybrid)", () => {
     const basis = resolveTimeBasis({
       localCivil: {
         year: 2026,
@@ -370,12 +401,37 @@ describe("timeBasis DoD-A / DoD-B adapter", () => {
       },
       birthTimezone: "Asia/Ho_Chi_Minh",
     });
-    expect(basis.mode).toBe("vn_civil");
-    expect(basis.libraryTermClock).toEqual(basis.localCivil);
+    expect(basis.mode).toBe("instant_consistent");
+    expect(basis.libraryTermTimezone).toBe("Asia/Shanghai");
+    expect(basis.libraryTermClock).toEqual({
+      year: 2026,
+      month: 5,
+      day: 6,
+      hour: 0,
+      minute: 46,
+      second: 0,
+    });
     expect(basis.birthAbsoluteIso).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
-  it("non-HCM uses instant_consistent projection via Asia/Shanghai", () => {
+  it("vn_civil Legacy keeps library clock = birth civil", () => {
+    const basis = resolveTimeBasis({
+      localCivil: {
+        year: 2026,
+        month: 5,
+        day: 5,
+        hour: 23,
+        minute: 46,
+        second: 0,
+      },
+      birthTimezone: "Asia/Ho_Chi_Minh",
+      mode: "vn_civil",
+    });
+    expect(basis.mode).toBe("vn_civil");
+    expect(basis.libraryTermClock).toEqual(basis.localCivil);
+  });
+
+  it("non-HCM also uses instant_consistent projection via Asia/Shanghai", () => {
     const basis = resolveTimeBasis({
       localCivil: {
         year: 2026,
@@ -547,29 +603,27 @@ describe("golden case 05/05/2026 23:46 female HCM", () => {
       },
     });
 
-    expect(chart.timeBasis.mode).toBe("vn_civil");
+    expect(chart.timeBasis.mode).toBe("instant_consistent");
     expect(chart.isLateRatHour).toBe(true);
     expect(chart.monthCommand.sourceId).toBe("monthCommand.ziPingZhenQuan.v1");
+    expect(chart.monthCommand.tableVersion).toBe("1.1.0");
     expect(chart.yun.startSolarExactLibrary).toBeTruthy();
     expect(chart.yun.startSolarExact).toBeTruthy();
 
     const dbg = extractCoreDebugSnapshot(chart);
     expect(dbg.birthLocal).toBe("2026-05-05 23:46:00");
     expect(dbg.birthAbsolute).toBeTruthy();
-    expect(dbg.libraryTermClock).toBe("2026-05-05 23:46:00");
+    expect(dbg.libraryTermClock).toBe("2026-05-06 00:46:00");
+    expect(dbg.minutesFromPrevJie).toBe(298);
     expect(dbg.prevJie).toBeTruthy();
     expect(dbg.nextJie).toBeTruthy();
-    expect(dbg.minutesFromPrevJie).not.toBeNull();
     expect(dbg.daysFromJie).not.toBeNull();
     expect(dbg.monthCommand.commandingStem).toBeTruthy();
     expect(dbg.yunStartRaw.ymdHms || dbg.yunStartRaw).toBeTruthy();
     expect(dbg.yunStartLocal.ymdHms || dbg.yunStartLocal).toBeTruthy();
 
-    // vn_civil: raw library yun == local display numbers
-    expect(dbg.yunStartLocal.year).toBe(dbg.yunStartRaw.year);
-    expect(dbg.yunStartLocal.month).toBe(dbg.yunStartRaw.month);
-    expect(dbg.yunStartLocal.day).toBe(dbg.yunStartRaw.day);
-    expect(dbg.yunStartLocal.hour).toBe(dbg.yunStartRaw.hour);
-    expect(dbg.yunStartLocal.minute).toBe(dbg.yunStartRaw.minute);
+    // hybrid: Yun library (Shanghai) projected back → local display may differ by hour
+    expect(dbg.yunStartLocal.hour).not.toBe(dbg.yunStartRaw.hour);
+    expect(chart.pillars.day.ganZhi).toBe("己卯");
   });
 });

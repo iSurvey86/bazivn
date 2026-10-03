@@ -4,8 +4,8 @@
  * lunar-typescript / 6tail Solar is timezone-naive: YmdHms is a civil wall clock
  * used for ephemeris-style JieQi & Yun math (ecosystem convention ≈ Beijing civil).
  *
- * DoD-A (vn_civil): birth civil numbers are fed to the library as-is (VN product scope).
- * DoD-B (instant_consistent): birth → absolute UTC → library-zone civil → Solar.
+ * Default product: DoD-B′ instant_consistent (hybrid) for all timezones including VN.
+ * Legacy (vn_civil): birth civil numbers fed to the library as-is — compatibility only.
  */
 
 export type TimeBasisMode = "vn_civil" | "instant_consistent";
@@ -144,12 +144,12 @@ export function libraryCivilToBirthCivil(
 }
 
 export function resolveTimeBasisMode(
-  birthTimezone: string,
+  _birthTimezone: string,
   explicit?: TimeBasisMode,
 ): TimeBasisMode {
   if (explicit) return explicit;
-  // DoD-A default for Vietnam civil product scope
-  if (birthTimezone === "Asia/Ho_Chi_Minh") return "vn_civil";
+  // Product default: Hybrid instant_consistent (VN included).
+  // vn_civil chỉ khi caller truyền explicit Legacy override.
   return "instant_consistent";
 }
 
@@ -171,7 +171,7 @@ export function resolveTimeBasis(params: {
       libraryTermClock: { ...localCivil },
       libraryTermTimezone: params.birthTimezone,
       note:
-        "vn_civil = compatibility mode with lunar-typescript TZ-naive clock (≈6tail GMT+8 ecosystem). NOT astronomical instant-consistent. DoD-A product default for Asia/Ho_Chi_Minh.",
+        "vn_civil = LEGACY compatibility mode (lunar-typescript TZ-naive / ≈6tail GMT+8). NOT astronomical vô khuyết. Explicit override only — not product default.",
     };
   }
 

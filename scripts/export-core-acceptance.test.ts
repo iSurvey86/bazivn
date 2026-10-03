@@ -28,6 +28,7 @@ import {
   computeBoundaryFlags,
   minutesToPoint,
 } from "@/lib/core/jieqi-boundaries";
+import { computeStemBranchRelations } from "@/lib/core/relations";
 import { Solar } from "lunar-typescript";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -305,13 +306,13 @@ function buildAcceptanceCase(
   };
 }
 
-const SPRINT2_FIXES = [
-  "1. Hybrid TZ DoD-B′: Year/Month/Jie/Yun trên libraryTermClock (Asia/Shanghai khi instant_consistent); Day/Hour giữ localCivil + Dạ Tý.",
-  "2. relations[]: thêm sourceId; transformStatus combineOnly|transformCandidate (Core không tự transformed); contested/contestedWith cho tranh hợp.",
-  "3. Tam hình: branchPunishmentPair (2/3, vd 寅申刑) vs branchThreePunishment (3/3 đủ bộ); không gắn 寅巳申刑 khi thiếu 巳.",
-  "4. nearZiBoundary thu hẹp ±10′ quanh 23:00/00:00; cửa sổ rộng 22:00–00:59 → nearZiWindowWide (không feed timezoneSensitive).",
-  "5. Same-UTC multi-TZ tests: HCM / Shanghai / New_York cùng absolute → Year/Month/Jie/Yun term nhất quán.",
-  "6. Release: engine 0.3.1-core · rule-set bazi-core-2026-10-03-sprint2 · acceptance pack workingTreeDirty=false.",
+const LOCK_FIXES = [
+  "1. Default timeBasis = instant_consistent (DoD-B′ hybrid) cho mọi TZ kể cả VN; vn_civil = Legacy override explicit.",
+  "2. monthCommand ziPingZhenQuan_v1 tableVersion 1.1.0: 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18 (《子平真诠》).",
+  "3. relations: tách branchHalfHarmony (bán hợp, có trung thần) vs branchArchHarmony (拱合, thiếu trung thần).",
+  "4. tranh hợp: contested/contestedWith + comboKey phân biệt cùng tên; golden case trong pack highlights.",
+  "5. Hybrid TZ: Year/Month/Jie/Yun trên libraryTermClock Asia/Shanghai; Day/Hour localCivil + Dạ Tý.",
+  "6. Release: engine 0.3.2-core · rule-set bazi-core-2026-10-03-lock-rc · acceptance pack workingTreeDirty=false.",
 ];
 
 function runChecklist(): ChecklistRow[] {
@@ -319,15 +320,16 @@ function runChecklist(): ChecklistRow[] {
 
   // trước/sau Lập Xuân
   try {
+    // Hybrid: HCM civil = library Shanghai − 1h around 立春
     const before = calculateBaZi({
       timezone: "Asia/Ho_Chi_Minh",
       gender: "male",
-      local: { year: 2024, month: 2, day: 4, hour: 16, minute: 27, second: 6 },
+      local: { year: 2024, month: 2, day: 4, hour: 15, minute: 27, second: 6 },
     });
     const after = calculateBaZi({
       timezone: "Asia/Ho_Chi_Minh",
       gender: "male",
-      local: { year: 2024, month: 2, day: 4, hour: 16, minute: 27, second: 7 },
+      local: { year: 2024, month: 2, day: 4, hour: 15, minute: 27, second: 7 },
     });
     const jan = calculateBaZi({
       timezone: "Asia/Ho_Chi_Minh",
@@ -444,25 +446,27 @@ function runChecklist(): ChecklistRow[] {
     });
     const dbg = extractCoreDebugSnapshot(c);
     const ok =
-      c.timeBasis.mode === "vn_civil" &&
+      c.timeBasis.mode === "instant_consistent" &&
       c.isLateRatHour === true &&
       c.usefulGod === null &&
       c.directions === null &&
+      dbg.libraryTermClock === "2026-05-06 00:46:00" &&
+      dbg.minutesFromPrevJie === 298 &&
+      c.pillars.day.ganZhi === "己卯" &&
+      c.monthCommand.tableVersion === "1.1.0" &&
       !!dbg.birthLocal &&
       !!dbg.birthAbsolute &&
-      !!dbg.libraryTermClock &&
       !!dbg.prevJie &&
       !!dbg.nextJie &&
-      dbg.minutesFromPrevJie !== null &&
       dbg.daysFromJie !== null &&
       !!dbg.monthCommand?.commandingStem &&
       !!dbg.yunStartRaw &&
       !!dbg.yunStartLocal;
     rows.push(
       check(
-        "case nữ 05/05/2026 23:46",
+        "case nữ 05/05/2026 23:46 (default hybrid)",
         ok,
-        `pillars=${c.pillars.year.ganZhi}/${c.pillars.month.ganZhi}/${c.pillars.day.ganZhi}/${c.pillars.hour.ganZhi}; forward=${c.yun.isForward}; lateRat=${c.isLateRatHour}`,
+        `mode=${c.timeBasis.mode}; lib=${dbg.libraryTermClock}; day=${c.pillars.day.ganZhi}; table=${c.monthCommand.tableVersion}`,
       ),
     );
   } catch (e) {
@@ -601,7 +605,7 @@ function runChecklist(): ChecklistRow[] {
     );
   }
 
-  // DoD-B′ hybrid + same instant
+  // DoD-B′ hybrid default + same instant
   try {
     const civil = {
       year: 2026,
@@ -615,22 +619,20 @@ function runChecklist(): ChecklistRow[] {
       timezone: "Asia/Ho_Chi_Minh",
       gender: "female",
       local: civil,
-      conventions: { timeBasisMode: "instant_consistent" },
     });
     const dbg = extractCoreDebugSnapshot(ic);
     const sh = calculateBaZi({
       timezone: "Asia/Shanghai",
       gender: "female",
       local: { year: 2026, month: 5, day: 6, hour: 0, minute: 46, second: 0 },
-      conventions: { timeBasisMode: "instant_consistent" },
     });
     const ny = calculateBaZi({
       timezone: "America/New_York",
       gender: "female",
       local: { year: 2026, month: 5, day: 5, hour: 12, minute: 46, second: 0 },
-      conventions: { timeBasisMode: "instant_consistent" },
     });
     const okHybrid =
+      ic.timeBasis.mode === "instant_consistent" &&
       dbg.libraryTermClock === "2026-05-06 00:46:00" &&
       dbg.minutesFromPrevJie === 298 &&
       ic.pillars.day.ganZhi === "己卯";
@@ -641,14 +643,50 @@ function runChecklist(): ChecklistRow[] {
       ic.pillars.month.ganZhi === sh.pillars.month.ganZhi;
     rows.push(
       check(
-        "DoD-B′ hybrid Case B + same-UTC multi-TZ",
+        "DoD-B′ hybrid default + same-UTC multi-TZ",
         okHybrid && okSame,
-        `lib=${dbg.libraryTermClock}; min=${dbg.minutesFromPrevJie}; day=${ic.pillars.day.ganZhi}; absMatch=${okSame}`,
+        `mode=${ic.timeBasis.mode}; lib=${dbg.libraryTermClock}; min=${dbg.minutesFromPrevJie}; day=${ic.pillars.day.ganZhi}; absMatch=${okSame}`,
       ),
     );
   } catch (e) {
     rows.push(
-      check("DoD-B′ hybrid Case B + same-UTC multi-TZ", false, String(e)),
+      check("DoD-B′ hybrid default + same-UTC multi-TZ", false, String(e)),
+    );
+  }
+
+  // half vs arch + tranh hợp golden
+  try {
+    const half = computeStemBranchRelations({
+      year: { gan: "甲", zhi: "申" },
+      month: { gan: "乙", zhi: "子" },
+      day: { gan: "丙", zhi: "丑" },
+      hour: { gan: "丁", zhi: "卯" },
+    });
+    const arch = computeStemBranchRelations({
+      year: { gan: "甲", zhi: "申" },
+      month: { gan: "乙", zhi: "辰" },
+      day: { gan: "丙", zhi: "丑" },
+      hour: { gan: "丁", zhi: "卯" },
+    });
+    const tranh = computeStemBranchRelations({
+      year: { gan: "庚", zhi: "子" },
+      month: { gan: "庚", zhi: "丑" },
+      day: { gan: "乙", zhi: "寅" },
+      hour: { gan: "乙", zhi: "卯" },
+    }).filter((r) => r.type === "stemCombination");
+    rows.push(
+      check(
+        "bán hợp vs củng hợp + tranh hợp golden",
+        half.some((r) => r.type === "branchHalfHarmony" && r.name === "申子半合") &&
+          arch.some((r) => r.type === "branchArchHarmony" && r.name === "申辰拱合") &&
+          tranh.length >= 2 &&
+          tranh.every((r) => r.contested === true),
+        `half=${half.find((r) => r.type === "branchHalfHarmony")?.name}; arch=${arch.find((r) => r.type === "branchArchHarmony")?.name}; tranh=${tranh.length}`,
+      ),
+    );
+  } catch (e) {
+    rows.push(
+      check("bán hợp vs củng hợp + tranh hợp golden", false, String(e)),
     );
   }
 
@@ -820,8 +858,26 @@ describe("export Core acceptance pack", () => {
       { place: "Phú Thọ", genderLabel: "Nam" },
     );
 
-    const caseB = buildAcceptanceCase(
-      "Case B — 05/05/2026 23:46 Hà Nội Nữ (vn_civil default)",
+    const caseBLegacy = buildAcceptanceCase(
+      "Case B Legacy — 05/05/2026 23:46 Hà Nội Nữ (vn_civil explicit)",
+      calculateBaZi({
+        timezone: "Asia/Ho_Chi_Minh",
+        gender: "female",
+        local: {
+          year: 2026,
+          month: 5,
+          day: 5,
+          hour: 23,
+          minute: 46,
+          second: 0,
+        },
+        conventions: { timeBasisMode: "vn_civil" },
+      }),
+      { place: "Hà Nội", genderLabel: "Nữ" },
+    );
+
+    const caseBInstant = buildAcceptanceCase(
+      "Case B′ — 05/05/2026 23:46 Hà Nội Nữ (instant_consistent default hybrid)",
       calculateBaZi({
         timezone: "Asia/Ho_Chi_Minh",
         gender: "female",
@@ -837,23 +893,40 @@ describe("export Core acceptance pack", () => {
       { place: "Hà Nội", genderLabel: "Nữ" },
     );
 
-    const caseBInstant = buildAcceptanceCase(
-      "Case B′ — 05/05/2026 23:46 Hà Nội Nữ (instant_consistent hybrid)",
-      calculateBaZi({
-        timezone: "Asia/Ho_Chi_Minh",
-        gender: "female",
-        local: {
-          year: 2026,
-          month: 5,
-          day: 5,
-          hour: 23,
-          minute: 46,
-          second: 0,
-        },
-        conventions: { timeBasisMode: "instant_consistent" },
-      }),
-      { place: "Hà Nội", genderLabel: "Nữ" },
-    );
+    const goldenTranhHop = computeStemBranchRelations({
+      year: { gan: "庚", zhi: "子" },
+      month: { gan: "庚", zhi: "丑" },
+      day: { gan: "乙", zhi: "寅" },
+      hour: { gan: "乙", zhi: "卯" },
+    })
+      .filter((r) => r.type === "stemCombination" && r.contested)
+      .map((r) => ({
+        name: r.name,
+        members: r.members,
+        contested: r.contested,
+        contestedWith: r.contestedWith,
+        transformStatus: r.transformStatus,
+        sourceId: r.sourceId,
+      }));
+
+    const halfVsArch = {
+      half: computeStemBranchRelations({
+        year: { gan: "甲", zhi: "申" },
+        month: { gan: "乙", zhi: "子" },
+        day: { gan: "丙", zhi: "丑" },
+        hour: { gan: "丁", zhi: "卯" },
+      })
+        .filter((r) => r.type === "branchHalfHarmony" || r.type === "branchArchHarmony")
+        .map((r) => ({ type: r.type, name: r.name, sourceId: r.sourceId })),
+      arch: computeStemBranchRelations({
+        year: { gan: "甲", zhi: "申" },
+        month: { gan: "乙", zhi: "辰" },
+        day: { gan: "丙", zhi: "丑" },
+        hour: { gan: "丁", zhi: "卯" },
+      })
+        .filter((r) => r.type === "branchHalfHarmony" || r.type === "branchArchHarmony")
+        .map((r) => ({ type: r.type, name: r.name, sourceId: r.sourceId })),
+    };
 
     const checklist = runChecklist();
     const vitestLog = (() => {
@@ -874,17 +947,18 @@ describe("export Core acceptance pack", () => {
       gitCommitShort: commitShort,
       gitBranch: branch,
       workingTreeDirty: dirty,
-      buildId: `acceptance-${commitShort}${dirty ? "-dirty" : ""}-sprint2`,
+      buildId: `acceptance-${commitShort}${dirty ? "-dirty" : ""}-lock-rc`,
       packageVersion: JSON.parse(read("package.json")).version as string,
       engineVersion: ENGINE_VERSION,
       ruleSetVersion: RULE_SET_VERSION,
       scope:
-        "DoD-A: vn_civil = compatibility mode (default HCM), NOT astronomical vô khuyết. DoD-B′: instant_consistent hybrid — Year/Month/Jie/Yun on Asia/Shanghai libraryTermClock; Day/Hour on birth localCivil + Dạ Tý.",
+        "Lock-rc: default instant_consistent (DoD-B′ hybrid) mọi TZ kể cả VN — Year/Month/Jie/Yun trên Asia/Shanghai libraryTermClock; Day/Hour localCivil + Dạ Tý. vn_civil = Legacy override explicit (DoD-A compatibility, NOT vô khuyết).",
       dayBoundaryModeDefault: DEFAULT_CONVENTIONS.dayBoundaryMode,
       renModeDefault: DEFAULT_CONVENTIONS.renMode,
       monthCommandModeDefault: DEFAULT_CONVENTIONS.monthCommandSchool,
+      monthCommandTableVersion: caseA.monthCommand.tableVersion,
       yunSect: DEFAULT_CONVENTIONS.yunSect,
-      timeBasisModeDefault: "auto: HCM→vn_civil; else→instant_consistent",
+      timeBasisModeDefault: "instant_consistent",
       trueSolarTimeEnabled: DEFAULT_CONVENTIONS.trueSolarTimeEnabled,
       codeFiles: [
         "src/lib/astrology-engine.ts",
@@ -908,8 +982,8 @@ describe("export Core acceptance pack", () => {
 
     const pack = {
       exportedAt: new Date().toISOString(),
-      purpose: "Acceptance pack Core BaziVN — nghiệm thu sau 6 hạng mục Sprint 2",
-      sprint2Fixes: SPRINT2_FIXES,
+      purpose: "Acceptance pack Core BaziVN — lock-rc (4 hạng mục khóa)",
+      lockFixes: LOCK_FIXES,
       versionScope,
       checklist,
       checklistSummary: {
@@ -926,6 +1000,9 @@ describe("export Core acceptance pack", () => {
           8,
         ),
         contestedSamples: caseA.relationsMeta.contested,
+        goldenTranhHop,
+        halfVsArch,
+        monthCommandTableVersion: caseA.monthCommand.tableVersion,
         nearZiBoundary: {
           note: "tight ±10′; wide = nearZiWindowWide",
           sampleCaseBBoundaries: caseBInstant.boundaries,
@@ -936,11 +1013,11 @@ describe("export Core acceptance pack", () => {
         caseBPrimeAuditFlat: caseBInstant.auditFlat,
       },
       caseA,
-      caseB,
+      caseB: caseBLegacy,
       caseBInstant,
       caseAAuditFlat: caseA.auditFlat,
       caseBInstantAuditFlat: caseBInstant.auditFlat,
-      caseBRaw10: caseB.rawDebug10,
+      caseBRaw10: caseBLegacy.rawDebug10,
       caseBInstantRaw10: caseBInstant.rawDebug10,
     };
 
@@ -978,16 +1055,16 @@ describe("export Core acceptance pack", () => {
     ];
 
     const children = [
-      h1("BaziVN — Acceptance Pack Core (Sprint 2 / 6 hạng mục)"),
+      h1("BaziVN — Acceptance Pack Core (lock-rc)"),
       p(
         `Xuất: ${new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`,
       ),
       p(
-        "Nghiệm thu: artifact/version → raw facts → regression → logic chuyên môn. Chỉ Core — không gồm WIP UI.",
+        "Nghiệm thu khóa Core: artifact/version → raw facts → regression → logic chuyên môn. Chỉ Core — không gồm WIP UI.",
       ),
 
-      h1("0. Sáu hạng mục vừa sửa"),
-      ...SPRINT2_FIXES.map((line) => p(line)),
+      h1("0. Hạng mục lock-rc"),
+      ...LOCK_FIXES.map((line) => p(line)),
 
       h1("4. Version & scope"),
       p(`git commit: ${versionScope.gitCommit}`),
@@ -1002,6 +1079,7 @@ describe("export Core acceptance pack", () => {
       p(`dayBoundaryMode default: ${versionScope.dayBoundaryModeDefault}`),
       p(`renMode default: ${versionScope.renModeDefault}`),
       p(`monthCommandMode default: ${versionScope.monthCommandModeDefault}`),
+      p(`monthCommand tableVersion: ${versionScope.monthCommandTableVersion}`),
       p(`yunSect: ${String(versionScope.yunSect)}`),
       p(`timeBasisMode default: ${versionScope.timeBasisModeDefault}`),
       note(versionScope.noteStemBranchFile),
@@ -1025,15 +1103,15 @@ describe("export Core acceptance pack", () => {
       ...codeBlock(JSON.stringify(caseA.auditFlat, null, 2)),
       h2("Case A — full Fact Graph"),
       ...codeBlock(JSON.stringify(caseA, null, 2)),
-      h2("Case B′ — 05/05/2026 23:46 – Hà Nội – Nữ – instant_consistent hybrid"),
+      h2("Case B′ — 05/05/2026 23:46 – Hà Nội – Nữ – instant_consistent default"),
       note(
-        "clockForJieYun = libraryTermClock Asia/Shanghai; dayPillar/hourPillar từ local civil + Dạ Tý.",
+        "Product default hybrid: clockForJieYun = libraryTermClock Asia/Shanghai; dayPillar/hourPillar từ local civil + Dạ Tý.",
       ),
       ...codeBlock(JSON.stringify(caseBInstant.auditFlat, null, 2)),
       h2("Case B′ — full Fact Graph"),
       ...codeBlock(JSON.stringify(caseBInstant, null, 2)),
-      h2("Case B (vn_civil) — tham chiếu DoD-A"),
-      ...codeBlock(JSON.stringify(caseB.auditFlat, null, 2)),
+      h2("Case B Legacy (vn_civil explicit) — tham chiếu DoD-A"),
+      ...codeBlock(JSON.stringify(caseBLegacy.auditFlat, null, 2)),
 
       h1("1. Code core trọng yếu (Hybrid TZ / relations / boundary)"),
       note(
@@ -1118,8 +1196,18 @@ describe("export Core acceptance pack", () => {
     expect(caseA.usefulGod).toBeNull();
     expect(caseBInstant.usefulGod).toBeNull();
     expect(caseBInstant.directions).toBeNull();
+    expect(caseBInstant.timeBasisMode).toBe("instant_consistent");
+    expect(caseBLegacy.timeBasisMode).toBe("vn_civil");
     expect(caseBInstant.auditFlat.dayPillar).toBe("己卯");
     expect(caseBInstant.auditFlat.clockForJieYun).toBe("2026-05-06 00:46:00");
+    expect(caseA.monthCommand.tableVersion).toBe("1.1.0");
+    expect(goldenTranhHop.length).toBeGreaterThanOrEqual(2);
+    expect(halfVsArch.half.some((x) => x.type === "branchHalfHarmony")).toBe(
+      true,
+    );
+    expect(halfVsArch.arch.some((x) => x.type === "branchArchHarmony")).toBe(
+      true,
+    );
     expect(caseA.relationsMeta.punishments.some((x) => x.name === "寅申刑")).toBe(
       true,
     );
