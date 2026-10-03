@@ -1,11 +1,11 @@
 {
-  "exportedAt": "2026-10-03T07:09:43.108Z",
+  "exportedAt": "2026-10-03T07:09:54.155Z",
   "versionScope": {
-    "gitCommit": "e4dfb57a370b5bcc110b4ce73b7ec8aae3015402",
-    "gitCommitShort": "e4dfb57",
+    "gitCommit": "6b05c47edd61c28c87193ffe0a21f34da8fc2490",
+    "gitCommitShort": "6b05c47",
     "gitBranch": "main",
-    "workingTreeDirty": false,
-    "buildId": "acceptance-e4dfb57-sprint1",
+    "workingTreeDirty": true,
+    "buildId": "acceptance-6b05c47-dirty-sprint2",
     "packageVersion": "0.1.1",
     "engineVersion": "0.3.1-core",
     "ruleSetVersion": "bazi-core-2026-10-03-sprint2",
@@ -11798,5 +11798,5 @@
       "ymdHms": "2026-05-30 19:46:00"
     }
   },
-  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (26 tests) 73ms\n Test Files  1 passed (1)\n      Tests  26 passed (26)"
+  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (26 tests) 75ms\n Test Files  1 passed (1)\n      Tests  26 passed (26)"
 }

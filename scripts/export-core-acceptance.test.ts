@@ -809,7 +809,7 @@ describe("export Core acceptance pack", () => {
       gitCommitShort: commitShort,
       gitBranch: branch,
       workingTreeDirty: dirty,
-      buildId: `acceptance-${commitShort}${dirty ? "-dirty" : ""}-sprint1`,
+      buildId: `acceptance-${commitShort}${dirty ? "-dirty" : ""}-sprint2`,
       packageVersion: JSON.parse(read("package.json")).version as string,
       engineVersion: ENGINE_VERSION,
       ruleSetVersion: RULE_SET_VERSION,
