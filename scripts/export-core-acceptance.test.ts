@@ -747,7 +747,7 @@ function runChecklist(): ChecklistRow[] {
       const peach = stars.filter((s) => s.key === "tao_hua_xian_chi");
       if (peach.length > 1) ok = false;
       if (stars.some((s) => s.key === "peach" || s.key === "hamchi")) ok = false;
-      if (peach[0] && peach[0].name !== "Đào Hoa (Hàm Trì)") ok = false;
+      if (peach[0] && peach[0].name !== "Đào Hoa") ok = false;
     }
     const hourPeach = c.pillars.hour.shenSha.filter(
       (s) => s.key === "tao_hua_xian_chi",

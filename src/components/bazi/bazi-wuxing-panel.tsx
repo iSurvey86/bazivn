@@ -66,6 +66,10 @@ export function BaziWuxingPanel({ chart }: BaziWuxingPanelProps) {
             );
           })}
         </div>
+        <p className="mt-4 text-xs font-medium leading-snug text-muted">
+          Biểu đồ phân bố ngũ hành chỉ mang tính trực quan, không dùng trực tiếp
+          để xác định thân vượng/nhược hoặc Dụng thần.
+        </p>
       </BaziCard>
     </div>
   );

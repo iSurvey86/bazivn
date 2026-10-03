@@ -4,8 +4,8 @@
     "homeCta": "사주 작성"
   },
   "home": {
-    "title": "사주 — 운명 지도",
-    "subtitle": "야자시, 절기, 성별 대운 반영."
+    "titleLine1": "사주",
+    "titleLine2": "운명 지도"
   },
   "bazi": {
     "title": "사주 작성",

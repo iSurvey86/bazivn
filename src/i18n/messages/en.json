@@ -1,11 +1,11 @@
 {
   "common": {
     "title": "BaziVN",
-    "homeCta": "Create BaZi Chart"
+    "homeCta": "Create chart"
   },
   "home": {
-    "title": "BaZi — Destiny Atlas",
-    "subtitle": "Professional chart with Late Rat Hour, solar terms, gender-aware luck cycles."
+    "titleLine1": "BAZI",
+    "titleLine2": "DESTINY ATLAS"
   },
   "bazi": {
     "title": "BaZi Chart",

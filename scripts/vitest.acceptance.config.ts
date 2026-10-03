@@ -4,7 +4,10 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["scripts/export-core-acceptance.test.ts"],
+    include: [
+      "scripts/export-core-acceptance.test.ts",
+      "scripts/export-shensha-v2-acceptance.test.ts",
+    ],
     testTimeout: 120_000,
   },
   resolve: {

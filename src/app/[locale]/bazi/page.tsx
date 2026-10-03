@@ -16,7 +16,7 @@ export default async function BaziPage({ params }: BaziPageProps) {
 
   return (
     <BaziShell>
-      <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-12">
+      <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
         <Link
           href="/"
           className="text-sm font-bold text-muted transition hover:text-accent"

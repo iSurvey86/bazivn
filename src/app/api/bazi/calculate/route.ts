@@ -19,6 +19,9 @@ export async function POST(request: Request) {
         minute: input.minute,
         second: input.second,
       },
+      conventions: {
+        dayBoundaryMode: input.dayBoundaryMode,
+      },
     });
 
     let chartId: string | null = null;

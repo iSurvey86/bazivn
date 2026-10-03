@@ -1,5 +1,6 @@
 import type { BaZiChartResult } from "@/lib/astrology-engine";
 import type { ShenShaItem } from "@/lib/bazi-shen-sha";
+import { naYinElement, stemElement } from "@/lib/bazi-terminology";
 import {
   elementTheme,
   PILLAR_LABELS,
@@ -9,10 +10,11 @@ import {
 } from "@/lib/bazi-theme";
 import { BaziCard, BaziSectionTitle } from "./bazi-ui";
 
-/** Thần sát: xanh = cát, đỏ = hung — không theo ngũ hành */
+/** Thần sát UI: xanh = cát, đỏ = hung (tone truyền thống — chỉ display). */
 const SHEN_SHA_TEXT = {
   cat: "#2d5a40",
   hung: "#a83828",
+  auxiliary: "#5c4a3a",
 } as const;
 
 type BaziPillarGridProps = {
@@ -25,12 +27,24 @@ function ShenShaList({ stars }: { stars: ShenShaItem[] }) {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-x-2 gap-y-1">
+    <div
+      className="flex flex-wrap justify-center gap-x-2 gap-y-1"
+      title="Thần Sát là phụ chứng, không dùng độc lập để kết luận."
+    >
       {stars.map((star) => (
         <span
           key={star.key}
           className="text-sm font-semibold"
-          style={{ color: SHEN_SHA_TEXT[star.type] }}
+          style={{
+            color:
+              SHEN_SHA_TEXT[
+                star.type === "hung"
+                  ? "hung"
+                  : star.type === "auxiliary"
+                    ? "auxiliary"
+                    : "cat"
+              ],
+          }}
         >
           {star.name}
         </span>
@@ -116,30 +130,58 @@ export function BaziPillarGrid({ chart }: BaziPillarGridProps) {
                 })}
               </tr>
 
-              {(
-                [
-                  ["Chủ tinh", (k: PillarKey) => chart.pillars[k].tenGodGanVi],
-                  ["Trường sinh", (k: PillarKey) => chart.pillars[k].diShiVi],
-                  ["Nạp âm", (k: PillarKey) => chart.pillars[k].naYinVi],
-                  [
-                    "Tuần / Không",
-                    (k: PillarKey) =>
-                      `${chart.pillars[k].xunVi} · ${chart.pillars[k].xunKongVi}`,
-                  ],
-                ] as const
-              ).map(([label, getter]) => (
-                <tr key={label} className="border-b border-border">
-                  <td className="px-4 py-2 text-xs font-semibold text-muted">{label}</td>
-                  {PILLAR_ORDER.map((key) => (
-                    <td
-                      key={key}
-                      className="px-4 py-2 text-center text-sm font-medium text-foreground"
-                    >
-                      {getter(key)}
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 text-xs font-semibold text-muted">Chủ tinh</td>
+                {PILLAR_ORDER.map((key) => {
+                  const p = chart.pillars[key];
+                  return (
+                    <td key={key} className="px-4 py-2 text-center text-sm font-semibold">
+                      <span style={{ color: elementTheme(stemElement(p.gan)).color }}>
+                        {p.tenGodGanVi}
+                      </span>
                     </td>
-                  ))}
-                </tr>
-              ))}
+                  );
+                })}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 text-xs font-semibold text-muted">Trường sinh</td>
+                {PILLAR_ORDER.map((key) => (
+                  <td
+                    key={key}
+                    className="px-4 py-2 text-center text-sm font-medium text-foreground"
+                  >
+                    {chart.pillars[key].diShiVi}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 text-xs font-semibold text-muted">Nạp âm</td>
+                {PILLAR_ORDER.map((key) => {
+                  const p = chart.pillars[key];
+                  return (
+                    <td key={key} className="px-4 py-2 text-center text-sm font-semibold">
+                      <span
+                        style={{
+                          color: elementTheme(naYinElement(p.naYin || p.naYinVi)).color,
+                        }}
+                      >
+                        {p.naYinVi}
+                      </span>
+                    </td>
+                  );
+                })}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 text-xs font-semibold text-muted">Tuần / Không</td>
+                {PILLAR_ORDER.map((key) => (
+                  <td
+                    key={key}
+                    className="px-4 py-2 text-center text-sm font-medium text-foreground"
+                  >
+                    {chart.pillars[key].xunVi} · {chart.pillars[key].xunKongVi}
+                  </td>
+                ))}
+              </tr>
 
               <tr>
                 <td className="px-4 py-2.5 text-xs font-semibold text-muted">Thần sát</td>
@@ -154,16 +196,20 @@ export function BaziPillarGrid({ chart }: BaziPillarGridProps) {
         </div>
 
         <p className="border-t border-border px-4 py-2.5 text-xs text-muted">
-          <span className="font-semibold text-foreground">Chú thích màu:</span> Can/Chi/Trụ —{" "}
+          <span className="font-semibold text-foreground">Chú thích màu:</span> Can/Chi/Nạp
+          âm/Chủ·Phó tinh theo ngũ hành —{" "}
           <span style={{ color: elementTheme("Mộc").color }}>Mộc</span>,{" "}
           <span style={{ color: elementTheme("Hỏa").color }}>Hỏa</span>,{" "}
           <span style={{ color: elementTheme("Thổ").color }}>Thổ</span>,{" "}
           <span style={{ color: elementTheme("Kim").color }}>Kim</span>,{" "}
           <span style={{ color: elementTheme("Thủy").color }}>Thủy</span>
           {" · "}
-          Thần sát —{" "}
-          <span style={{ color: SHEN_SHA_TEXT.cat }}>cát</span>,{" "}
-          <span style={{ color: SHEN_SHA_TEXT.hung }}>hung</span>
+          Thần sát — phụ chứng (
+          <span style={{ color: SHEN_SHA_TEXT.cat }}>thiên cát</span>
+          {" / "}
+          <span style={{ color: SHEN_SHA_TEXT.hung }}>thiên hung</span>
+          {" — truyền thống, không trọng số"}
+          )
         </p>
       </BaziCard>
 
@@ -188,8 +234,18 @@ export function BaziPillarGrid({ chart }: BaziPillarGridProps) {
                         key={`${key}-${h.gan}`}
                         className="flex items-center justify-between gap-2 text-sm"
                       >
-                        <span className="font-medium text-foreground">{h.ganVi}</span>
-                        <span className="font-semibold text-foreground">{h.tenGodVi}</span>
+                        <span
+                          className="font-semibold"
+                          style={{ color: elementTheme(stemElement(h.gan)).color }}
+                        >
+                          {h.ganVi}
+                        </span>
+                        <span
+                          className="font-semibold"
+                          style={{ color: elementTheme(stemElement(h.gan)).color }}
+                        >
+                          {h.tenGodVi}
+                        </span>
                       </li>
                     ))}
                   </ul>

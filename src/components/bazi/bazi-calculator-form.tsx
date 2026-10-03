@@ -1,9 +1,16 @@
 "use client";
 
 import type { Gender } from "@/lib/bazi-schema";
+import { calculateBaZi } from "@/lib/astrology-engine";
+import {
+  dayBoundaryOptionHint,
+  dayBoundaryOptionLabel,
+  isDayBoundarySensitiveHour,
+  type DayBoundaryMode,
+} from "@/lib/core/conventions";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BaziButton, BaziCard, BaziField, BaziInput, BaziSelect } from "./bazi-ui";
 
 const TIMEZONE_OPTIONS = [
@@ -30,6 +37,7 @@ export function BaziCalculatorForm() {
   const t = useTranslations("bazi");
   const router = useRouter();
   const now = new Date();
+  const currentYear = now.getFullYear();
 
   const [fullName, setFullName] = useState("");
   const [birthPlace, setBirthPlace] = useState("");
@@ -40,16 +48,68 @@ export function BaziCalculatorForm() {
   const [minute, setMinute] = useState(0);
   const [gender, setGender] = useState<Gender>("male");
   const [timezone, setTimezone] = useState("Asia/Ho_Chi_Minh");
+  const [referenceYear, setReferenceYear] = useState(currentYear);
+  const [dayBoundaryMode, setDayBoundaryMode] =
+    useState<DayBoundaryMode>("midnight_00");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const maxDay = useMemo(() => daysInMonth(year, month), [year, month]);
+  const sensitiveHour = isDayBoundarySensitiveHour(hour);
 
-  const years = useMemo(() => {
+  useEffect(() => {
+    if (!sensitiveHour) setDayBoundaryMode("midnight_00");
+  }, [sensitiveHour]);
+
+  const birthYears = useMemo(() => {
     const list: number[] = [];
-    for (let y = now.getFullYear(); y >= 1920; y--) list.push(y);
+    for (let y = currentYear; y >= 1920; y--) list.push(y);
     return list;
-  }, [now]);
+  }, [currentYear]);
+
+  const viewYears = useMemo(() => {
+    const list: number[] = [];
+    for (let y = currentYear + 5; y >= 1920; y--) list.push(y);
+    return list;
+  }, [currentYear]);
+
+  const boundaryPreview = useMemo(() => {
+    if (!sensitiveHour) return null;
+    try {
+      const local = {
+        year,
+        month,
+        day: Math.min(day, maxDay),
+        hour,
+        minute,
+        second: 0,
+      };
+      const mid = calculateBaZi({
+        gender,
+        timezone,
+        local,
+        conventions: { dayBoundaryMode: "midnight_00" },
+      });
+      const zi = calculateBaZi({
+        gender,
+        timezone,
+        local,
+        conventions: { dayBoundaryMode: "zi_start_23" },
+      });
+      return {
+        midnight_00: {
+          day: mid.pillars.day.ganZhiVi,
+          hour: mid.pillars.hour.ganZhiVi,
+        },
+        zi_start_23: {
+          day: zi.pillars.day.ganZhiVi,
+          hour: zi.pillars.hour.ganZhiVi,
+        },
+      };
+    } catch {
+      return null;
+    }
+  }, [sensitiveHour, year, month, day, maxDay, hour, minute, gender, timezone]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -71,6 +131,7 @@ export function BaziCalculatorForm() {
           minute,
           second: 0,
           timezone,
+          dayBoundaryMode: sensitiveHour ? dayBoundaryMode : "midnight_00",
           save: true,
         }),
       });
@@ -84,7 +145,7 @@ export function BaziCalculatorForm() {
       }
 
       if (data.chartId) {
-        router.push(`/chart/${data.chartId}`);
+        router.push(`/chart/${data.chartId}?year=${referenceYear}`);
         return;
       }
 
@@ -109,23 +170,24 @@ export function BaziCalculatorForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 p-6">
-        <BaziField label={t("form.fullName")} htmlFor="fullName">
-          <BaziInput
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder={t("form.fullNamePlaceholder")}
-          />
-        </BaziField>
-
-        <BaziField label="Nơi sinh" htmlFor="birthPlace">
-          <BaziInput
-            id="birthPlace"
-            value={birthPlace}
-            onChange={(e) => setBirthPlace(e.target.value)}
-            placeholder="Ví dụ: Hà Nội"
-          />
-        </BaziField>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <BaziField label={t("form.fullName")} htmlFor="fullName">
+            <BaziInput
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder={t("form.fullNamePlaceholder")}
+            />
+          </BaziField>
+          <BaziField label="Nơi sinh" htmlFor="birthPlace">
+            <BaziInput
+              id="birthPlace"
+              value={birthPlace}
+              onChange={(e) => setBirthPlace(e.target.value)}
+              placeholder="Ví dụ: Hà Nội"
+            />
+          </BaziField>
+        </div>
 
         <div className="grid grid-cols-3 gap-3">
           <BaziField label="Ngày" htmlFor="day">
@@ -141,7 +203,6 @@ export function BaziCalculatorForm() {
               ))}
             </BaziSelect>
           </BaziField>
-
           <BaziField label="Tháng" htmlFor="month">
             <BaziSelect
               id="month"
@@ -155,14 +216,13 @@ export function BaziCalculatorForm() {
               ))}
             </BaziSelect>
           </BaziField>
-
-          <BaziField label="Năm" htmlFor="year">
+          <BaziField label="Năm sinh" htmlFor="year">
             <BaziSelect
               id="year"
               value={year}
               onChange={(e) => setYear(Number(e.target.value))}
             >
-              {years.map((y) => (
+              {birthYears.map((y) => (
                 <option key={y} value={y}>
                   {y}
                 </option>
@@ -185,7 +245,6 @@ export function BaziCalculatorForm() {
               ))}
             </BaziSelect>
           </BaziField>
-
           <BaziField label="Phút" htmlFor="minute">
             <BaziSelect
               id="minute"
@@ -199,7 +258,6 @@ export function BaziCalculatorForm() {
               ))}
             </BaziSelect>
           </BaziField>
-
           <BaziField label="Loại lịch" htmlFor="calendarType">
             <BaziSelect id="calendarType" value="solar" disabled>
               <option value="solar">Dương lịch</option>
@@ -207,32 +265,100 @@ export function BaziCalculatorForm() {
           </BaziField>
         </div>
 
-        <BaziField label={t("form.gender")} htmlFor="gender">
-          <BaziSelect
-            id="gender"
-            value={gender}
-            onChange={(e) => setGender(e.target.value as Gender)}
-          >
-            <option value="male">{t("form.male")}</option>
-            <option value="female">{t("form.female")}</option>
-          </BaziSelect>
-        </BaziField>
+        {/* Giới tính · Múi giờ · Năm xem — 1 hàng */}
+        <div className="grid grid-cols-[minmax(5.5rem,7rem)_minmax(0,1fr)_minmax(6.5rem,8rem)] gap-3">
+          <BaziField label={t("form.gender")} htmlFor="gender">
+            <BaziSelect
+              id="gender"
+              value={gender}
+              onChange={(e) => setGender(e.target.value as Gender)}
+            >
+              <option value="male">{t("form.male")}</option>
+              <option value="female">{t("form.female")}</option>
+            </BaziSelect>
+          </BaziField>
+          <BaziField label={t("form.timezone")} htmlFor="timezone">
+            <BaziSelect
+              id="timezone"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+            >
+              {TIMEZONE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </BaziSelect>
+          </BaziField>
+          <BaziField label="Năm xem" htmlFor="referenceYear">
+            <BaziSelect
+              id="referenceYear"
+              value={referenceYear}
+              onChange={(e) => setReferenceYear(Number(e.target.value))}
+            >
+              {viewYears.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </BaziSelect>
+          </BaziField>
+        </div>
 
-        <BaziField label={t("form.timezone")} htmlFor="timezone">
-          <BaziSelect
-            id="timezone"
-            value={timezone}
-            onChange={(e) => setTimezone(e.target.value)}
-          >
-            {TIMEZONE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </BaziSelect>
-        </BaziField>
+        {/* Chỉ hiện khi giờ 23:00–23:59 */}
+        {sensitiveHour ? (
+          <div className="rounded-lg border border-accent/40 bg-accent-light/60 px-3 py-3">
+            <fieldset>
+              <legend className="text-sm font-bold text-foreground">
+                Quy ước Giờ Tý
+              </legend>
+              <p className="mt-1.5 text-[13px] font-semibold leading-snug text-accent">
+                Giờ sinh bạn vừa nhập nằm trong khoảng nhạy với quy ước đổi ngày.
+                Vui lòng chọn quy ước Giờ Tý phù hợp với trường phái sử dụng.
+              </p>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {(["midnight_00", "zi_start_23"] as const).map((mode) => {
+                  const preview = boundaryPreview?.[mode];
+                  return (
+                    <label
+                      key={mode}
+                      className={`flex cursor-pointer items-start gap-2.5 rounded-md border px-3 py-2.5 text-sm transition ${
+                        dayBoundaryMode === mode
+                          ? "border-accent bg-surface shadow-sm"
+                          : "border-border bg-surface hover:border-border-strong"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="dayBoundaryMode"
+                        className="mt-1 accent-[var(--accent)]"
+                        checked={dayBoundaryMode === mode}
+                        onChange={() => setDayBoundaryMode(mode)}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="font-bold text-foreground">
+                          {dayBoundaryOptionLabel(mode)}
+                        </span>
+                        <span className="block text-xs text-muted">
+                          {dayBoundaryOptionHint(mode)}
+                        </span>
+                        {preview ? (
+                          <span className="mt-1 block text-xs font-semibold text-foreground">
+                            Nhật: {preview.day}
+                            <br />
+                            Thời: {preview.hour}
+                          </span>
+                        ) : null}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </div>
+        ) : null}
 
-        <div className="pt-2">
+        <div className="pt-1">
           <BaziButton type="submit" disabled={isLoading}>
             {isLoading ? t("form.calculating") : "Tạo lá số"}
           </BaziButton>

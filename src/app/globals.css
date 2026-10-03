@@ -115,6 +115,35 @@ select option:checked {
 .bazi-pillar-char {
   font-weight: 700;
   letter-spacing: -0.01em;
+  line-height: 1.2;
+  display: inline-block;
   -webkit-font-smoothing: subpixel-antialiased;
   text-rendering: geometricPrecision;
+}
+
+/* Compact pillars (Đại vận / Lưu niên): luôn xếp dọc — không để span inline dính chữ */
+.bazi-compact-pillar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  line-height: 1.25;
+}
+
+.bazi-compact-pillar > * {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Can–chi vẫn nằm ngang trong một dòng */
+.bazi-compact-pillar > .bazi-ganzhi-inline {
+  display: inline-flex !important;
+  width: auto;
+  max-width: 100%;
+  justify-content: center;
+  flex-wrap: nowrap;
 }

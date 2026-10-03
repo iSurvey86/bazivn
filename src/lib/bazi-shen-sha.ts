@@ -1,30 +1,24 @@
 /**
  * Auxiliary Shen Sha (神煞) — phụ chứng only.
  * Lộc / Nhận live in dayMasterQiStates (core/daymaster-qi.ts), not here.
+ * Catalog v2.0 additions: src/lib/shen-sha/
  */
 
 import { STEM_VI } from "./bazi-terminology";
+import {
+  computeDayStemBranchStarsV2,
+  computeNatalStarsV2,
+  computeSpecialDayMarkers,
+  SHEN_SHA_CATALOG_VERSION,
+  type NatalPillars,
+  type ShenShaItem,
+  type ShenShaYuanJu,
+  type SpecialDayMarkers,
+} from "./shen-sha";
 
+export type { ShenShaItem, ShenShaYuanJu, SpecialDayMarkers };
 export type ShenShaWeightClass = "auxiliary";
-
-export interface ShenShaItem {
-  key: string;
-  name: string;
-  /** @deprecated Display tone only — not logical weight. */
-  type?: "cat" | "hung" | "auxiliary";
-  /** Optional traditional folk label — not used as logic weight. */
-  traditionalTone?: "thien_cat" | "thien_hung" | "trung_tinh";
-  weightClass: ShenShaWeightClass;
-  sourceId?: string;
-  aliases?: string[];
-}
-
-export interface ShenShaYuanJu {
-  nien: ShenShaItem[];
-  nguyet: ShenShaItem[];
-  nhat: ShenShaItem[];
-  thoi: ShenShaItem[];
-}
+export { SHEN_SHA_CATALOG_VERSION };
 
 const DAY_STEM_NOBLE: Record<string, string[]> = {
   甲: ["丑", "未"],
@@ -277,7 +271,7 @@ function starsForBranch(
       add(
         stars,
         "tao_hua_xian_chi",
-        "Đào Hoa (Hàm Trì)",
+        "Đào Hoa",
         "shensha.taohua_xianchi.yearOrDay.v1",
         "cat",
         ["Đào Hoa", "Hàm Trì", "桃花", "咸池"],
@@ -320,15 +314,24 @@ function starsForBranch(
     );
   }
 
+  // Catalog v2.0 — day-stem branch stars (Học Đường / Từ Quán / Kim Dư)
+  for (const s of computeDayStemBranchStarsV2(pillarZhi, dayStem)) {
+    if (!stars.some((x) => x.key === s.key)) stars.push(s);
+  }
+
   return stars;
 }
 
 export function computeChartShenSha(params: {
   dayStem: string;
   dayBranch: string;
+  yearStem?: string;
   yearBranch: string;
   monthBranch: string;
   hourBranch: string;
+  /** Full natal pillars (gan+zhi) — required for catalog v2 natal stars. */
+  pillars?: NatalPillars;
+  gender?: "male" | "female";
 }): {
   year: ShenShaItem[];
   month: ShenShaItem[];
@@ -336,6 +339,8 @@ export function computeChartShenSha(params: {
   hour: ShenShaItem[];
   yuanJu: ShenShaYuanJu;
   summary: ShenShaItem[];
+  specialDayMarkers: SpecialDayMarkers | null;
+  shenShaCatalogVersion: string;
 } {
   const refs = {
     dayStem: params.dayStem,
@@ -348,6 +353,31 @@ export function computeChartShenSha(params: {
   const month = starsForBranch(params.monthBranch, refs);
   const day = starsForBranch(params.dayBranch, refs);
   const hour = starsForBranch(params.hourBranch, refs);
+
+  const pillars: NatalPillars =
+    params.pillars ??
+    ({
+      year: { gan: params.yearStem ?? "", zhi: params.yearBranch },
+      month: { gan: "", zhi: params.monthBranch },
+      day: { gan: params.dayStem, zhi: params.dayBranch },
+      hour: { gan: "", zhi: params.hourBranch },
+    } satisfies NatalPillars);
+
+  if (params.gender && params.pillars) {
+    const natal = computeNatalStarsV2({
+      pillars: params.pillars,
+      gender: params.gender,
+    });
+    const merge = (slot: "year" | "month" | "day" | "hour", list: ShenShaItem[]) => {
+      for (const s of natal[slot]) {
+        if (!list.some((x) => x.key === s.key)) list.push(s);
+      }
+    };
+    merge("year", year);
+    merge("month", month);
+    merge("day", day);
+    merge("hour", hour);
+  }
 
   const yuanJu: ShenShaYuanJu = {
     nien: year,
@@ -363,6 +393,17 @@ export function computeChartShenSha(params: {
     }
   }
 
+  const yearPillar = `${pillars.year.gan}${pillars.year.zhi}`;
+  const dayPillar = `${pillars.day.gan}${pillars.day.zhi}`;
+  const specialDayMarkers =
+    pillars.year.gan && pillars.day.gan
+      ? computeSpecialDayMarkers({
+          yearPillar,
+          dayPillar,
+          monthBranch: params.monthBranch,
+        })
+      : null;
+
   return {
     year,
     month,
@@ -370,6 +411,8 @@ export function computeChartShenSha(params: {
     hour,
     yuanJu,
     summary: Array.from(summaryMap.values()),
+    specialDayMarkers,
+    shenShaCatalogVersion: SHEN_SHA_CATALOG_VERSION,
   };
 }
 

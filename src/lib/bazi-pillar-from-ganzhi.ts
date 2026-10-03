@@ -29,6 +29,9 @@ export interface CompactPillarDetail {
   zhi: string;
   ganZhi: string;
   ganZhiVi: string;
+  /** Thập thần Thiên Can so Nhật chủ */
+  tenGodGan: string;
+  tenGodGanVi: string;
   naYin: string;
   naYinVi: string;
   diShi: string;
@@ -40,7 +43,7 @@ export interface CompactPillarDetail {
   xunKongVi: string;
 }
 
-function tenGodForStem(dayGan: string, targetGan: string): string {
+export function tenGodForStem(dayGan: string, targetGan: string): string {
   const key = `${dayGan}${targetGan}`;
   return LunarUtil.SHI_SHEN[key] ?? "";
 }
@@ -73,6 +76,7 @@ export function pillarFromGanZhi(
     tenGodVi: tenGodToVi(tenGodZhi[i] ?? ""),
     role: h.role,
   }));
+  const tenGodGan = tenGodForStem(dayGan, gan);
   const naYin = LunarUtil.NAYIN[ganZhi] ?? "";
   const diShi = getChangSheng(dayGan, zhi);
   const xun = LunarUtil.getXun(ganZhi);
@@ -83,6 +87,8 @@ export function pillarFromGanZhi(
     zhi,
     ganZhi,
     ganZhiVi: pillarToVi(ganZhi),
+    tenGodGan,
+    tenGodGanVi: tenGodToVi(tenGodGan),
     naYin,
     naYinVi: naYinToVi(naYin),
     diShi,

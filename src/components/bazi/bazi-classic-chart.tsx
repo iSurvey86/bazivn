@@ -1,12 +1,14 @@
 "use client";
 
-import { forwardRef, type ReactNode } from "react";
-import type { BaZiChartResult } from "@/lib/astrology-engine";
+import { forwardRef, useState, type ReactNode } from "react";
+import type { BaZiChartResult, DaYunDetail } from "@/lib/astrology-engine";
 import type { ShenShaItem } from "@/lib/bazi-shen-sha";
+import { ensureDaYunDetail } from "@/lib/bazi-dayun-detail";
 import {
   branchClassicLabel,
   branchElement,
   formatTimezoneLabel,
+  naYinElement,
   stemClassicLabel,
   stemElement,
 } from "@/lib/bazi-terminology";
@@ -16,10 +18,14 @@ import {
   PILLAR_ORDER,
   type PillarKey,
 } from "@/lib/bazi-theme";
-
 import { BaziCloudDecor } from "./bazi-chart-decor";
+import { BaziDayunDetailPanel } from "./bazi-dayun-detail-panel";
 
-const SHEN_SHA_TEXT = { cat: "#2d5a40", hung: "#a83828" } as const;
+const SHEN_SHA_TEXT = {
+  cat: "#2d5a40",
+  hung: "#a83828",
+  auxiliary: "#5c4a3a",
+} as const;
 
 const C = {
   border: "#dcc4a8",
@@ -33,34 +39,17 @@ const C = {
   titleAccent: "#c45c26",
   downloadBg: "#c45c26",
   downloadHover: "#a34a1c",
-  ink: "#3f2a1d",
+  ink: "#000000",
 } as const;
 
 /** Màu tiêu đề từng khung — ấm, nhẹ, dễ phân biệt */
 const SECTION = {
   info: { bg: "#f6d7a8", text: "#7a3f0f" },
-  yuanJu: { bg: "#f2c9b0", text: "#8a3a1c" },
   dayun: { bg: "#e8d4a8", text: "#6b4e12" },
   liunian: { bg: "#d9e4b8", text: "#4d5e1f" },
-  usefulGod: { bg: "#f5c6b8", text: "#8f2f1f" },
-  directions: { bg: "#d8e8d0", text: "#3d5c32" },
   palaces: { bg: "#e4d2f0", text: "#5a3a6e" },
   wuxing: { bg: "#f0d9a0", text: "#7a5210" },
 } as const;
-
-/** Nền nhãn hàng — xen kẽ để tách khuông trong bảng trụ */
-const ROW_LABEL_BG = [
-  "#ffe8cc", // Dương lịch
-  "#ffd9c2", // Chủ tinh
-  "#f7e2b8", // Thiên can
-  "#e8f0c8", // Địa chi
-  "#f5d6c8", // Tàng ẩn
-  "#e4ddd0", // Phó tinh
-  "#f0e0b0", // Trường sinh
-  "#e8d8c0", // Nạp âm
-  "#f8d4b8", // Tuần / Không
-  "#ecd8e8", // Thần sát
-] as const;
 
 const PILLAR_HEADERS: Record<PillarKey, string> = {
   year: "NĂM",
@@ -69,20 +58,11 @@ const PILLAR_HEADERS: Record<PillarKey, string> = {
   hour: "GIỜ",
 };
 
-const YUAN_JU_LABELS = [
-  { key: "nien" as const, label: "Niên thần" },
-  { key: "nguyet" as const, label: "Nguyệt thần" },
-  { key: "nhat" as const, label: "Nhật thần" },
-  { key: "thoi" as const, label: "Thời thần" },
-];
-
 type BaziClassicChartProps = {
   chart: BaZiChartResult;
   fullName?: string | null;
   birthPlace?: string | null;
   referenceYear: number;
-  yearOptions: number[];
-  onReferenceYearChange: (year: number) => void;
   onDownload: () => void;
   exporting?: boolean;
 };
@@ -112,19 +92,13 @@ function Cell({
   );
 }
 
-function LabelCell({
-  children,
-  bg,
-}: {
-  children: ReactNode;
-  bg?: string;
-}) {
+function LabelCell({ children }: { children: ReactNode }) {
   return (
     <th
-      className="bazi-label-col w-36 min-w-[8.5rem] border px-2 py-1.5 text-center align-middle text-xs font-bold uppercase leading-snug"
+      className="bazi-label-col w-36 min-w-[8.5rem] border px-2 py-1.5 text-left align-middle text-xs font-bold uppercase leading-snug"
       style={{
         borderColor: C.border,
-        backgroundColor: bg ?? C.labelBg,
+        backgroundColor: C.surface,
         color: C.ink,
       }}
     >
@@ -159,36 +133,183 @@ function ColoredChar({
   text,
   element,
   size = "lg",
+  className = "",
 }: {
   text: string;
   element: string;
-  size?: "lg" | "sm";
+  size?: "lg" | "sm" | "xs";
+  className?: string;
 }) {
   const color = elementTheme(element).color;
+  const sizeClass =
+    size === "lg" ? "text-xl" : size === "sm" ? "text-sm" : "text-[10px]";
   return (
     <span
-      className={`bazi-pillar-char inline-block leading-tight ${size === "lg" ? "text-xl" : "text-sm"}`}
-      style={{ color }}
+      className={`bazi-pillar-char font-semibold ${sizeClass} ${className}`}
+      style={{ color, lineHeight: 1.15, display: "inline-block" }}
     >
       {text}
     </span>
   );
 }
 
+/** "Bính +Hỏa" → tên đen, ngũ hành nhỏ hơn + đúng màu hành */
+function ClassicNameElement({
+  name,
+  polarity,
+  element,
+  size = "lg",
+}: {
+  name: string;
+  polarity: "+" | "-";
+  element: string;
+  size?: "lg" | "sm" | "xs";
+}) {
+  const nameSize =
+    size === "lg" ? "text-xl" : size === "sm" ? "text-sm" : "text-[11px]";
+  const elSize =
+    size === "lg" ? "text-sm" : size === "sm" ? "text-[10px]" : "text-[9px]";
+  return (
+    <span
+      className="inline-flex items-baseline justify-center gap-x-1 whitespace-nowrap"
+      style={{ lineHeight: 1.15 }}
+    >
+      <span
+        className={`bazi-pillar-char font-semibold ${nameSize}`}
+        style={{ color: C.ink }}
+      >
+        {name}
+      </span>
+      <span
+        className={`bazi-pillar-char font-semibold ${elSize}`}
+        style={{ color: elementTheme(element).color }}
+      >
+        {polarity}
+        {element}
+      </span>
+    </span>
+  );
+}
+
+function ClassicStemLabel({
+  gan,
+  size = "lg",
+}: {
+  gan: string;
+  size?: "lg" | "sm" | "xs";
+}) {
+  const label = stemClassicLabel(gan);
+  const [name, rest] = label.split(/\s+/);
+  const polarity = (rest?.[0] === "-" ? "-" : "+") as "+" | "-";
+  const element = rest?.slice(1) || stemElement(gan);
+  return (
+    <ClassicNameElement
+      name={name ?? gan}
+      polarity={polarity}
+      element={element}
+      size={size}
+    />
+  );
+}
+
+function ClassicBranchLabel({
+  zhi,
+  size = "lg",
+}: {
+  zhi: string;
+  size?: "lg" | "sm" | "xs";
+}) {
+  const label = branchClassicLabel(zhi);
+  const [name, rest] = label.split(/\s+/);
+  const polarity = (rest?.[0] === "-" ? "-" : "+") as "+" | "-";
+  const element = rest?.slice(1) || branchElement(zhi);
+  return (
+    <ClassicNameElement
+      name={name ?? zhi}
+      polarity={polarity}
+      element={element}
+      size={size}
+    />
+  );
+}
+
+/**
+ * Can · Chi mỗi chữ một màu.
+ * - inline: một hàng (bảng trụ / cung)
+ * - stack: Can trên Chi dưới — cột hẹp Đại vận/Lưu niên, tránh chồng chữ khi xuất PNG
+ */
+function ColoredGanZhi({
+  ganZhi,
+  ganZhiVi,
+  size = "sm",
+  layout = "inline",
+}: {
+  ganZhi: string;
+  ganZhiVi: string;
+  size?: "lg" | "sm" | "xs";
+  layout?: "inline" | "stack";
+}) {
+  const parts = ganZhiVi.trim().split(/\s+/);
+  const ganLabel = parts[0] ?? ganZhiVi;
+  const zhiLabel = parts.slice(1).join(" ") || "";
+  if (layout === "stack") {
+    return (
+      <span
+        className="flex flex-col items-center justify-center"
+        style={{ lineHeight: 1.15, gap: 1 }}
+      >
+        <ColoredChar
+          text={ganLabel}
+          element={stemElement(ganZhi[0] ?? "")}
+          size={size}
+        />
+        {zhiLabel ? (
+          <ColoredChar
+            text={zhiLabel}
+            element={branchElement(ganZhi[1] ?? "")}
+            size={size}
+          />
+        ) : null}
+      </span>
+    );
+  }
+  return (
+    <span
+      className="bazi-ganzhi-inline inline-flex max-w-full flex-nowrap items-center justify-center gap-x-0.5 whitespace-nowrap"
+      style={{ lineHeight: 1.15 }}
+    >
+      <ColoredChar text={ganLabel} element={stemElement(ganZhi[0] ?? "")} size={size} />
+      {zhiLabel ? (
+        <ColoredChar
+          text={zhiLabel}
+          element={branchElement(ganZhi[1] ?? "")}
+          size={size}
+        />
+      ) : null}
+    </span>
+  );
+}
+
+function shenShaTone(star: ShenShaItem): keyof typeof SHEN_SHA_TEXT {
+  if (star.type === "hung") return "hung";
+  if (star.type === "auxiliary") return "auxiliary";
+  return "cat";
+}
+
 function ShenShaText({ stars }: { stars: ShenShaItem[] }) {
   if (stars.length === 0) return <span className="text-[#999]">—</span>;
   return (
-    <div className="inline-flex flex-col items-center gap-0.5">
-      {stars.map((s) => (
-        <span
-          key={s.key}
-          className="text-xs"
-          style={{ color: SHEN_SHA_TEXT[s.type] }}
-        >
-          {s.name}
+    <span
+      className="text-xs leading-snug"
+      title="Thần Sát là phụ chứng, không dùng độc lập để kết luận."
+    >
+      {stars.map((s, i) => (
+        <span key={s.key}>
+          {i > 0 ? ", " : ""}
+          <span style={{ color: SHEN_SHA_TEXT[shenShaTone(s)] }}>{s.name}</span>
         </span>
       ))}
-    </div>
+    </span>
   );
 }
 
@@ -201,6 +322,12 @@ function solarCellText(chart: BaZiChartResult, key: PillarKey) {
 }
 
 function khoiVanText(chart: BaZiChartResult) {
+  const exact = chart.yun.startSolarExact;
+  if (exact) {
+    const hh = String(exact.hour).padStart(2, "0");
+    const mm = String(exact.minute).padStart(2, "0");
+    return `${exact.day}/${exact.month}/${exact.year} ${hh}:${mm}`;
+  }
   const d = chart.yun.startSolarDate;
   if (d) {
     return `${d.day}/${d.month}/${d.year}`;
@@ -215,8 +342,6 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
       fullName,
       birthPlace,
       referenceYear,
-      yearOptions,
-      onReferenceYearChange,
       onDownload,
       exporting = false,
     },
@@ -229,13 +354,14 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
     const row1 = liuNianYears.slice(0, 10);
     const row2 = liuNianYears.slice(10, 20);
     const refLiuNian = liuNianYears.find((ln) => ln.year === referenceYear);
-    const yuanJu = chart.shenShaYuanJu ?? {
-      nien: chart.pillars.year.shenSha ?? [],
-      nguyet: chart.pillars.month.shenSha ?? [],
-      nhat: chart.pillars.day.shenSha ?? [],
-      thoi: chart.pillars.hour.shenSha ?? [],
-    };
     const tzLabel = formatTimezoneLabel(chart.timezone);
+    const [selectedDaYunIndex, setSelectedDaYunIndex] = useState<number | null>(
+      null,
+    );
+    const selectedDaYun: DaYunDetail | null =
+      selectedDaYunIndex == null
+        ? null
+        : (chart.yun.daYun.find((d) => d.index === selectedDaYunIndex) ?? null);
 
     return (
       <div
@@ -248,8 +374,8 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
           style={{ borderColor: C.border, backgroundColor: C.labelBg }}
         >
           <BaziCloudDecor />
-          <div className="relative flex flex-wrap items-start justify-between gap-4">
-            <div>
+          <div className="relative flex flex-col items-center space-y-3">
+            <div className="text-center">
               <p className="text-xs tracking-widest" style={{ color: C.muted }}>
                 BaziVN
               </p>
@@ -257,49 +383,25 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                 BẢN ĐỒ{" "}
                 <span style={{ color: C.titleAccent }}>BÁT TỰ</span>
               </h1>
-              <div className="mt-2 flex items-center gap-2">
-                <label
-                  htmlFor="chart-reference-year"
-                  className="text-xs font-medium"
-                  style={{ color: C.muted }}
-                >
-                  Năm tính:
-                </label>
-                <select
-                  id="chart-reference-year"
-                  value={referenceYear}
-                  onChange={(e) => onReferenceYearChange(Number(e.target.value))}
-                  className="rounded border px-2 py-0.5 text-xs font-semibold outline-none focus:ring-1"
-                  style={{
-                    borderColor: C.border,
-                    backgroundColor: C.surface,
-                    color: C.ink,
-                  }}
-                >
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
-            <dl className="space-y-0.5 text-sm">
-              <div className="flex gap-2">
+            <dl className="mx-auto grid w-fit max-w-full grid-cols-1 gap-x-10 gap-y-0.5 text-sm sm:grid-cols-2">
+              <div className="flex items-baseline gap-2">
                 <dt style={{ color: C.muted }}>Họ tên:</dt>
                 <dd>{fullName?.trim() || "—"}</dd>
               </div>
-              {birthPlace?.trim() ? (
-                <div className="flex gap-2">
-                  <dt style={{ color: C.muted }}>Nơi sinh:</dt>
-                  <dd>{birthPlace.trim()}</dd>
-                </div>
-              ) : null}
-              <div className="flex gap-2">
+              <div className="flex items-baseline gap-2">
+                <dt style={{ color: C.muted }}>Nơi sinh:</dt>
+                <dd>{birthPlace?.trim() || "—"}</dd>
+              </div>
+              <div className="flex items-baseline gap-2">
                 <dt style={{ color: C.muted }}>Giới tính:</dt>
                 <dd>{chart.genderLabel}</dd>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-baseline gap-2">
+                <dt style={{ color: C.muted }}>Năm xem:</dt>
+                <dd>{referenceYear}</dd>
+              </div>
+              <div className="flex items-baseline gap-2">
                 <dt style={{ color: C.muted }}>Dương lịch:</dt>
                 <dd>
                   {chart.solar.day}/{chart.solar.month}/{chart.solar.year}{" "}
@@ -310,36 +412,74 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                   </span>
                 </dd>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-baseline gap-2">
                 <dt style={{ color: C.muted }}>Âm lịch:</dt>
                 <dd>
                   {chart.lunar.day}/{chart.lunar.month}/{chart.lunar.year}
                 </dd>
               </div>
-              {chart.currentSolarTermVi ? (
-                <div className="flex gap-2">
-                  <dt style={{ color: C.muted }}>Tiết khí:</dt>
-                  <dd>
-                    {chart.currentSolarTermVi}
-                    {chart.monthCommandVi ? (
-                      <span className="text-xs" style={{ color: C.muted }}>
-                        {" "}
-                        · nguyệt lệnh {chart.monthCommandVi}
-                      </span>
-                    ) : null}
-                  </dd>
+              <div className="space-y-0.5">
+                <div className="flex items-baseline gap-2">
+                  <dt style={{ color: C.muted }}>
+                    Khởi vận · {chart.yun.isForward ? "thuận" : "nghịch"}:
+                  </dt>
+                  <dd>{khoiVanText(chart)}</dd>
                 </div>
-              ) : null}
-              <div className="flex gap-2">
-                <dt style={{ color: C.muted }}>Khởi vận:</dt>
-                <dd>{khoiVanText(chart)}</dd>
+                {chart.monthCommand?.commandingStem ? (
+                  <div className="flex items-baseline gap-2">
+                    <dt className="shrink-0" style={{ color: C.muted }}>
+                      Nhân nguyên:
+                    </dt>
+                    <dd>
+                      {chart.monthCommand.phase}
+                      {chart.monthCommand.daysFromJie != null
+                        ? ` · ~${chart.monthCommand.daysFromJie} ngày sau Jie`
+                        : ""}
+                    </dd>
+                  </div>
+                ) : null}
               </div>
-              {chart.isLateRatHour ? (
-                <div className="flex gap-2">
-                  <dt style={{ color: C.muted }}>Ghi chú:</dt>
-                  <dd style={{ color: C.titleAccent }}>Giờ Dạ Tý</dd>
+              <div className="space-y-0.5">
+                {chart.currentSolarTermVi ? (
+                  <div className="flex items-baseline gap-2">
+                    <dt style={{ color: C.muted }}>Tiết khí:</dt>
+                    <dd>
+                      {chart.currentSolarTermVi}
+                      {chart.monthCommandVi ? (
+                        <span className="text-xs" style={{ color: C.muted }}>
+                          {" "}
+                          · nguyệt lệnh {chart.monthCommandVi}
+                        </span>
+                      ) : null}
+                    </dd>
+                  </div>
+                ) : null}
+                <div className="flex flex-col gap-0.5 text-xs font-medium">
+                  <p style={{ color: C.ink }}>
+                    Quy ước Giờ Tý:{" "}
+                    {chart.conventions.dayBoundaryMode === "zi_start_23" ? (
+                      <>
+                        Đổi ngày từ{" "}
+                        <strong className="font-bold" style={{ color: C.titleAccent }}>
+                          23:00
+                        </strong>{" "}
+                        (Giờ Tý thuộc ngày mới)
+                      </>
+                    ) : (
+                      <>
+                        Đổi ngày lúc{" "}
+                        <strong className="font-bold" style={{ color: C.titleAccent }}>
+                          00:00
+                        </strong>{" "}
+                        (phân Dạ Tý – Tảo Tý)
+                      </>
+                    )}
+                  </p>
+                  <p className="text-[11px]" style={{ color: C.muted }}>
+                    *Lưu ý: Tuổi hiển thị trên lá số là tuổi mụ.
+                  </p>
                 </div>
-              ) : null}
+              </div>
             </dl>
           </div>
         </div>
@@ -376,71 +516,80 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                     }}
                   >
                     {PILLAR_HEADERS[key]}
-                    {key === "day" ? (
-                      <span
-                        className="bazi-day-master mt-0.5 block text-xs"
-                        style={{ color: C.titleAccent }}
-                      >
-                        NHẬT CHỦ
-                      </span>
-                    ) : null}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[0]}>Dương lịch</LabelCell>
+                <LabelCell>Dương lịch</LabelCell>
                 {PILLAR_ORDER.map((key) => (
-                  <Cell key={key} bg="#fffaf3">
-                    {solarCellText(chart, key)}
-                  </Cell>
+                  <Cell key={key}>{solarCellText(chart, key)}</Cell>
                 ))}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[1]}>Chủ tinh</LabelCell>
-                {PILLAR_ORDER.map((key) => (
-                  <Cell key={key} bg="#fff7f2">
-                    {chart.pillars[key].tenGodGanVi}
-                  </Cell>
-                ))}
-              </tr>
-              <tr>
-                <LabelCell bg={ROW_LABEL_BG[2]}>Thiên can</LabelCell>
+                <LabelCell>Chủ tinh</LabelCell>
                 {PILLAR_ORDER.map((key) => {
                   const p = chart.pillars[key];
                   return (
-                    <Cell key={key} bg="#fffaf0">
-                      <ColoredChar
-                        text={stemClassicLabel(p.gan)}
-                        element={stemElement(p.gan)}
-                        size="lg"
-                      />
+                    <Cell key={key}>
+                      <span
+                        className="bazi-pillar-char text-sm font-semibold"
+                        style={{ color: C.ink, lineHeight: 1.15 }}
+                      >
+                        {p.tenGodGanVi}
+                      </span>
                     </Cell>
                   );
                 })}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[3]}>Địa chi</LabelCell>
+                <LabelCell>Thiên can</LabelCell>
                 {PILLAR_ORDER.map((key) => {
                   const p = chart.pillars[key];
                   return (
-                    <Cell key={key} bg="#fafcf3">
-                      <ColoredChar
-                        text={branchClassicLabel(p.zhi)}
-                        element={branchElement(p.zhi)}
-                        size="lg"
-                      />
+                    <Cell key={key}>
+                      <ClassicStemLabel gan={p.gan} size="lg" />
                     </Cell>
                   );
                 })}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[4]}>Tàng ẩn</LabelCell>
+                <LabelCell>Địa chi</LabelCell>
                 {PILLAR_ORDER.map((key) => {
                   const p = chart.pillars[key];
                   return (
-                    <Cell key={key} bg="#fff8f5">
+                    <Cell key={key}>
+                      <ClassicBranchLabel zhi={p.zhi} size="lg" />
+                    </Cell>
+                  );
+                })}
+              </tr>
+              <tr>
+                <LabelCell>Tàng ẩn</LabelCell>
+                {PILLAR_ORDER.map((key) => {
+                  const p = chart.pillars[key];
+                  return (
+                    <Cell key={key}>
+                      {p.hideGan.length === 0 ? (
+                        <span style={{ color: C.muted }}>—</span>
+                      ) : (
+                        <div className="inline-flex flex-col items-center gap-0.5">
+                          {p.hideGan.map((h) => (
+                            <ClassicStemLabel key={h.gan} gan={h.gan} size="sm" />
+                          ))}
+                        </div>
+                      )}
+                    </Cell>
+                  );
+                })}
+              </tr>
+              <tr>
+                <LabelCell>Phó tinh</LabelCell>
+                {PILLAR_ORDER.map((key) => {
+                  const p = chart.pillars[key];
+                  return (
+                    <Cell key={key} className="text-[11px] leading-snug">
                       {p.hideGan.length === 0 ? (
                         <span style={{ color: C.muted }}>—</span>
                       ) : (
@@ -448,9 +597,9 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                           {p.hideGan.map((h) => (
                             <ColoredChar
                               key={h.gan}
-                              text={stemClassicLabel(h.gan)}
+                              text={h.tenGodVi}
                               element={stemElement(h.gan)}
-                              size="sm"
+                              size="xs"
                             />
                           ))}
                         </div>
@@ -460,54 +609,63 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                 })}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[5]}>Phó tinh</LabelCell>
+                <LabelCell>Trường sinh</LabelCell>
+                {PILLAR_ORDER.map((key) => (
+                  <Cell key={key}>{chart.pillars[key].diShiVi}</Cell>
+                ))}
+              </tr>
+              <tr>
+                <LabelCell>Lộc · Nhận</LabelCell>
                 {PILLAR_ORDER.map((key) => {
-                  const p = chart.pillars[key];
+                  const zhi = chart.pillars[key].zhi;
+                  const qi = chart.dayMasterQiStates;
+                  const tags: string[] = [];
+                  if (qi?.lu?.branch && qi.lu.branch === zhi) tags.push("Lộc");
+                  if (qi?.ren?.branch && qi.ren.branch === zhi) {
+                    tags.push(
+                      qi.ren.kind === "yinRen" ? "Âm Nhận" : "Dương Nhận",
+                    );
+                  }
                   return (
-                    <Cell key={key} className="text-[11px] leading-snug" bg="#faf8f4">
-                      {p.hideGan.length === 0 ? (
-                        <span style={{ color: C.muted }}>—</span>
+                    <Cell key={key} className="text-[11px] font-semibold">
+                      {tags.length > 0 ? (
+                        <span style={{ color: C.titleAccent }}>
+                          {tags.join(" · ")}
+                        </span>
                       ) : (
-                        <div className="inline-flex flex-col items-center gap-0.5">
-                          {p.hideGan.map((h) => (
-                            <span key={h.gan} className="font-semibold" style={{ color: C.ink }}>
-                              {h.tenGodVi}
-                            </span>
-                          ))}
-                        </div>
+                        <span style={{ color: C.muted }}>—</span>
                       )}
                     </Cell>
                   );
                 })}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[6]}>Trường sinh</LabelCell>
-                {PILLAR_ORDER.map((key) => (
-                  <Cell key={key} bg="#fffaf0">
-                    {chart.pillars[key].diShiVi}
-                  </Cell>
-                ))}
+                <LabelCell>Nạp âm</LabelCell>
+                {PILLAR_ORDER.map((key) => {
+                  const p = chart.pillars[key];
+                  return (
+                    <Cell key={key} className="text-xs">
+                      <ColoredChar
+                        text={p.naYinVi}
+                        element={naYinElement(p.naYin || p.naYinVi)}
+                        size="xs"
+                      />
+                    </Cell>
+                  );
+                })}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[7]}>Nạp âm</LabelCell>
+                <LabelCell>Tuần / Không</LabelCell>
                 {PILLAR_ORDER.map((key) => (
-                  <Cell key={key} className="text-xs" bg="#faf6f0">
-                    {chart.pillars[key].naYinVi}
-                  </Cell>
-                ))}
-              </tr>
-              <tr>
-                <LabelCell bg={ROW_LABEL_BG[8]}>Tuần / Không</LabelCell>
-                {PILLAR_ORDER.map((key) => (
-                  <Cell key={key} className="whitespace-nowrap text-xs" bg="#fff6f0">
+                  <Cell key={key} className="whitespace-nowrap text-xs">
                     {chart.pillars[key].xunVi} · {chart.pillars[key].xunKongVi}
                   </Cell>
                 ))}
               </tr>
               <tr>
-                <LabelCell bg={ROW_LABEL_BG[9]}>Thần sát</LabelCell>
+                <LabelCell>Thần sát</LabelCell>
                 {PILLAR_ORDER.map((key) => (
-                  <Cell key={key} bg="#faf5fa">
+                  <Cell key={key}>
                     <ShenShaText stars={chart.pillars[key].shenSha ?? []} />
                   </Cell>
                 ))}
@@ -516,99 +674,87 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
           </table>
         </div>
 
-        {/* Thần sát nguyên cục */}
+        {/* Đại vận — Export: 5 dòng; Web: click mở panel chi tiết */}
         <div className="border-t" style={{ borderColor: C.border }}>
-          <SectionTitle tone="yuanJu">Thần sát nguyên cục</SectionTitle>
-          <div className="grid grid-cols-2 sm:grid-cols-4">
-            {YUAN_JU_LABELS.map(({ key, label }) => (
-              <div
-                key={key}
-                className="border-r border-t px-3 py-2 text-center last:border-r-0"
-                style={{ borderColor: C.border, backgroundColor: "#fff8f3" }}
-              >
-                <p className="text-xs font-bold" style={{ color: SECTION.yuanJu.text }}>
-                  {label}
-                </p>
-                <div className="mt-1 flex justify-center text-xs">
-                  <ShenShaText stars={yuanJu[key]} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Đại vận */}
-        <div className="border-t" style={{ borderColor: C.border }}>
-          <SectionTitle tone="dayun">
-            Đại Vận
-            <span className="ml-2 font-semibold normal-case" style={{ color: C.muted }}>
-              ({chart.yun.isForward ? "thuận" : "nghịch"} · khởi {khoiVanText(chart)})
-            </span>
-          </SectionTitle>
+          <SectionTitle tone="dayun">Đại Vận</SectionTitle>
           <div
             className="grid border-t"
             style={{
               borderColor: C.border,
-              gridTemplateColumns: `repeat(${Math.max(
-                1,
-                Math.ceil(chart.yun.daYun.length / 2),
-              )}, minmax(0, 1fr))`,
+              gridTemplateColumns: `repeat(${Math.max(1, chart.yun.daYun.length)}, minmax(0, 1fr))`,
             }}
           >
-            {chart.yun.daYun.map((period) => {
+            {chart.yun.daYun.map((raw) => {
+              const period = ensureDaYunDetail(raw, chart.dayMaster);
               const active =
                 referenceYear >= period.startYear &&
                 referenceYear <= period.endYear;
-              const stemEl = stemElement(period.ganZhi[0] ?? "");
+              const selected = selectedDaYunIndex === period.index;
+              const tenLine = [
+                period.tenGodGanVi || "—",
+                period.tenGodChiMainVi || "—",
+              ].join(" · ");
               return (
-                <div
+                <button
                   key={period.index}
-                  className="flex min-w-0 flex-col items-center border-b border-r px-2 py-2 text-center"
+                  type="button"
+                  onClick={() =>
+                    setSelectedDaYunIndex((cur) =>
+                      cur === period.index ? null : period.index,
+                    )
+                  }
+                  className="bazi-compact-pillar flex min-w-0 flex-col items-center gap-0.5 border-r px-1 py-1.5 text-center font-inherit last:border-r-0"
                   style={{
                     borderColor: C.border,
-                    backgroundColor: active ? C.highlight : C.surface,
+                    backgroundColor:
+                      selected || active ? C.highlight : C.surface,
+                    cursor: "pointer",
+                    font: "inherit",
+                    color: "inherit",
                   }}
+                  title="Xem chi tiết Đại vận (không xuất vào ảnh)"
                 >
-                  {active ? (
-                    <span
-                      className="mb-0.5 rounded px-1 text-[10px] font-bold uppercase"
-                      style={{ backgroundColor: C.titleAccent, color: "#fff" }}
-                    >
-                      Hiện tại
-                    </span>
-                  ) : (
-                    <span className="mb-0.5 h-4" />
-                  )}
+                  <ColoredGanZhi
+                    ganZhi={period.ganZhi}
+                    ganZhiVi={period.ganZhiVi}
+                    size="xs"
+                    layout="inline"
+                  />
                   <span
-                    className="bazi-pillar-char text-base"
-                    style={{ color: elementTheme(stemEl).color }}
+                    className="block w-full text-[9px] font-semibold leading-snug"
+                    style={{ color: C.ink }}
                   >
-                    {period.ganZhiVi}
+                    {tenLine}
                   </span>
-                  <span className="mt-0.5 text-[10px] font-semibold" style={{ color: C.muted }}>
-                    {period.naYinVi ?? "—"}
+                  <span
+                    className="block w-full text-[9px] font-medium"
+                    style={{ color: C.muted, lineHeight: 1.25 }}
+                  >
+                    {period.diShiVi || "—"}
                   </span>
-                  <span className="text-[10px] font-semibold" style={{ color: C.muted }}>
-                    {period.diShiVi ?? "—"}
-                  </span>
-                  <span className="mt-1 text-xs font-semibold" style={{ color: C.muted }}>
+                  <span
+                    className="block w-full text-[10px] font-semibold"
+                    style={{ color: C.ink, lineHeight: 1.25 }}
+                  >
                     {period.startAge}–{period.endAge}t
                   </span>
-                  <span className="text-xs font-semibold" style={{ color: C.muted }}>
-                    {period.startYear}
+                  <span
+                    className="block w-full text-[9px] font-medium"
+                    style={{ color: C.muted, lineHeight: 1.25 }}
+                  >
+                    {period.startYear}–{period.endYear}
                   </span>
-                  {(period.shenSha?.length ?? 0) > 0 ? (
-                    <span
-                      className="mt-1 w-full break-words text-[10px] font-semibold leading-snug"
-                      style={{ color: SHEN_SHA_TEXT.cat }}
-                    >
-                      {period.shenSha!.map((s) => s.name).join(", ")}
-                    </span>
-                  ) : null}
-                </div>
+                </button>
               );
             })}
           </div>
+          {selectedDaYun ? (
+            <BaziDayunDetailPanel
+              chart={chart}
+              period={selectedDaYun}
+              onClose={() => setSelectedDaYunIndex(null)}
+            />
+          ) : null}
         </div>
 
         {/* Lưu niên */}
@@ -627,28 +773,33 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                 }}
               >
                 {row.map((ln) => {
-                  const stemEl = stemElement(ln.ganZhi[0] ?? "");
                   const active = ln.year === referenceYear;
                   return (
                     <div
                       key={ln.year}
-                      className="flex min-w-0 flex-col items-center border-r px-1.5 py-1.5 text-center last:border-r-0"
+                      className="bazi-compact-pillar flex min-w-0 flex-col items-center gap-0.5 border-r px-1 py-1.5 text-center last:border-r-0"
                       style={{
                         borderColor: C.border,
                         backgroundColor: active ? C.highlight : C.surface,
                       }}
                     >
+                      <ColoredGanZhi
+                        ganZhi={ln.ganZhi}
+                        ganZhiVi={ln.ganZhiVi}
+                        size="xs"
+                        layout="inline"
+                      />
                       <span
-                        className="bazi-pillar-char text-sm"
-                        style={{ color: elementTheme(stemEl).color }}
+                        className="block w-full text-[10px] font-semibold"
+                        style={{ color: C.muted, lineHeight: 1.25 }}
                       >
-                        {ln.ganZhiVi}
-                      </span>
-                      <span className="text-xs font-semibold" style={{ color: C.muted }}>
                         {ln.year}
                       </span>
-                      <span className="text-xs font-semibold" style={{ color: C.muted }}>
-                        {ln.age}t
+                      <span
+                        className="block w-full text-[10px] font-semibold"
+                        style={{ color: C.muted, lineHeight: 1.25 }}
+                      >
+                        {ln.ageXu ?? ln.age}t
                       </span>
                     </div>
                   );
@@ -658,67 +809,84 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
 
             {refLiuNian ? (
               <div
-                className="border-t px-3 py-2 text-sm"
+                className="border-t px-3 py-2 text-xs leading-relaxed"
                 style={{ borderColor: C.border, backgroundColor: C.highlight }}
               >
-                <p className="text-xs font-medium" style={{ color: C.titleAccent }}>
-                  Lưu niên {referenceYear} · {refLiuNian.ganZhiVi} · {refLiuNian.age} tuổi
+                <p className="font-medium" style={{ color: C.titleAccent }}>
+                  Lưu niên {referenceYear} · {refLiuNian.ganZhiVi} ·{" "}
+                  {refLiuNian.ageXu ?? refLiuNian.age}t
                 </p>
-                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: C.muted }}>
-                  <span>Nạp âm: {refLiuNian.naYinVi ?? "—"}</span>
-                  <span>Trường sinh: {refLiuNian.diShiVi ?? "—"}</span>
-                  <span>Tàng can: {refLiuNian.hideGanVi ?? "—"}</span>
-                  {(refLiuNian.shenSha?.length ?? 0) > 0 ? (
-                    <span>
-                      Thần sát:{" "}
-                      {refLiuNian.shenSha!.map((s) => s.name).join(", ")}
+                <div
+                  className="mt-1 grid gap-x-4 gap-y-0.5 sm:grid-cols-2"
+                  style={{ color: C.muted }}
+                >
+                  <p>
+                    Nạp âm:{" "}
+                    <span
+                      className="font-medium"
+                      style={{
+                        color: elementTheme(
+                          naYinElement(refLiuNian.naYinVi ?? ""),
+                        ).color,
+                      }}
+                    >
+                      {refLiuNian.naYinVi ?? "—"}
                     </span>
-                  ) : null}
+                  </p>
+                  <p>
+                    Trường sinh:{" "}
+                    <span style={{ color: C.ink }}>
+                      {refLiuNian.diShiVi ?? "—"}
+                    </span>
+                  </p>
+                  <p>
+                    Tàng can:{" "}
+                    {refLiuNian.hideGan?.length ? (
+                      refLiuNian.hideGan.map((h, i) => {
+                        const stemName = h.ganVi?.split(/\s+/)[0] ?? h.gan;
+                        return (
+                          <span key={`${h.gan}-${h.role}-${i}`}>
+                            {i > 0 ? ", " : ""}
+                            <span
+                              className="font-medium"
+                              style={{ color: elementTheme(stemElement(h.gan)).color }}
+                            >
+                              {stemName}
+                            </span>
+                            <span>
+                              {" "}
+                              · {h.tenGodVi || "—"}
+                            </span>
+                          </span>
+                        );
+                      })
+                    ) : (
+                      <span style={{ color: C.ink }}>
+                        {refLiuNian.hideGanVi ?? "—"}
+                      </span>
+                    )}
+                  </p>
+                  {(refLiuNian.shenSha?.length ?? 0) > 0 ? (
+                    <p>
+                      Thần sát:{" "}
+                      {refLiuNian.shenSha!.map((s, i) => (
+                        <span key={s.key}>
+                          {i > 0 ? ", " : ""}
+                          <span
+                            className="font-medium"
+                            style={{ color: SHEN_SHA_TEXT[shenShaTone(s)] }}
+                          >
+                            {s.name}
+                          </span>
+                        </span>
+                      ))}
+                    </p>
+                  ) : (
+                    <p>Thần sát: —</p>
+                  )}
                 </div>
               </div>
             ) : null}
-          </div>
-        ) : null}
-
-        {/* Dụng thần + Hướng */}
-        {chart.usefulGod ? (
-          <div
-            className="grid border-t sm:grid-cols-2"
-            style={{ borderColor: C.border }}
-          >
-            <div className="border-b sm:border-b-0 sm:border-r" style={{ borderColor: C.border }}>
-              <SectionTitle tone="usefulGod">Dụng thần</SectionTitle>
-              <div
-                className="px-4 py-3 text-center text-sm"
-                style={{ backgroundColor: "#fff6f2" }}
-              >
-                <p
-                  className="text-lg font-bold"
-                  style={{ color: elementTheme(chart.usefulGod.element).color }}
-                >
-                  {chart.usefulGod.label}
-                </p>
-                <p className="mt-1 text-xs font-semibold" style={{ color: C.muted }}>
-                  {chart.usefulGod.reason}
-                </p>
-              </div>
-            </div>
-            <div>
-              <SectionTitle tone="directions">Hướng tốt / Hướng xấu</SectionTitle>
-              <div
-                className="px-4 py-3 text-center text-sm"
-                style={{ backgroundColor: "#f5faf3" }}
-              >
-                <p className="text-xs font-semibold">
-                  <span style={{ color: SHEN_SHA_TEXT.cat }}>Tốt: </span>
-                  {chart.directions?.good?.join(" · ") || "—"}
-                </p>
-                <p className="mt-1 text-xs font-semibold">
-                  <span style={{ color: SHEN_SHA_TEXT.hung }}>Xấu: </span>
-                  {chart.directions?.bad?.join(" · ") || "—"}
-                </p>
-              </div>
-            </div>
           </div>
         ) : null}
 
@@ -740,18 +908,25 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                       className="bazi-label-col w-28 border-r px-3 py-2 text-center text-xs font-bold"
                       style={{
                         borderColor: C.border,
-                        backgroundColor: "#f3e8fa",
-                        color: SECTION.palaces.text,
+                        backgroundColor: C.surface,
+                        color: C.ink,
                       }}
                     >
                       {label}
                     </td>
-                    <td className="px-3 py-2 text-center font-semibold">{palace.ganZhiVi}</td>
-                    <td
-                      className="px-3 py-2 text-center text-xs font-semibold"
-                      style={{ color: C.muted }}
-                    >
-                      {palace.naYinVi}
+                    <td className="px-3 py-2 text-center font-semibold">
+                      <ColoredGanZhi
+                        ganZhi={palace.ganZhi}
+                        ganZhiVi={palace.ganZhiVi}
+                        size="sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-center text-xs font-semibold">
+                      <ColoredChar
+                        text={palace.naYinVi}
+                        element={naYinElement(palace.naYin || palace.naYinVi)}
+                        size="xs"
+                      />
                     </td>
                   </tr>
                 ))}
@@ -760,8 +935,8 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                     className="bazi-label-col border-r px-3 py-2 text-center text-xs font-bold"
                     style={{
                       borderColor: C.border,
-                      backgroundColor: "#f3e8fa",
-                      color: SECTION.palaces.text,
+                      backgroundColor: C.surface,
+                      color: C.ink,
                     }}
                   >
                     Niên Không
@@ -775,8 +950,8 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                     className="bazi-label-col border-r px-3 py-2 text-center text-xs font-bold"
                     style={{
                       borderColor: C.border,
-                      backgroundColor: "#f3e8fa",
-                      color: SECTION.palaces.text,
+                      backgroundColor: C.surface,
+                      color: C.ink,
                     }}
                   >
                     Nhật Không
@@ -791,7 +966,7 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
 
           <div>
             <SectionTitle tone="wuxing">Ngũ Hành</SectionTitle>
-            <div className="space-y-2 px-4 py-3" style={{ backgroundColor: "#fff9ec" }}>
+            <div className="space-y-2 px-4 py-3" style={{ backgroundColor: C.surface }}>
               {(["Mộc", "Hỏa", "Thổ", "Kim", "Thủy"] as const).map((el) => {
                 const val = chart.wuXingBalance[el];
                 const pct =
@@ -804,7 +979,7 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                     </span>
                     <div
                       className="h-2 flex-1 overflow-hidden rounded-sm"
-                      style={{ backgroundColor: "#f3e6c8" }}
+                      style={{ backgroundColor: C.sectionBg }}
                     >
                       <div
                         className="h-full"
@@ -820,11 +995,12 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                   </div>
                 );
               })}
-              <p className="text-center text-xs font-semibold" style={{ color: C.muted }}>
-                Hành mạnh:{" "}
-                <span style={{ color: elementTheme(chart.wuXingBalance.dominant).color }}>
-                  {chart.wuXingBalance.dominant}
-                </span>
+              <p
+                className="pt-1 text-[10px] font-medium leading-snug"
+                style={{ color: C.muted }}
+              >
+                Biểu đồ phân bố ngũ hành chỉ mang tính trực quan, không dùng trực
+                tiếp để xác định thân vượng/nhược hoặc Dụng thần.
               </p>
             </div>
           </div>
@@ -836,7 +1012,6 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
           style={{ borderColor: C.border, backgroundColor: C.footerBg }}
         >
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold">
-            <span style={{ color: C.muted }}>Ngũ hành:</span>
             {(["Kim", "Mộc", "Thủy", "Hỏa", "Thổ"] as const).map((el) => (
               <span key={el} className="flex items-center gap-1">
                 <span
@@ -846,14 +1021,8 @@ export const BaziClassicChart = forwardRef<HTMLDivElement, BaziClassicChartProps
                 <span style={{ color: ELEMENT_THEME[el].color }}>{el}</span>
               </span>
             ))}
-            <span style={{ color: C.border }}>|</span>
-            <span>
-              Thần sát:{" "}
-              <span style={{ color: SHEN_SHA_TEXT.cat }}>cát</span>,{" "}
-              <span style={{ color: SHEN_SHA_TEXT.hung }}>hung</span>
-            </span>
           </div>
-          <div className="mt-3 flex justify-end">
+          <div className="bazi-no-export mt-3 flex justify-end">
             <button
               type="button"
               onClick={onDownload}

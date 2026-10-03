@@ -10,12 +10,15 @@ import {
   xunKongToVi,
   xunToVi,
 } from "@/lib/bazi-terminology";
+import type { HiddenStemCompact } from "@/lib/bazi-pillar-from-ganzhi";
 import {
   computeChartShenSha,
   shenShaForBranch,
   stemDisplayVi,
+  SHEN_SHA_CATALOG_VERSION,
   type ShenShaItem,
   type ShenShaYuanJu,
+  type SpecialDayMarkers,
 } from "@/lib/bazi-shen-sha";
 import { pillarFromGanZhi } from "@/lib/bazi-pillar-from-ganzhi";
 import type { DirectionResult, UsefulGodResult } from "@/lib/bazi-useful-god";
@@ -135,6 +138,7 @@ export interface LiuNianDetail {
   ganZhiVi: string;
   naYinVi: string;
   diShiVi: string;
+  hideGan: HiddenStemCompact[];
   hideGanVi: string;
   shenSha: ShenShaItem[];
   /** Khí lưu niên Bát tự đổi tại Lập Xuân — ganZhi đã theo năm tiết khí. */
@@ -149,8 +153,17 @@ export interface DaYunDetail {
   endAge: number;
   ganZhi: string;
   ganZhiVi: string;
+  gan: string;
+  zhi: string;
+  /** Thập thần Can ĐV so Nhật chủ */
+  tenGodGan: string;
+  tenGodGanVi: string;
+  /** Thập thần Bản khí Chi ĐV so Nhật chủ */
+  tenGodChiMain: string;
+  tenGodChiMainVi: string;
   naYinVi: string;
   diShiVi: string;
+  hideGan: HiddenStemCompact[];
   hideGanVi: string;
   shenSha: ShenShaItem[];
   liuNian: LiuNianDetail[];
@@ -231,6 +244,10 @@ export interface BaZiChartResult {
   nhatKhongVi: string;
   shenSha: ShenShaItem[];
   shenShaYuanJu: ShenShaYuanJu;
+  /** Catalog version for auxiliary Shen Sha (independent of calculator engine). */
+  shenShaCatalogVersion: string;
+  /** Special day markers — not merged into shenSha[]. */
+  specialDayMarkers: SpecialDayMarkers | null;
   /**
    * @deprecated Removed from Core. Always null — use reasoning engine later.
    */
@@ -527,7 +544,7 @@ function normalizeShenShaItem(s: ShenShaItem): ShenShaItem {
     name === "Hàm Trì"
   ) {
     key = "tao_hua_xian_chi";
-    name = "Đào Hoa (Hàm Trì)";
+    name = "Đào Hoa";
     aliases = ["Đào Hoa", "Hàm Trì", "桃花", "咸池"];
   }
 
@@ -548,10 +565,15 @@ function normalizeShenShaItem(s: ShenShaItem): ShenShaItem {
     key,
     name,
     aliases,
-    type: s.type === "hung" ? "hung" : "cat",
+    type:
+      s.type === "hung" ? "hung" : s.type === "auxiliary" ? "auxiliary" : "cat",
     traditionalTone:
       s.traditionalTone ??
-      (s.type === "hung" ? "thien_hung" : "thien_cat"),
+      (s.type === "hung"
+        ? "thien_hung"
+        : s.type === "auxiliary"
+          ? "trung_tinh"
+          : "thien_cat"),
     weightClass: "auxiliary",
   };
 }
@@ -632,6 +654,7 @@ function buildYun(
         ganZhiVi: pillarToVi(lnGz),
         naYinVi: lnCompact.naYinVi,
         diShiVi: lnCompact.diShiVi,
+        hideGan: lnCompact.hideGan,
         hideGanVi: hideGanSummary(lnCompact.hideGan),
         shenSha: stripStructuralStars(shenShaForBranch(lnCompact.zhi, refs)),
         yearBoundaryNote:
@@ -647,8 +670,16 @@ function buildYun(
       endAge: item.getEndAge(),
       ganZhi,
       ganZhiVi: pillarToVi(ganZhi),
+      gan: compact.gan,
+      zhi: compact.zhi,
+      tenGodGan: compact.tenGodGan,
+      tenGodGanVi: compact.tenGodGanVi,
+      tenGodChiMain: compact.hideGan.find((h) => h.role === "ban")?.tenGod ?? "",
+      tenGodChiMainVi:
+        compact.hideGan.find((h) => h.role === "ban")?.tenGodVi ?? "—",
       naYinVi: compact.naYinVi,
       diShiVi: compact.diShiVi,
+      hideGan: compact.hideGan,
       hideGanVi: hideGanSummary(compact.hideGan),
       shenSha: stripStructuralStars(shenShaForBranch(compact.zhi, refs)),
       liuNian,
@@ -755,6 +786,8 @@ function buildFacts(params: {
   yun: YunDetail;
   shenSha: ShenShaItem[];
   shenShaYuanJu: ShenShaYuanJu;
+  specialDayMarkers: SpecialDayMarkers | null;
+  shenShaCatalogVersion: string;
   wuXing: WuXingBalance;
   timeBasis: TimeBasis;
 }): BaziFacts {
@@ -829,6 +862,7 @@ function buildFacts(params: {
       })),
     },
     shenSha: {
+      catalogVersion: params.shenShaCatalogVersion,
       auxiliaryOnly: params.shenSha,
       byPillar: {
         year: params.shenShaYuanJu.nien,
@@ -836,6 +870,7 @@ function buildFacts(params: {
         day: params.shenShaYuanJu.nhat,
         hour: params.shenShaYuanJu.thoi,
       },
+      specialDayMarkers: params.specialDayMarkers,
     },
     visualization: {
       fiveElementPercent: {
@@ -932,12 +967,22 @@ export function calculateBaZi(input: BirthDateTimeInput): BaZiChartResult {
     pillars[key].diShiVi = lifeStageToVi(diShi);
   }
 
+  const natalPillars = {
+    year: { gan: pillars.year.gan, zhi: pillars.year.zhi },
+    month: { gan: pillars.month.gan, zhi: pillars.month.zhi },
+    day: { gan: pillars.day.gan, zhi: pillars.day.zhi },
+    hour: { gan: pillars.hour.gan, zhi: pillars.hour.zhi },
+  };
+
   const shenShaRaw = computeChartShenSha({
     dayStem: pillars.day.gan,
     dayBranch: pillars.day.zhi,
+    yearStem: pillars.year.gan,
     yearBranch: pillars.year.zhi,
     monthBranch: pillars.month.zhi,
     hourBranch: pillars.hour.zhi,
+    pillars: natalPillars,
+    gender: input.gender,
   });
 
   const shenShaResult = {
@@ -952,6 +997,8 @@ export function calculateBaZi(input: BirthDateTimeInput): BaZiChartResult {
       thoi: stripStructuralStars(shenShaRaw.yuanJu.thoi),
     },
     summary: stripStructuralStars(shenShaRaw.summary),
+    specialDayMarkers: shenShaRaw.specialDayMarkers,
+    shenShaCatalogVersion: shenShaRaw.shenShaCatalogVersion,
   };
 
   pillars.year.shenSha = shenShaResult.year;
@@ -1024,6 +1071,8 @@ export function calculateBaZi(input: BirthDateTimeInput): BaZiChartResult {
     yun,
     shenSha: shenShaResult.summary,
     shenShaYuanJu: shenShaResult.yuanJu,
+    specialDayMarkers: shenShaResult.specialDayMarkers,
+    shenShaCatalogVersion: shenShaResult.shenShaCatalogVersion,
     wuXing: wuXingBalance,
     timeBasis,
   });
@@ -1074,6 +1123,8 @@ export function calculateBaZi(input: BirthDateTimeInput): BaZiChartResult {
     nhatKhongVi: pillars.day.xunKongVi,
     shenSha: shenShaResult.summary,
     shenShaYuanJu: shenShaResult.yuanJu,
+    shenShaCatalogVersion: shenShaResult.shenShaCatalogVersion,
+    specialDayMarkers: shenShaResult.specialDayMarkers,
     usefulGod: null,
     directions: null,
     reasoningStatus: {
@@ -1226,14 +1277,27 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
     nhat: pillars.day.shenSha,
     thoi: pillars.hour.shenSha,
   };
+  let specialDayMarkers: SpecialDayMarkers | null =
+    chart.specialDayMarkers ?? null;
+  let shenShaCatalogVersion =
+    chart.shenShaCatalogVersion ?? SHEN_SHA_CATALOG_VERSION;
 
   if (needsShenSha) {
+    const natalPillars = {
+      year: { gan: pillars.year.gan, zhi: pillars.year.zhi },
+      month: { gan: pillars.month.gan, zhi: pillars.month.zhi },
+      day: { gan: pillars.day.gan, zhi: pillars.day.zhi },
+      hour: { gan: pillars.hour.gan, zhi: pillars.hour.zhi },
+    };
     const shenShaResult = computeChartShenSha({
       dayStem: pillars.day.gan,
       dayBranch: pillars.day.zhi,
+      yearStem: pillars.year.gan,
       yearBranch: pillars.year.zhi,
       monthBranch: pillars.month.zhi,
       hourBranch: pillars.hour.zhi,
+      pillars: natalPillars,
+      gender: chart.gender,
     });
     pillars.year = {
       ...pillars.year,
@@ -1258,6 +1322,8 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
       nhat: stripStructuralStars(shenShaResult.yuanJu.nhat),
       thoi: stripStructuralStars(shenShaResult.yuanJu.thoi),
     };
+    specialDayMarkers = shenShaResult.specialDayMarkers;
+    shenShaCatalogVersion = shenShaResult.shenShaCatalogVersion;
   } else {
     shenShaYuanJu = {
       nien: stripStructuralStars(shenShaYuanJu.nien),
@@ -1265,6 +1331,23 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
       nhat: stripStructuralStars(shenShaYuanJu.nhat),
       thoi: stripStructuralStars(shenShaYuanJu.thoi),
     };
+    if (!specialDayMarkers) {
+      specialDayMarkers = computeChartShenSha({
+        dayStem: pillars.day.gan,
+        dayBranch: pillars.day.zhi,
+        yearStem: pillars.year.gan,
+        yearBranch: pillars.year.zhi,
+        monthBranch: pillars.month.zhi,
+        hourBranch: pillars.hour.zhi,
+        pillars: {
+          year: { gan: pillars.year.gan, zhi: pillars.year.zhi },
+          month: { gan: pillars.month.gan, zhi: pillars.month.zhi },
+          day: { gan: pillars.day.gan, zhi: pillars.day.zhi },
+          hour: { gan: pillars.hour.gan, zhi: pillars.hour.zhi },
+        },
+        gender: chart.gender,
+      }).specialDayMarkers;
+    }
   }
 
   const palaces = {
@@ -1359,8 +1442,18 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
     daYun: (chart.yun.daYun ?? []).map((d) => {
       const zhi = d.ganZhi?.[1] ?? "";
       const stage = zhi ? recomputeDiShiVi(dayStem, zhi) : { diShi: "", diShiVi: d.diShiVi };
+      const compact =
+        d.ganZhi && dayStem ? pillarFromGanZhi(d.ganZhi, dayStem) : null;
+      const ban = compact?.hideGan.find((h) => h.role === "ban");
       return {
         ...d,
+        gan: d.gan || compact?.gan || d.ganZhi?.[0] || "",
+        zhi: d.zhi || compact?.zhi || zhi,
+        tenGodGan: d.tenGodGan || compact?.tenGodGan || "",
+        tenGodGanVi: d.tenGodGanVi || compact?.tenGodGanVi || "—",
+        tenGodChiMain: d.tenGodChiMain || ban?.tenGod || "",
+        tenGodChiMainVi: d.tenGodChiMainVi || ban?.tenGodVi || "—",
+        hideGan: d.hideGan?.length ? d.hideGan : compact?.hideGan ?? [],
         diShiVi: stage.diShiVi || d.diShiVi,
         startSolarExact: d.startSolarExact ?? null,
         endSolarExact: d.endSolarExact ?? null,
@@ -1369,9 +1462,15 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
           const lnStage = lnZhi
             ? recomputeDiShiVi(dayStem, lnZhi)
             : { diShi: "", diShiVi: ln.diShiVi };
+          const lnCompact =
+            ln.ganZhi && dayStem ? pillarFromGanZhi(ln.ganZhi, dayStem) : null;
           return {
             ...ln,
             diShiVi: lnStage.diShiVi || ln.diShiVi,
+            hideGan: ln.hideGan?.length
+              ? ln.hideGan
+              : lnCompact?.hideGan ?? [],
+            hideGanVi: ln.hideGanVi || (lnCompact ? hideGanSummary(lnCompact.hideGan) : "—"),
             yearBoundaryNote:
               ln.yearBoundaryNote ??
               "ganZhi theo khí năm Bát tự (Lập Xuân), không theo 01/01 dương lịch",
@@ -1440,6 +1539,8 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
       chart.currentSolarTermVi ?? solarTermToVi(chart.currentSolarTerm),
     shenSha,
     shenShaYuanJu,
+    shenShaCatalogVersion,
+    specialDayMarkers,
     usefulGod: null,
     directions: null,
     reasoningStatus: {
@@ -1465,6 +1566,8 @@ export function normalizeBaZiChart(chart: BaZiChartResult): BaZiChartResult {
       yun,
       shenSha,
       shenShaYuanJu,
+      specialDayMarkers,
+      shenShaCatalogVersion,
       wuXing: wuXingBalance,
       timeBasis,
     });

@@ -173,6 +173,47 @@ function orderedPairName(group: string[], a: string, b: string): string {
   return ia <= ib ? `${a}${b}刑` : `${b}${a}刑`;
 }
 
+/** Vietnamese short names for Core nameVi (spaces between glyphs). */
+const GLYPH_VI: Record<string, string> = {
+  甲: "Giáp", 乙: "Ất", 丙: "Bính", 丁: "Đinh", 戊: "Mậu",
+  己: "Kỷ", 庚: "Canh", 辛: "Tân", 壬: "Nhâm", 癸: "Quý",
+  子: "Tý", 丑: "Sửu", 寅: "Dần", 卯: "Mão", 辰: "Thìn", 巳: "Tỵ",
+  午: "Ngọ", 未: "Mùi", 申: "Thân", 酉: "Dậu", 戌: "Tuất", 亥: "Hợi",
+  木: "Mộc", 火: "Hỏa", 土: "Thổ", 金: "Kim", 水: "Thủy",
+};
+
+/** "甲己合" → "Giáp Kỷ hợp"; "子未害" → "Tý Mùi hại" */
+function relationNameToVi(name: string): string {
+  let s = name;
+  s = s.replace(/自刑/g, " __SELF_PUNISH__ ");
+  s = s.replace(/半合/g, " __HALF__ ");
+  s = s.replace(/拱合/g, " __ARCH__ ");
+  s = s.replace(/合/g, " __HE__ ");
+  s = s.replace(/冲/g, " __CHONG__ ");
+  s = s.replace(/刑/g, " __XING__ ");
+  s = s.replace(/害/g, " __HAI__ ");
+  s = s.replace(/破/g, " __PO__ ");
+  s = s.replace(/生/g, " __SHENG__ ");
+  s = s.replace(/克/g, " __KE__ ");
+  s = s.replace(/会/g, " __HUI__ ");
+  s = [...s]
+    .map((ch) => (GLYPH_VI[ch] ? ` ${GLYPH_VI[ch]} ` : ch))
+    .join("");
+  s = s
+    .replace(/__SELF_PUNISH__/g, "tự hình")
+    .replace(/__HALF__/g, "bán hợp")
+    .replace(/__ARCH__/g, "củng hợp")
+    .replace(/__HE__/g, "hợp")
+    .replace(/__CHONG__/g, "xung")
+    .replace(/__XING__/g, "hình")
+    .replace(/__HAI__/g, "hại")
+    .replace(/__PO__/g, "phá")
+    .replace(/__SHENG__/g, "sinh")
+    .replace(/__KE__/g, "khắc")
+    .replace(/__HUI__/g, "hội");
+  return s.replace(/\s+/g, " ").trim();
+}
+
 export function computeStemBranchRelations(pillars: {
   year: { gan: string; zhi: string };
   month: { gan: string; zhi: string };
@@ -204,7 +245,7 @@ export function computeStemBranchRelations(pillars: {
           push({
             type: "stemCombination",
             name,
-            nameVi: name.replace("合", " hợp"),
+            nameVi: relationNameToVi(name),
             members: [ma, mb],
             evidence: `thiên can ${ga}${gb}`,
             sourceId: SRC.stemCombo,
@@ -217,7 +258,7 @@ export function computeStemBranchRelations(pillars: {
           push({
             type: "stemClash",
             name,
-            nameVi: name.replace("冲", " xung"),
+            nameVi: relationNameToVi(name),
             members: [ma, mb],
             evidence: `thiên can ${ga}${gb}`,
             sourceId: SRC.stemClash,
@@ -232,7 +273,7 @@ export function computeStemBranchRelations(pillars: {
           push({
             type: "fiveElementGenerate",
             name: `${ea}生${eb}`,
-            nameVi: `${ea} sinh ${eb}`,
+            nameVi: relationNameToVi(`${ea}生${eb}`),
             members: [ma, mb],
             evidence: "ngũ hành thiên can",
             sourceId: SRC.fiveGen,
@@ -241,7 +282,7 @@ export function computeStemBranchRelations(pillars: {
           push({
             type: "fiveElementGenerate",
             name: `${eb}生${ea}`,
-            nameVi: `${eb} sinh ${ea}`,
+            nameVi: relationNameToVi(`${eb}生${ea}`),
             members: [mb, ma],
             evidence: "ngũ hành thiên can",
             sourceId: SRC.fiveGen,
@@ -251,7 +292,7 @@ export function computeStemBranchRelations(pillars: {
           push({
             type: "fiveElementControl",
             name: `${ea}克${eb}`,
-            nameVi: `${ea} khắc ${eb}`,
+            nameVi: relationNameToVi(`${ea}克${eb}`),
             members: [ma, mb],
             evidence: "ngũ hành thiên can",
             sourceId: SRC.fiveCtrl,
@@ -260,7 +301,7 @@ export function computeStemBranchRelations(pillars: {
           push({
             type: "fiveElementControl",
             name: `${eb}克${ea}`,
-            nameVi: `${eb} khắc ${ea}`,
+            nameVi: relationNameToVi(`${eb}克${ea}`),
             members: [mb, ma],
             evidence: "ngũ hành thiên can",
             sourceId: SRC.fiveCtrl,
@@ -283,7 +324,6 @@ export function computeStemBranchRelations(pillars: {
       const checkPair = (
         table: [string, string, string][],
         type: RelationType,
-        viReplace: [string, string],
         sourceId: string,
         transformStatus?: HarmonyTransformStatus | null,
       ) => {
@@ -292,7 +332,7 @@ export function computeStemBranchRelations(pillars: {
             push({
               type,
               name,
-              nameVi: name.replace(viReplace[0], viReplace[1]),
+              nameVi: relationNameToVi(name),
               members: [ma, mb],
               evidence: `địa chi ${za}${zb}`,
               sourceId,
@@ -302,18 +342,19 @@ export function computeStemBranchRelations(pillars: {
         }
       };
 
-      checkPair(BRANCH_SIX, "branchSixHarmony", ["合", " hợp"], SRC.branchSix, "combineOnly");
-      checkPair(BRANCH_CLASH, "branchClash", ["冲", " xung"], SRC.branchClash);
-      checkPair(BRANCH_HARM, "branchHarm", ["害", " hại"], SRC.branchHarm);
-      checkPair(BRANCH_DESTRUCTION, "branchDestruction", ["破", " phá"], SRC.branchDest);
+      checkPair(BRANCH_SIX, "branchSixHarmony", SRC.branchSix, "combineOnly");
+      checkPair(BRANCH_CLASH, "branchClash", SRC.branchClash);
+      checkPair(BRANCH_HARM, "branchHarm", SRC.branchHarm);
+      checkPair(BRANCH_DESTRUCTION, "branchDestruction", SRC.branchDest);
 
       // Vô lễ hình (2 chi)
       for (const [x, y] of BRANCH_PAIR_PUNISH) {
         if ((za === x && zb === y) || (za === y && zb === x)) {
+          const name = `${x}${y}刑`;
           push({
             type: "branchPunishmentPair",
-            name: `${x}${y}刑`,
-            nameVi: `${x}${y} hình`,
+            name,
+            nameVi: relationNameToVi(name),
             members: [ma, mb],
             evidence: "vô lễ hình",
             sourceId: SRC.punishWuLi,
@@ -322,10 +363,11 @@ export function computeStemBranchRelations(pillars: {
       }
 
       if (za === zb && BRANCH_SELF_PUNISH.includes(za)) {
+        const name = `${za}自刑`;
         push({
           type: "branchSelfPunishment",
-          name: `${za}自刑`,
-          nameVi: `${za} tự hình`,
+          name,
+          nameVi: relationNameToVi(name),
           members: [ma, mb],
           evidence: "tự hình",
           sourceId: SRC.punishSelf,
@@ -344,10 +386,11 @@ export function computeStemBranchRelations(pillars: {
   for (const group of BRANCH_THREE_PUNISH) {
     const hit = group.filter((z) => zhiSet.has(z));
     if (hit.length === 3) {
+      const name = `${group.join("")}刑`;
       push({
         type: "branchThreePunishment",
-        name: `${group.join("")}刑`,
-        nameVi: `${group.join("")} hình`,
+        name,
+        nameVi: relationNameToVi(name),
         members: zhiMembers(group),
         evidence: "đủ tam hình (3/3)",
         sourceId: SRC.punishThree,
@@ -358,7 +401,7 @@ export function computeStemBranchRelations(pillars: {
       push({
         type: "branchPunishmentPair",
         name: pairName,
-        nameVi: pairName.replace("刑", " hình"),
+        nameVi: relationNameToVi(pairName),
         members: zhiMembers(hit),
         evidence: `tam hình thiếu chi (2/3 của ${group.join("")}) — không gắn tên đủ bộ`,
         sourceId: SRC.punishPair,
@@ -383,20 +426,22 @@ export function computeStemBranchRelations(pillars: {
       const hasMiddle = hit.includes(middle);
       const pairName = `${hit[0]}${hit[1]}`;
       if (hasMiddle) {
+        const name = `${pairName}半合`;
         push({
           type: "branchHalfHarmony",
-          name: `${pairName}半合`,
-          nameVi: `${pairName} bán hợp`,
+          name,
+          nameVi: relationNameToVi(name),
           members: zhiMembers(hit),
           evidence: `bán hợp (có trung thần ${middle}) của ${group.name}`,
           sourceId: SRC.halfHarmony,
           transformStatus: "combineOnly",
         });
       } else {
+        const name = `${pairName}拱合`;
         push({
           type: "branchArchHarmony",
-          name: `${pairName}拱合`,
-          nameVi: `${pairName} củng hợp`,
+          name,
+          nameVi: relationNameToVi(name),
           members: zhiMembers(hit),
           evidence: `củng hợp / 拱合 (thiếu trung thần ${middle}) của ${group.name}`,
           sourceId: SRC.archHarmony,

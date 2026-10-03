@@ -7,21 +7,27 @@ type BaziDayunPanelProps = {
 
 export function BaziDayunPanel({ chart }: BaziDayunPanelProps) {
   const { startAge, startSolarYear } = chart.yun;
-  const cols = Math.max(1, Math.ceil(chart.yun.daYun.length / 2));
+  const cols = Math.max(1, chart.yun.daYun.length);
 
   return (
     <div className="space-y-6">
       <BaziCard className="border-border-strong bg-accent-light px-5 py-4">
         <p className="text-sm font-semibold text-foreground">
-          Đại vận khởi từ <strong className="font-black">{startSolarYear}</strong> — sau{" "}
+          Đại vận khởi từ <strong className="font-black">{startSolarYear}</strong> — tuổi thực{" "}
           <strong className="font-black">
-            {startAge.years} tuổi {startAge.months} tháng {startAge.days} ngày
+            {startAge.years} năm {startAge.months} tháng {startAge.days} ngày
           </strong>
+          {chart.yun.startAgeXu != null ? (
+            <>
+              {" "}
+              · tuổi mụ <strong className="font-black">{chart.yun.startAgeXu}</strong>
+            </>
+          ) : null}
           <span className="font-semibold text-muted"> · {chart.genderLabel}</span>
         </p>
       </BaziCard>
 
-      <BaziSectionTitle subtitle="Mỗi chu kỳ 10 năm kèm Lưu Niên từng năm">
+      <BaziSectionTitle subtitle="Mỗi chu kỳ 10 năm · Tuổi hiển thị là tuổi mụ">
         Chu kỳ Đại Vận
       </BaziSectionTitle>
 
@@ -33,7 +39,7 @@ export function BaziDayunPanel({ chart }: BaziDayunPanelProps) {
           <article key={period.index} className="min-w-0">
             <BaziCard className="h-full p-4">
               <p className="text-sm font-bold text-muted">
-                {period.startAge}–{period.endAge} tuổi
+                {period.startAge}–{period.endAge}t
               </p>
               <p className="mt-2 text-xl font-black text-accent">{period.ganZhiVi}</p>
               <p className="mt-0.5 text-sm font-semibold text-muted">
@@ -53,7 +59,9 @@ export function BaziDayunPanel({ chart }: BaziDayunPanelProps) {
                   >
                     <span className="tabular-nums font-semibold text-muted">{ln.year}</span>
                     <span className="font-bold text-foreground">{ln.ganZhiVi}</span>
-                    <span className="tabular-nums font-semibold text-muted">{ln.age}t</span>
+                    <span className="tabular-nums font-semibold text-muted">
+                      {ln.ageXu ?? ln.age}t
+                    </span>
                   </li>
                 ))}
               </ul>

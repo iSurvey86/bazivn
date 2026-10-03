@@ -7,16 +7,22 @@ import { notFound } from "next/navigation";
 
 type ChartPageProps = {
   params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ year?: string }>;
 };
 
-export default async function ChartPage({ params }: ChartPageProps) {
+export default async function ChartPage({ params, searchParams }: ChartPageProps) {
   const { locale, id } = await params;
+  const { year: yearParam } = await searchParams;
   setRequestLocale(locale);
 
   const record = await getChartById(id);
   if (!record) notFound();
 
   const t = await getTranslations("bazi");
+  const parsedYear = yearParam ? Number(yearParam) : NaN;
+  const initialReferenceYear = Number.isFinite(parsedYear)
+    ? parsedYear
+    : undefined;
 
   return (
     <BaziShell>
@@ -30,9 +36,11 @@ export default async function ChartPage({ params }: ChartPageProps) {
 
         <div className="mt-6">
           <BaziChartBoard
+            chartId={record.id}
             chart={record.baziData}
             fullName={record.fullName}
             birthPlace={record.birthPlace}
+            initialReferenceYear={initialReferenceYear}
           />
         </div>
       </main>

@@ -1,11 +1,11 @@
 {
   "common": {
     "title": "BaziVN",
-    "homeCta": "Lập lá số Bát Tự"
+    "homeCta": "Lập lá số"
   },
   "home": {
-    "title": "Bát Tự — Bản đồ vận mệnh",
-    "subtitle": "Lá số chuẩn nghiệp vụ: Giờ Dạ Tý, tiết khí, giới tính, Đại vận. Thiết kế BaziVN Atlas — không sao chép."
+    "titleLine1": "BÁT TỰ",
+    "titleLine2": "BẢN ĐỒ VẬN MỆNH"
   },
   "bazi": {
     "title": "Lập lá số Bát Tự",

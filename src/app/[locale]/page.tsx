@@ -21,18 +21,22 @@ export default async function HomePage({ params }: HomePageProps) {
           <p className="text-center text-[10px] font-extrabold tracking-[0.25em] text-warm">
             BAZIVN
           </p>
-          <h1 className="mt-2 text-center text-2xl font-black tracking-tight text-foreground">
-            {t("title")}
+          <h1 className="mt-2 text-center font-black tracking-tight">
+            <span className="block text-2xl uppercase text-accent">
+              {t("titleLine1")}
+            </span>
+            <span className="mt-1 block text-xl uppercase tracking-wide text-warm">
+              {t("titleLine2")}
+            </span>
           </h1>
-          <p className="mt-3 text-center text-[13px] font-medium leading-relaxed text-muted">
-            {t("subtitle")}
-          </p>
-          <Link
-            href="/bazi"
-            className="mt-8 flex w-full items-center justify-center rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-accent-hover"
-          >
-            {tCommon("homeCta")}
-          </Link>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/bazi"
+              className="inline-flex min-w-[15rem] items-center justify-center rounded-lg bg-accent px-10 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-accent-hover"
+            >
+              {tCommon("homeCta")}
+            </Link>
+          </div>
         </div>
       </main>
     </BaziShell>

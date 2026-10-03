@@ -10,7 +10,7 @@ import type { HiddenStemRole } from "./hidden-stems";
 import type { MonthCommandResult } from "./month-command";
 import type { StemBranchRelation } from "./relations";
 import type { TimeBasis } from "./time-basis";
-import type { ShenShaItem } from "../bazi-shen-sha";
+import type { ShenShaItem, SpecialDayMarkers } from "../bazi-shen-sha";
 
 export interface FactSolarDateTime {
   year: number;
@@ -99,6 +99,7 @@ export interface BaziFacts {
     daYun: FactDaYun[];
   };
   shenSha: {
+    catalogVersion?: string;
     auxiliaryOnly: ShenShaItem[];
     byPillar: {
       year: ShenShaItem[];
@@ -106,6 +107,7 @@ export interface BaziFacts {
       day: ShenShaItem[];
       hour: ShenShaItem[];
     };
+    specialDayMarkers?: SpecialDayMarkers | null;
   };
   visualization: {
     fiveElementPercent: Record<string, number>;

@@ -1,0 +1,997 @@
+{
+  "exportedAt": "2026-10-03T08:46:28.444Z",
+  "purpose": "Acceptance Shen Sha Catalog v2.0 (auxiliary) — Core calculator unchanged",
+  "engineVersion": "0.3.2-core",
+  "shenShaCatalogVersion": "2.0.0",
+  "changelog": {
+    "from": "13 legacy natal entities",
+    "to": "20 catalog groups (13 legacy + 7 new) + 4 specialDayMarkers = 24",
+    "newGroups": [
+      "Thiên Đức",
+      "Nguyệt Đức",
+      "Học Đường",
+      "Từ Quán",
+      "Kim Dư",
+      "Nguyên Thần",
+      "Thiên La / Địa Võng"
+    ],
+    "specialDayMarkers": [
+      "Khôi Cương",
+      "Âm Dương Sai Thác",
+      "Tứ Phế",
+      "Thập Ác Đại Bại"
+    ],
+    "notInDefault": [
+      "Hồng Diễm",
+      "Bạch Hổ riêng",
+      "Thiên Y",
+      "Quốc Ấn",
+      "Phúc Tinh Quý Nhân",
+      "Thái Cực Quý Nhân",
+      "Thiên Trù",
+      "Lục Ách",
+      "Câu Giảo",
+      "Tang Môn",
+      "Điếu Khách"
+    ]
+  },
+  "caseA": {
+    "label": "Case A — nam 12/11/1986 17:45 HCM",
+    "engineVersion": "0.3.2-core",
+    "shenShaCatalogVersion": "2.0.0",
+    "dayBoundaryMode": "midnight_00",
+    "pillars": {
+      "year": "丙寅",
+      "month": "己亥",
+      "day": "庚申",
+      "hour": "乙酉"
+    },
+    "shenShaByPillar": {
+      "year": [
+        {
+          "key": "horse",
+          "name": "Dịch Mã",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.yima.yearOrDay.v1"
+        },
+        {
+          "key": "tian_gou",
+          "name": "Thiên Câu",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.tiangou.monthPlus3.v1",
+          "aliases": [
+            "Thiên Cẩu",
+            "Thiên Cầu",
+            "天勾"
+          ]
+        }
+      ],
+      "month": [
+        {
+          "key": "wenchang",
+          "name": "Văn Xương",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.wenchang.v1"
+        },
+        {
+          "key": "void",
+          "name": "Vong Thần",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.wangshen.v1"
+        },
+        {
+          "key": "lonely",
+          "name": "Cô Thần",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.guchen.v1"
+        },
+        {
+          "key": "jie",
+          "name": "Kiếp Sát",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.jiesha.v1"
+        }
+      ],
+      "day": [
+        {
+          "key": "horse",
+          "name": "Dịch Mã",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.yima.yearOrDay.v1"
+        },
+        {
+          "key": "ci_guan",
+          "name": "Từ Quán",
+          "chineseName": "词馆",
+          "vietnameseName": "Từ Quán",
+          "sourceId": "sanming.ciguan.dayStemLinGuan.v1",
+          "category": "văn_tinh",
+          "lookupBasis": "dayStem→linGuanBranch",
+          "ruleVariant": "sanming.dayStemLinGuan",
+          "traditionalToneDisplay": "cát",
+          "priorityClass": "A_MINUS",
+          "evidence": "Nhật can 庚 Lâm Quan tại 申",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_cat",
+          "type": "cat"
+        }
+      ],
+      "hour": [
+        {
+          "key": "blood",
+          "name": "Huyết Nhận",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.xueren.v1"
+        },
+        {
+          "key": "tao_hua_xian_chi",
+          "name": "Đào Hoa (Hàm Trì)",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.taohua_xianchi.yearOrDay.v1",
+          "aliases": [
+            "Đào Hoa",
+            "Hàm Trì",
+            "桃花",
+            "咸池"
+          ]
+        },
+        {
+          "key": "tian_de",
+          "name": "Thiên Đức",
+          "chineseName": "天德",
+          "vietnameseName": "Thiên Đức",
+          "sourceId": "sanming.tiande.month.v1",
+          "category": "đức_tinh",
+          "lookupBasis": "monthBranch→stemOrBranch",
+          "ruleVariant": "sanming.tiande.month",
+          "traditionalToneDisplay": "cát",
+          "priorityClass": "A",
+          "matchedAt": [
+            "hour"
+          ],
+          "evidence": "Nguyệt chi 亥 → 乙",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_cat",
+          "type": "cat"
+        },
+        {
+          "key": "yuan_chen",
+          "name": "Nguyên Thần",
+          "chineseName": "元辰",
+          "vietnameseName": "Nguyên Thần",
+          "sourceId": "sanming.yuanchen.genderYear.v1",
+          "category": "sát_tinh",
+          "lookupBasis": "yearStemPolarity+gender+yearBranch",
+          "ruleVariant": "sanming.yuanchen.genderYear",
+          "traditionalToneDisplay": "hung",
+          "priorityClass": "B",
+          "matchedAt": [
+            "hour"
+          ],
+          "evidence": "Niên 丙寅 · male → 酉",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_hung",
+          "type": "hung"
+        }
+      ]
+    },
+    "shenShaSummary": [
+      {
+        "key": "horse",
+        "name": "Dịch Mã",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.yima.yearOrDay.v1"
+      },
+      {
+        "key": "tian_gou",
+        "name": "Thiên Câu",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.tiangou.monthPlus3.v1",
+        "aliases": [
+          "Thiên Cẩu",
+          "Thiên Cầu",
+          "天勾"
+        ]
+      },
+      {
+        "key": "wenchang",
+        "name": "Văn Xương",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.wenchang.v1"
+      },
+      {
+        "key": "void",
+        "name": "Vong Thần",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.wangshen.v1"
+      },
+      {
+        "key": "lonely",
+        "name": "Cô Thần",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.guchen.v1"
+      },
+      {
+        "key": "jie",
+        "name": "Kiếp Sát",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.jiesha.v1"
+      },
+      {
+        "key": "ci_guan",
+        "name": "Từ Quán",
+        "chineseName": "词馆",
+        "vietnameseName": "Từ Quán",
+        "sourceId": "sanming.ciguan.dayStemLinGuan.v1",
+        "category": "văn_tinh",
+        "lookupBasis": "dayStem→linGuanBranch",
+        "ruleVariant": "sanming.dayStemLinGuan",
+        "traditionalToneDisplay": "cát",
+        "priorityClass": "A_MINUS",
+        "evidence": "Nhật can 庚 Lâm Quan tại 申",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_cat",
+        "type": "cat"
+      },
+      {
+        "key": "blood",
+        "name": "Huyết Nhận",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.xueren.v1"
+      },
+      {
+        "key": "tao_hua_xian_chi",
+        "name": "Đào Hoa (Hàm Trì)",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.taohua_xianchi.yearOrDay.v1",
+        "aliases": [
+          "Đào Hoa",
+          "Hàm Trì",
+          "桃花",
+          "咸池"
+        ]
+      },
+      {
+        "key": "tian_de",
+        "name": "Thiên Đức",
+        "chineseName": "天德",
+        "vietnameseName": "Thiên Đức",
+        "sourceId": "sanming.tiande.month.v1",
+        "category": "đức_tinh",
+        "lookupBasis": "monthBranch→stemOrBranch",
+        "ruleVariant": "sanming.tiande.month",
+        "traditionalToneDisplay": "cát",
+        "priorityClass": "A",
+        "matchedAt": [
+          "hour"
+        ],
+        "evidence": "Nguyệt chi 亥 → 乙",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_cat",
+        "type": "cat"
+      },
+      {
+        "key": "yuan_chen",
+        "name": "Nguyên Thần",
+        "chineseName": "元辰",
+        "vietnameseName": "Nguyên Thần",
+        "sourceId": "sanming.yuanchen.genderYear.v1",
+        "category": "sát_tinh",
+        "lookupBasis": "yearStemPolarity+gender+yearBranch",
+        "ruleVariant": "sanming.yuanchen.genderYear",
+        "traditionalToneDisplay": "hung",
+        "priorityClass": "B",
+        "matchedAt": [
+          "hour"
+        ],
+        "evidence": "Niên 丙寅 · male → 酉",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_hung",
+        "type": "hung"
+      }
+    ],
+    "specialDayMarkers": {
+      "catalogVersion": "2.0.0",
+      "kuiGang": {
+        "key": "kuiGang",
+        "present": false,
+        "dayPillar": "庚申",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.kuigang.dayPillar.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "Nhật trụ 庚申 không thuộc Khôi Cương"
+      },
+      "yinYangMisalignment": {
+        "key": "yinYangMisalignment",
+        "present": false,
+        "dayPillar": "庚申",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.yinyangMisalignment.dayPillar.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "Nhật trụ 庚申 không thuộc Âm Dương Sai Thác"
+      },
+      "fourWaste": {
+        "key": "fourWaste",
+        "present": false,
+        "seasonMatched": true,
+        "dayPillarMatched": false,
+        "seasonGroup": "đông",
+        "monthBranch": "亥",
+        "dayPillar": "庚申",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.fourWaste.seasonDay.v1",
+        "traditionalToneDisplay": "hung",
+        "evidence": "seasonMatched=true dayPillarMatched=false (wasteDayAnywhere=true)"
+      },
+      "tenEvilGreatDefeat": {
+        "key": "tenEvilGreatDefeat",
+        "baseListHit": false,
+        "refinedYearRuleHit": false,
+        "status": "absent",
+        "dayPillar": "庚申",
+        "yearPillar": "丙寅",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.tenEvilGreatDefeat.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "baseListHit=false; refinedYearRuleHit=false; status=absent"
+      }
+    },
+    "dayMasterQiStates": {
+      "twelveStages": {
+        "year": "绝",
+        "month": "病",
+        "day": "临官",
+        "hour": "帝旺"
+      },
+      "lu": {
+        "branch": "申",
+        "matchedAt": [
+          "day"
+        ],
+        "present": true
+      },
+      "ren": {
+        "branch": "酉",
+        "matchedAt": [
+          "hour"
+        ],
+        "present": true,
+        "mode": "ziPingYangRenOnly",
+        "kind": "yangRen",
+        "sourceId": "ziPing.yangRen.v1"
+      }
+    },
+    "xunKong": {
+      "day": "子丑",
+      "year": "戌亥"
+    },
+    "usefulGod": null,
+    "directions": null
+  },
+  "caseBMidnight00": {
+    "label": "Case B — nữ 05/05/2026 23:46 midnight_00",
+    "engineVersion": "0.3.2-core",
+    "shenShaCatalogVersion": "2.0.0",
+    "dayBoundaryMode": "midnight_00",
+    "pillars": {
+      "year": "丙午",
+      "month": "癸巳",
+      "day": "己卯",
+      "hour": "丙子"
+    },
+    "shenShaByPillar": {
+      "year": [
+        {
+          "key": "general",
+          "name": "Tướng Tinh",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.jiangxing.v1"
+        },
+        {
+          "key": "ci_guan",
+          "name": "Từ Quán",
+          "chineseName": "词馆",
+          "vietnameseName": "Từ Quán",
+          "sourceId": "sanming.ciguan.dayStemLinGuan.v1",
+          "category": "văn_tinh",
+          "lookupBasis": "dayStem→linGuanBranch",
+          "ruleVariant": "sanming.dayStemLinGuan",
+          "traditionalToneDisplay": "cát",
+          "priorityClass": "A_MINUS",
+          "evidence": "Nhật can 己 Lâm Quan tại 午",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_cat",
+          "type": "cat"
+        }
+      ],
+      "month": [
+        {
+          "key": "horse",
+          "name": "Dịch Mã",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.yima.yearOrDay.v1"
+        },
+        {
+          "key": "lonely",
+          "name": "Cô Thần",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.guchen.v1"
+        },
+        {
+          "key": "void",
+          "name": "Vong Thần",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.wangshen.v1"
+        }
+      ],
+      "day": [
+        {
+          "key": "general",
+          "name": "Tướng Tinh",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.jiangxing.v1"
+        },
+        {
+          "key": "tao_hua_xian_chi",
+          "name": "Đào Hoa (Hàm Trì)",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.taohua_xianchi.yearOrDay.v1",
+          "aliases": [
+            "Đào Hoa",
+            "Hàm Trì",
+            "桃花",
+            "咸池"
+          ]
+        }
+      ],
+      "hour": [
+        {
+          "key": "noble",
+          "name": "Thiên Ất Quý Nhân",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.tianyi.v1"
+        },
+        {
+          "key": "tao_hua_xian_chi",
+          "name": "Đào Hoa (Hàm Trì)",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.taohua_xianchi.yearOrDay.v1",
+          "aliases": [
+            "Đào Hoa",
+            "Hàm Trì",
+            "桃花",
+            "咸池"
+          ]
+        }
+      ]
+    },
+    "shenShaSummary": [
+      {
+        "key": "general",
+        "name": "Tướng Tinh",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.jiangxing.v1"
+      },
+      {
+        "key": "ci_guan",
+        "name": "Từ Quán",
+        "chineseName": "词馆",
+        "vietnameseName": "Từ Quán",
+        "sourceId": "sanming.ciguan.dayStemLinGuan.v1",
+        "category": "văn_tinh",
+        "lookupBasis": "dayStem→linGuanBranch",
+        "ruleVariant": "sanming.dayStemLinGuan",
+        "traditionalToneDisplay": "cát",
+        "priorityClass": "A_MINUS",
+        "evidence": "Nhật can 己 Lâm Quan tại 午",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_cat",
+        "type": "cat"
+      },
+      {
+        "key": "horse",
+        "name": "Dịch Mã",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.yima.yearOrDay.v1"
+      },
+      {
+        "key": "lonely",
+        "name": "Cô Thần",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.guchen.v1"
+      },
+      {
+        "key": "void",
+        "name": "Vong Thần",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.wangshen.v1"
+      },
+      {
+        "key": "tao_hua_xian_chi",
+        "name": "Đào Hoa (Hàm Trì)",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.taohua_xianchi.yearOrDay.v1",
+        "aliases": [
+          "Đào Hoa",
+          "Hàm Trì",
+          "桃花",
+          "咸池"
+        ]
+      },
+      {
+        "key": "noble",
+        "name": "Thiên Ất Quý Nhân",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.tianyi.v1"
+      }
+    ],
+    "specialDayMarkers": {
+      "catalogVersion": "2.0.0",
+      "kuiGang": {
+        "key": "kuiGang",
+        "present": false,
+        "dayPillar": "己卯",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.kuigang.dayPillar.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "Nhật trụ 己卯 không thuộc Khôi Cương"
+      },
+      "yinYangMisalignment": {
+        "key": "yinYangMisalignment",
+        "present": false,
+        "dayPillar": "己卯",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.yinyangMisalignment.dayPillar.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "Nhật trụ 己卯 không thuộc Âm Dương Sai Thác"
+      },
+      "fourWaste": {
+        "key": "fourWaste",
+        "present": false,
+        "seasonMatched": true,
+        "dayPillarMatched": false,
+        "seasonGroup": "hạ",
+        "monthBranch": "巳",
+        "dayPillar": "己卯",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.fourWaste.seasonDay.v1",
+        "traditionalToneDisplay": "hung",
+        "evidence": "seasonMatched=true dayPillarMatched=false (wasteDayAnywhere=false)"
+      },
+      "tenEvilGreatDefeat": {
+        "key": "tenEvilGreatDefeat",
+        "baseListHit": false,
+        "refinedYearRuleHit": false,
+        "status": "absent",
+        "dayPillar": "己卯",
+        "yearPillar": "丙午",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.tenEvilGreatDefeat.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "baseListHit=false; refinedYearRuleHit=false; status=absent"
+      }
+    },
+    "dayMasterQiStates": {
+      "twelveStages": {
+        "year": "临官",
+        "month": "帝旺",
+        "day": "病",
+        "hour": "绝"
+      },
+      "lu": {
+        "branch": "午",
+        "matchedAt": [
+          "year"
+        ],
+        "present": true
+      },
+      "ren": {
+        "branch": "",
+        "matchedAt": [],
+        "present": false,
+        "mode": "ziPingYangRenOnly",
+        "kind": "none",
+        "sourceId": "ziPing.yangRenOnly.v1"
+      }
+    },
+    "xunKong": {
+      "day": "申酉",
+      "year": "寅卯"
+    },
+    "usefulGod": null,
+    "directions": null
+  },
+  "caseBZiStart23": {
+    "label": "Case B — nữ 05/05/2026 23:46 zi_start_23",
+    "engineVersion": "0.3.2-core",
+    "shenShaCatalogVersion": "2.0.0",
+    "dayBoundaryMode": "zi_start_23",
+    "pillars": {
+      "year": "丙午",
+      "month": "癸巳",
+      "day": "庚辰",
+      "hour": "丙子"
+    },
+    "shenShaByPillar": {
+      "year": [
+        {
+          "key": "general",
+          "name": "Tướng Tinh",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.jiangxing.v1"
+        }
+      ],
+      "month": [
+        {
+          "key": "jie",
+          "name": "Kiếp Sát",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.jiesha.v1"
+        },
+        {
+          "key": "lonely",
+          "name": "Cô Thần",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.guchen.v1"
+        },
+        {
+          "key": "void",
+          "name": "Vong Thần",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.wangshen.v1"
+        },
+        {
+          "key": "xue_tang",
+          "name": "Học Đường",
+          "chineseName": "学堂",
+          "vietnameseName": "Học Đường",
+          "sourceId": "sanming.xuetang.dayStemChangSheng.v1",
+          "category": "văn_tinh",
+          "lookupBasis": "dayStem→changShengBranch",
+          "ruleVariant": "sanming.dayStemChangSheng",
+          "traditionalToneDisplay": "cát",
+          "priorityClass": "A_MINUS",
+          "evidence": "Nhật can 庚 Trường Sinh tại 巳",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_cat",
+          "type": "cat"
+        },
+        {
+          "key": "di_wang",
+          "name": "Địa Võng",
+          "chineseName": "地网",
+          "vietnameseName": "Địa Võng",
+          "sourceId": "sanming.tianluodiwang.pair.v1",
+          "category": "la_võng",
+          "lookupBasis": "natalPair辰巳",
+          "ruleVariant": "sanming.tianluodiwang.pair",
+          "traditionalToneDisplay": "hung",
+          "priorityClass": "B_MINUS",
+          "matchedAt": [
+            "day",
+            "month"
+          ],
+          "evidence": "Đủ cặp 辰+巳 tại day,month",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_hung",
+          "type": "hung"
+        }
+      ],
+      "day": [
+        {
+          "key": "canopy",
+          "name": "Hoa Cái",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.huagai.v1"
+        },
+        {
+          "key": "widow",
+          "name": "Quả Tú",
+          "type": "hung",
+          "traditionalTone": "thien_hung",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.guasu.v1"
+        },
+        {
+          "key": "yue_de",
+          "name": "Nguyệt Đức",
+          "chineseName": "月德",
+          "vietnameseName": "Nguyệt Đức",
+          "sourceId": "sanming.yuede.month.v1",
+          "category": "đức_tinh",
+          "lookupBasis": "monthBranch→stem",
+          "ruleVariant": "sanming.yuede.month",
+          "traditionalToneDisplay": "cát",
+          "priorityClass": "A",
+          "matchedAt": [
+            "day"
+          ],
+          "evidence": "Nguyệt chi 巳 → can 庚",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_cat",
+          "type": "cat"
+        },
+        {
+          "key": "di_wang",
+          "name": "Địa Võng",
+          "chineseName": "地网",
+          "vietnameseName": "Địa Võng",
+          "sourceId": "sanming.tianluodiwang.pair.v1",
+          "category": "la_võng",
+          "lookupBasis": "natalPair辰巳",
+          "ruleVariant": "sanming.tianluodiwang.pair",
+          "traditionalToneDisplay": "hung",
+          "priorityClass": "B_MINUS",
+          "matchedAt": [
+            "day",
+            "month"
+          ],
+          "evidence": "Đủ cặp 辰+巳 tại day,month",
+          "weightClass": "auxiliary",
+          "traditionalTone": "thien_hung",
+          "type": "hung"
+        }
+      ],
+      "hour": [
+        {
+          "key": "general",
+          "name": "Tướng Tinh",
+          "type": "cat",
+          "traditionalTone": "thien_cat",
+          "weightClass": "auxiliary",
+          "sourceId": "shensha.jiangxing.v1"
+        }
+      ]
+    },
+    "shenShaSummary": [
+      {
+        "key": "general",
+        "name": "Tướng Tinh",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.jiangxing.v1"
+      },
+      {
+        "key": "jie",
+        "name": "Kiếp Sát",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.jiesha.v1"
+      },
+      {
+        "key": "lonely",
+        "name": "Cô Thần",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.guchen.v1"
+      },
+      {
+        "key": "void",
+        "name": "Vong Thần",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.wangshen.v1"
+      },
+      {
+        "key": "xue_tang",
+        "name": "Học Đường",
+        "chineseName": "学堂",
+        "vietnameseName": "Học Đường",
+        "sourceId": "sanming.xuetang.dayStemChangSheng.v1",
+        "category": "văn_tinh",
+        "lookupBasis": "dayStem→changShengBranch",
+        "ruleVariant": "sanming.dayStemChangSheng",
+        "traditionalToneDisplay": "cát",
+        "priorityClass": "A_MINUS",
+        "evidence": "Nhật can 庚 Trường Sinh tại 巳",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_cat",
+        "type": "cat"
+      },
+      {
+        "key": "di_wang",
+        "name": "Địa Võng",
+        "chineseName": "地网",
+        "vietnameseName": "Địa Võng",
+        "sourceId": "sanming.tianluodiwang.pair.v1",
+        "category": "la_võng",
+        "lookupBasis": "natalPair辰巳",
+        "ruleVariant": "sanming.tianluodiwang.pair",
+        "traditionalToneDisplay": "hung",
+        "priorityClass": "B_MINUS",
+        "matchedAt": [
+          "day",
+          "month"
+        ],
+        "evidence": "Đủ cặp 辰+巳 tại day,month",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_hung",
+        "type": "hung"
+      },
+      {
+        "key": "canopy",
+        "name": "Hoa Cái",
+        "type": "cat",
+        "traditionalTone": "thien_cat",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.huagai.v1"
+      },
+      {
+        "key": "widow",
+        "name": "Quả Tú",
+        "type": "hung",
+        "traditionalTone": "thien_hung",
+        "weightClass": "auxiliary",
+        "sourceId": "shensha.guasu.v1"
+      },
+      {
+        "key": "yue_de",
+        "name": "Nguyệt Đức",
+        "chineseName": "月德",
+        "vietnameseName": "Nguyệt Đức",
+        "sourceId": "sanming.yuede.month.v1",
+        "category": "đức_tinh",
+        "lookupBasis": "monthBranch→stem",
+        "ruleVariant": "sanming.yuede.month",
+        "traditionalToneDisplay": "cát",
+        "priorityClass": "A",
+        "matchedAt": [
+          "day"
+        ],
+        "evidence": "Nguyệt chi 巳 → can 庚",
+        "weightClass": "auxiliary",
+        "traditionalTone": "thien_cat",
+        "type": "cat"
+      }
+    ],
+    "specialDayMarkers": {
+      "catalogVersion": "2.0.0",
+      "kuiGang": {
+        "key": "kuiGang",
+        "present": true,
+        "dayPillar": "庚辰",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.kuigang.dayPillar.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "Nhật trụ 庚辰 thuộc bộ Khôi Cương"
+      },
+      "yinYangMisalignment": {
+        "key": "yinYangMisalignment",
+        "present": false,
+        "dayPillar": "庚辰",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.yinyangMisalignment.dayPillar.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "Nhật trụ 庚辰 không thuộc Âm Dương Sai Thác"
+      },
+      "fourWaste": {
+        "key": "fourWaste",
+        "present": false,
+        "seasonMatched": true,
+        "dayPillarMatched": false,
+        "seasonGroup": "hạ",
+        "monthBranch": "巳",
+        "dayPillar": "庚辰",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.fourWaste.seasonDay.v1",
+        "traditionalToneDisplay": "hung",
+        "evidence": "seasonMatched=true dayPillarMatched=false (wasteDayAnywhere=false)"
+      },
+      "tenEvilGreatDefeat": {
+        "key": "tenEvilGreatDefeat",
+        "baseListHit": true,
+        "refinedYearRuleHit": false,
+        "status": "baseCandidate",
+        "dayPillar": "庚辰",
+        "yearPillar": "丙午",
+        "weightClass": "auxiliary",
+        "sourceId": "sanming.tenEvilGreatDefeat.v1",
+        "traditionalToneDisplay": "trung",
+        "evidence": "baseListHit=true; refinedYearRuleHit=false; status=baseCandidate"
+      }
+    },
+    "dayMasterQiStates": {
+      "twelveStages": {
+        "year": "沐浴",
+        "month": "长生",
+        "day": "养",
+        "hour": "死"
+      },
+      "lu": {
+        "branch": "申",
+        "matchedAt": [],
+        "present": false
+      },
+      "ren": {
+        "branch": "酉",
+        "matchedAt": [],
+        "present": false,
+        "mode": "ziPingYangRenOnly",
+        "kind": "yangRen",
+        "sourceId": "ziPing.yangRen.v1"
+      }
+    },
+    "xunKong": {
+      "day": "申酉",
+      "year": "寅卯"
+    },
+    "usefulGod": null,
+    "directions": null
+  }
+}

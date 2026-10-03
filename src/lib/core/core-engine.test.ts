@@ -276,7 +276,7 @@ describe("Shen sha merge + Thiên Câu", () => {
       false,
     );
     if (peach[0]) {
-      expect(peach[0].name).toBe("Đào Hoa (Hàm Trì)");
+      expect(peach[0].name).toBe("Đào Hoa");
     }
     for (const key of ["year", "month", "day", "hour"] as const) {
       for (const s of chart.pillars[key].shenSha) {

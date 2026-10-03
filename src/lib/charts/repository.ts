@@ -151,3 +151,38 @@ export async function setChartPremium(id: string, isPremium: boolean) {
     await saveChartLocal(record);
   }
 }
+
+/** Ghi đè toàn bộ bazi_data sau khi recalculate từ input gốc. */
+export async function updateChartBaziData(
+  id: string,
+  chart: BaZiChartResult,
+): Promise<SavedChartRecord | null> {
+  const existing = await getChartById(id);
+  if (!existing) return null;
+
+  const record: SavedChartRecord = {
+    ...existing,
+    gender: chart.gender,
+    timezone: chart.timezone,
+    birthTimeUtc: toBirthTimeUtc(chart),
+    baziData: chart,
+  };
+
+  if (hasSupabaseConfig()) {
+    const supabase = createServerClient();
+    const { error } = await supabase
+      .from("user_charts")
+      .update({
+        birth_time_utc: record.birthTimeUtc,
+        bazi_data: record.baziData,
+      })
+      .eq("id", id);
+    if (error) {
+      throw new Error(`Supabase update failed: ${error.message}`);
+    }
+    return record;
+  }
+
+  await saveChartLocal(record);
+  return record;
+}

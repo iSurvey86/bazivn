@@ -5,6 +5,79 @@
 
 ---
 
+## 2026-10-03 — Shen Sha 2.0 + Đại vận UX + polish lá số (0.2.0)
+
+**Máy / ngữ cảnh:** Cursor — cuối phiên đầy đủ. App **0.2.0** (từ 0.1.1). Engine Core **0.3.2-core / lock-rc** đã commit. Nhánh `main`.
+
+### Đã chốt / đã làm
+
+- **Shen Sha Catalog 2.0.0:** 7 nhóm mới + `specialDayMarkers` tách `shenSha[]`; Đào Hoa chỉ display; màu cat/hung; danh sách dấu phẩy.
+- **Đại vận UX:** xuất PNG 5 dòng; panel web 2 cột VI (quan hệ / cấu trúc / thần sát); click kỳ mở panel (`bazi-no-export`).
+- **Lá số UI:** bỏ Khí trạng, Dụng thần, Nhật trụ đặc thù, Dữ liệu cấu trúc; Lưu niên chi tiết 2 cột + đồng bộ fontsize; tuổi/năm tách dòng.
+- **Sửa:** nhãn quan hệ dính chữ (`relationNameToVi` + `relationLabelVi`); bỏ ghi chú «không phán tốt/xấu»; dedupe dòng Mộ Khố.
+
+### File chính
+
+| Khu vực | File |
+|---------|------|
+| Shen Sha v2 | `src/lib/shen-sha/*`, `bazi-shen-sha.ts`, `public/bcao/BAZIVN-shensha-*.json` |
+| Đại vận | `bazi-dayun-detail.ts`, `bazi-dayun-detail-panel.tsx`, `bazi-classic-chart.tsx` |
+| Relations | `src/lib/core/relations.ts` |
+| Changelog catalog | [2026-10-03-shensha-catalog-v2-changelog.md](./2026-10-03-shensha-catalog-v2-changelog.md) |
+
+### Việc tiếp
+
+- [ ] Nghiệm thu UI lá số + panel Đại vận trên trình duyệt.
+- [ ] (Tuỳ) Luận giải AI trên trang lá số, hoặc thanh toán Premium.
+- [ ] Không mở lại khóa Core 0.3.2 trừ bug nghiệm thu.
+
+### Câu mở phiên sau
+
+```text
+Đọc HANDOFF block đầu. App 0.2.0 — Shen Sha 2.0, panel Đại vận 2 cột, lá số đã bỏ khung thừa. Core lock-rc 0.3.2 giữ nguyên. Tiếp: nghiệm thu UI hoặc AI/Premium.
+```
+
+**Lưu trữ ngày:** [2026-10-03-shensha-dayun-ui.md](./2026-10-03-shensha-dayun-ui.md)
+
+---
+
+## 2026-10-03 — Chốt DEV BRIEF Core (P0/P1) trước khóa phiên
+
+**Máy / ngữ cảnh:** Cursor — tiếp thu 3 phản biện vào brief; chưa bắt đầu code Sprint 1. Nhánh `main`.
+
+### Đã chốt / đã làm
+
+- Brief Core khóa trước phiên bản: P0 timezone/Jie/Yun · `timezoneSensitive` · monthCommand nguồn/version · hoàn thiện `relations[]`; P1 boundary · UI Dịch Mã · giữ Đào Hoa/Thiên Câu.
+- **P0.1:** tách DoD **VN Civil** vs **Global Instant-Consistent** — không nói “timezone đang sai hoàn toàn”; rủi ro thấp hơn nếu chỉ HCM + civil local.
+- **P0.4:** `computeStemBranchRelations` đã có — **refine + test**, không rewrite.
+- Giữ nguyên: Dạ Tý version hóa, Lộc/Nhận ngoài shen-sha, không usefulGod/directions, % ngũ hành chỉ viz.
+- Golden case: `05/05/2026 23:46` `Asia/Ho_Chi_Minh` nữ — log 10 field raw; không nghiệm thu bằng ảnh UI.
+- Audit 4 khối code: `public/bcao/BAZIVN-4-khoi-code-kiem-tra-dut-diem.docx`.
+
+### File chính
+
+| Khu vực | File |
+|---------|------|
+| Brief chốt | [2026-10-03-dev-brief-core-truoc-khoa-phien.md](./2026-10-03-dev-brief-core-truoc-khoa-phien.md) |
+| Code audit Word | `public/bcao/BAZIVN-4-khoi-code-kiem-tra-dut-diem.docx` |
+| Core liên quan | `jieqi-boundaries.ts`, `month-command.ts`, `relations.ts`, `astrology-engine.ts`, `bazi-shen-sha.ts` |
+
+### Việc tiếp
+
+- [ ] Sprint 1: Timezone/Jie/Yun (DoD-A trước) → MonthCommand source/version → regression + golden case log.
+- [ ] Sprint 2: Audit relations → Boundary → UI Thần sát.
+- [ ] Sprint 3: Khóa BaziFacts + Classical Reasoning.
+
+### Câu mở phiên sau
+
+```text
+Đọc HANDOFF block đầu + docs/phien-lam-viec/2026-10-03-dev-brief-core-truoc-khoa-phien.md. Brief Core đã chốt (DoD-A VN / DoD-B Global). Bắt đầu Sprint 1 khi user bảo 「bắt đầu」.
+```
+
+**Lưu trữ ngày:** [2026-10-03-dev-brief-core-truoc-khoa-phien.md](./2026-10-03-dev-brief-core-truoc-khoa-phien.md)
+
+---
+
 ## 2026-10-03 — UI ấm + lá số rõ khung (0.1.1)
 
 **Máy / ngữ cảnh:** Cursor — cuối phiên đầy đủ. App **0.1.1** (từ 0.1.0). Nhánh `main`.
