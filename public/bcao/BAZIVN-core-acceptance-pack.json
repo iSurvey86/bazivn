@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-03T07:43:54.611Z",
+  "exportedAt": "2026-10-03T07:55:54.910Z",
   "purpose": "Acceptance pack Core BaziVN — lock-rc (4 hạng mục khóa)",
   "lockFixes": [
     "1. Default timeBasis = instant_consistent (DoD-B′ hybrid) cho mọi TZ kể cả VN; vn_civil = Legacy override explicit.",
@@ -10,11 +10,11 @@
     "6. Release: engine 0.3.2-core · rule-set bazi-core-2026-10-03-lock-rc · acceptance pack workingTreeDirty=false."
   ],
   "versionScope": {
-    "gitCommit": "56826db53f404f986377993896188f73bd10552c",
-    "gitCommitShort": "56826db",
+    "gitCommit": "2d28e0ec9125a5ce32b849e4e7689f8222ad9647",
+    "gitCommitShort": "2d28e0e",
     "gitBranch": "main",
     "workingTreeDirty": false,
-    "buildId": "acceptance-56826db-lock-rc",
+    "buildId": "acceptance-2d28e0e-lock-rc",
     "packageVersion": "0.1.1",
     "engineVersion": "0.3.2-core",
     "ruleSetVersion": "bazi-core-2026-10-03-lock-rc",
@@ -114,7 +114,7 @@
     "fail": 0,
     "total": 14
   },
-  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (28 tests) 78ms\n Test Files  1 passed (1)\n      Tests  28 passed (28)",
+  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (28 tests) 86ms\n Test Files  1 passed (1)\n      Tests  28 passed (28)",
   "highlights": {
     "tamHinhCaseA": [
       {
