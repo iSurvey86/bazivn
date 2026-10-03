@@ -1,0 +1,28 @@
+---
+description: Đọc/cập nhật HANDOFF phiên làm việc khi đổi máy hoặc cuối phiên có quyết định
+alwaysApply: true
+---
+
+# Handoff phiên làm việc (đa máy)
+
+## Đầu phiên — khi user tiếp tục dự án / nói «đọc handoff» / «máy khác» / «tiếp tục phiên trước»
+
+1. `git pull` nếu user yêu cầu, rồi đọc [docs/phien-lam-viec/HANDOFF.md](d:\AIPoject\bazivn\docs\phien-lam-viec\HANDOFF.md) — **block mới nhất** (ngay dưới dòng `---` đầu tiên sau phần hướng dẫn).
+2. Nếu block trỏ file ngày (`YYYY-MM-DD-*.md`), đọc thêm khi cần chi tiết.
+3. Không hỏi lại các quyết định đã ghi trong HANDOFF trừ khi user muốn đổi.
+
+## Cuối phiên — lệnh ngắn
+
+| User gõ | Agent làm |
+|---------|-----------|
+| **「làm cuối phiên đầy đủ」** | (1) HANDOFF (+ file ngày nếu cần) → (2) workflow + HDSD + version + changelog khi đủ điều kiện → (3) commit + **push** |
+| **「cập nhật HANDOFF」** | Chỉ (1); commit/push **chỉ khi** user yêu cầu thêm |
+| **「cập nhật HANDOFF → commit + push」** | (1) + commit + push; **không** bắt buộc workflow / HDSD / bump |
+
+Chi tiết bước (1)(2)(3), bảng file, và điều kiện bump: [docs/phien-lam-viec/README.md](d:\AIPoject\bazivn\docs\phien-lam-viec\README.md).
+
+## Không ghi vào HANDOFF
+
+- Nội dung chat dài nguyên văn
+- Secret (`.env`, key)
+- File build (`.next`, `node_modules`, `.data`)

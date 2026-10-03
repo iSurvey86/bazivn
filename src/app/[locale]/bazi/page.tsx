@@ -25,10 +25,12 @@ export default async function BaziPage({ params }: BaziPageProps) {
         </Link>
 
         <header className="mt-6">
-          <h1 className="text-3xl font-black tracking-tight text-foreground">
+          <h1 className="text-2xl font-black tracking-tight text-foreground">
             {t("title")}
           </h1>
-          <p className="mt-2 text-base font-medium text-muted">{t("subtitle")}</p>
+          <p className="mt-1.5 text-[13px] font-medium leading-relaxed text-muted">
+            {t("subtitle")}
+          </p>
         </header>
 
         <div className="mt-8">

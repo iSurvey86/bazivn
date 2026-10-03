@@ -16,20 +16,24 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <BaziShell>
-      <main className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
-        <p className="text-sm font-bold uppercase tracking-widest text-muted">
-          BaziVN
-        </p>
-        <h1 className="mt-3 max-w-2xl text-4xl font-black tracking-tight text-foreground">
-          {t("title")}
-        </h1>
-        <p className="mt-4 max-w-lg text-lg font-medium text-muted">{t("subtitle")}</p>
-        <Link
-          href="/bazi"
-          className="mt-10 inline-flex items-center rounded-lg bg-accent px-8 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-accent-hover"
-        >
-          {tCommon("homeCta")}
-        </Link>
+      <main className="flex flex-1 items-center justify-center px-4 py-12">
+        <div className="w-full max-w-[440px] rounded-2xl border border-gray-200/80 bg-white p-8 shadow-2xl">
+          <p className="text-center text-[10px] font-extrabold tracking-[0.25em] text-warm">
+            BAZIVN
+          </p>
+          <h1 className="mt-2 text-center text-2xl font-black tracking-tight text-foreground">
+            {t("title")}
+          </h1>
+          <p className="mt-3 text-center text-[13px] font-medium leading-relaxed text-muted">
+            {t("subtitle")}
+          </p>
+          <Link
+            href="/bazi"
+            className="mt-8 flex w-full items-center justify-center rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-accent-hover"
+          >
+            {tCommon("homeCta")}
+          </Link>
+        </div>
       </main>
     </BaziShell>
   );

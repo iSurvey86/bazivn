@@ -1,19 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f2ec;
-  --foreground: #1a1714;
-  --surface: #ffffff;
-  --surface-muted: #ebe6de;
-  --border: #d9d0c4;
-  --border-strong: #bfb3a3;
-  --muted: #4a433c;
-  --accent: #7a5c0f;
-  --accent-light: #f0e6c8;
-  --accent-hover: #5c4609;
-  --shadow: 0 1px 2px rgb(26 23 20 / 8%);
-  --shadow-lg: 0 2px 6px rgb(26 23 20 / 10%);
-  --radius: 0.75rem;
+  --background: #fff8f1;
+  --foreground: #3f2a1d;
+  --surface: #fffdf9;
+  --surface-muted: #fbf3ea;
+  --border: #e8d9c8;
+  --border-strong: #dcc9b4;
+  --muted: #7a5c4a;
+  --accent: #c45c26;
+  --accent-light: #fff1e6;
+  --accent-hover: #a34a1c;
+  --warm: #e8a054;
+  --shadow: 0 1px 2px rgb(63 42 29 / 6%);
+  --shadow-lg: 0 12px 40px rgb(63 42 29 / 10%);
+  --radius: 0.5rem;
   --radius-lg: 1rem;
 }
 
@@ -28,7 +29,8 @@
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
   --color-accent-hover: var(--accent-hover);
-  --font-sans: var(--font-be-vietnam);
+  --color-warm: var(--warm);
+  --font-sans: var(--font-inter), "Inter", Arial, sans-serif;
 }
 
 * {
@@ -42,14 +44,28 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-be-vietnam), system-ui, sans-serif;
-  font-weight: 400;
+  font-family: var(--font-sans);
+  font-weight: 500;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: auto;
-  text-rendering: optimizeLegibility;
+  text-rendering: geometricPrecision;
+  font-feature-settings: "kern" 1;
 }
 
-/* Flat page background — no soft gradient wash */
+select {
+  accent-color: #c45c26;
+}
+
+select option {
+  background-color: #fffdf9;
+  color: #3f2a1d;
+}
+
+select option:checked {
+  background: #fff1e6 linear-gradient(#fff1e6, #fff1e6);
+  color: #a34a1c;
+}
+
 .bazi-page-bg {
   background-color: var(--background);
 }
@@ -68,50 +84,37 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
-/* Scrollbar for horizontal timelines */
-.bazi-scroll-x {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
-}
-
-.bazi-scroll-x::-webkit-scrollbar {
-  height: 6px;
-}
-
-.bazi-scroll-x::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 3px;
-}
-
-/* Lá số: font mỏng, nét sắc */
+/* Lá số: chữ đậm hơn, nét rõ */
 .bazi-chart-crisp {
-  color: #0a0a0a;
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color: #3f2a1d;
+  font-weight: 500;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
   text-rendering: geometricPrecision;
+  font-feature-settings: "kern" 1;
 }
 
 .bazi-chart-crisp .bazi-label-col {
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .bazi-chart-crisp .bazi-pillar-char {
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .bazi-chart-crisp .bazi-day-master {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .bazi-chart-crisp dt,
 .bazi-chart-crisp .text-muted-chart {
-  color: #333;
-  font-weight: 400;
+  color: #7a5c4a;
+  font-weight: 600;
 }
 
 .bazi-pillar-char {
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: subpixel-antialiased;
+  text-rendering: geometricPrecision;
 }

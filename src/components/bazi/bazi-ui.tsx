@@ -1,3 +1,4 @@
+import { Link } from "@/i18n/navigation";
 import type { ReactNode } from "react";
 
 export function BaziShell({
@@ -8,7 +9,19 @@ export function BaziShell({
   className?: string;
 }) {
   return (
-    <div className={`bazi-page-bg min-h-full flex-1 ${className}`}>{children}</div>
+    <div className={`bazi-page-bg flex min-h-full flex-1 flex-col ${className}`}>
+      <header className="flex h-16 shrink-0 items-center border-b border-border bg-gradient-to-r from-[#f3e0cb] to-[#f8ebe0] px-5 shadow-sm sm:px-8">
+        <Link href="/" className="flex flex-col leading-none">
+          <span className="text-sm font-black tracking-widest text-foreground">
+            BAZIVN
+          </span>
+          <span className="mt-1 text-[10px] font-extrabold tracking-[0.25em] text-accent">
+            TỨ TRỤ
+          </span>
+        </Link>
+      </header>
+      <div className="flex flex-1 flex-col">{children}</div>
+    </div>
   );
 }
 
@@ -121,7 +134,7 @@ export function BaziInput({
 }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full rounded-lg border border-border-strong bg-surface px-3.5 py-2.5 text-sm font-medium text-foreground outline-none transition placeholder:font-normal placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20 ${className}`}
+      className={`w-full rounded-lg border border-border-strong bg-slate-50/80 px-4 py-3 text-sm font-medium text-foreground outline-none transition placeholder:font-normal placeholder:text-gray-400 focus:border-accent focus:bg-surface focus:ring-2 focus:ring-accent ${className}`}
       {...props}
     />
   );
@@ -134,7 +147,7 @@ export function BaziSelect({
 }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`w-full rounded-lg border border-border-strong bg-surface px-3.5 py-2.5 text-sm font-medium text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 ${className}`}
+      className={`w-full rounded-lg border border-border-strong bg-slate-50/80 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-accent focus:bg-surface focus:ring-2 focus:ring-accent ${className}`}
       {...props}
     >
       {children}
@@ -152,12 +165,12 @@ export function BaziButton({
 }) {
   const styles =
     variant === "primary"
-      ? "bg-accent text-white hover:bg-accent-hover shadow-sm"
-      : "border border-[#7eb8da] bg-[#e8f4fc] text-[#1a5276] hover:bg-[#d6ebf9]";
+      ? "bg-accent text-white shadow-lg hover:bg-accent-hover uppercase tracking-wide"
+      : "border border-border-strong bg-surface text-foreground hover:bg-surface-muted";
 
   return (
     <button
-      className={`inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-bold transition disabled:opacity-50 ${styles} ${className}`}
+      className={`inline-flex w-full cursor-pointer items-center justify-center rounded-lg px-4 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
       {...props}
     >
       {children}
@@ -178,7 +191,7 @@ export function BaziField({
     <div>
       <label
         htmlFor={htmlFor}
-        className="mb-1.5 block text-sm font-bold text-foreground"
+        className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted"
       >
         {label}
       </label>

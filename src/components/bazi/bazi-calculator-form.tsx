@@ -101,10 +101,10 @@ export function BaziCalculatorForm() {
   }
 
   return (
-    <BaziCard className="overflow-hidden border-[#ccc] shadow-sm">
-      <div className="border-b border-[#ddd] px-6 py-4">
-        <h2 className="text-lg font-bold text-[#222]">
-          Lập lá số <span className="text-[#c0392b]">Tứ Trụ</span>
+    <BaziCard elevated className="overflow-hidden border-gray-200">
+      <div className="border-b border-gray-200 px-6 py-5">
+        <h2 className="text-lg font-black tracking-tight text-foreground">
+          Lập lá số <span className="text-accent">Tứ Trụ</span>
         </h2>
       </div>
 
@@ -207,18 +207,16 @@ export function BaziCalculatorForm() {
           </BaziField>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <BaziField label={t("form.gender")} htmlFor="gender">
-            <BaziSelect
-              id="gender"
-              value={gender}
-              onChange={(e) => setGender(e.target.value as Gender)}
-            >
-              <option value="male">{t("form.male")}</option>
-              <option value="female">{t("form.female")}</option>
-            </BaziSelect>
-          </BaziField>
-        </div>
+        <BaziField label={t("form.gender")} htmlFor="gender">
+          <BaziSelect
+            id="gender"
+            value={gender}
+            onChange={(e) => setGender(e.target.value as Gender)}
+          >
+            <option value="male">{t("form.male")}</option>
+            <option value="female">{t("form.female")}</option>
+          </BaziSelect>
+        </BaziField>
 
         <BaziField label={t("form.timezone")} htmlFor="timezone">
           <BaziSelect
@@ -235,19 +233,14 @@ export function BaziCalculatorForm() {
         </BaziField>
 
         <div className="pt-2">
-          <BaziButton
-            type="submit"
-            disabled={isLoading}
-            className="w-auto px-8"
-            variant="secondary"
-          >
+          <BaziButton type="submit" disabled={isLoading}>
             {isLoading ? t("form.calculating") : "Tạo lá số"}
           </BaziButton>
         </div>
       </form>
 
       {error ? (
-        <div className="mx-6 mb-6 border border-[#ddb8b0] bg-[#faf0ee] px-4 py-3 text-sm font-medium text-[#a83828]">
+        <div className="mx-6 mb-6 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-[13px] font-bold text-red-600">
           {error}
         </div>
       ) : null}
