@@ -171,6 +171,10 @@ function buildAcceptanceCase(
     })),
   );
 
+  const dayBoundaryMode = chart.conventions.dayBoundaryMode;
+  const dayPillar = chart.pillars.day.ganZhi;
+  const hourPillar = chart.pillars.hour.ganZhi;
+
   return {
     label,
     place: meta.place,
@@ -179,16 +183,23 @@ function buildAcceptanceCase(
     engineVersion: chart.facts.meta.engineVersion,
     ruleSetVersion: chart.facts.meta.ruleSetVersion,
     conventions: chart.conventions,
+    dayBoundaryMode,
     birthLocal: dbg.birthLocal,
     birthAbsolute: dbg.birthAbsolute,
+    /** Clock dùng cho Jie / Yun / Year / Month (DoD-B′ = libraryTermClock). */
+    clockForJieYun: dbg.libraryTermClock,
     libraryTermClock: dbg.libraryTermClock,
     timeBasisMode: chart.timeBasis.mode,
     libraryTermTimezone: chart.timeBasis.libraryTermTimezone,
+    dayPillar,
+    hourPillar,
+    dayPillarVi: chart.pillars.day.ganZhiVi,
+    hourPillarVi: chart.pillars.hour.ganZhiVi,
     pillars: {
       year: chart.pillars.year.ganZhi,
       month: chart.pillars.month.ganZhi,
-      day: chart.pillars.day.ganZhi,
-      hour: chart.pillars.hour.ganZhi,
+      day: dayPillar,
+      hour: hourPillar,
       detail: {
         year: chart.pillars.year,
         month: chart.pillars.month,
@@ -211,6 +222,30 @@ function buildAcceptanceCase(
     daysFromJie: dbg.daysFromJie,
     monthCommand: chart.monthCommand,
     relations: chart.relations,
+    relationsMeta: {
+      allHaveSourceId: chart.relations.every((r) => !!r.sourceId),
+      withTransformStatus: chart.relations
+        .filter((r) => r.transformStatus)
+        .map((r) => ({
+          name: r.name,
+          transformStatus: r.transformStatus,
+        })),
+      contested: chart.relations
+        .filter((r) => r.contested)
+        .map((r) => ({
+          name: r.name,
+          contestedWith: r.contestedWith,
+        })),
+      punishments: chart.relations
+        .filter((r) =>
+          [
+            "branchPunishmentPair",
+            "branchThreePunishment",
+            "branchSelfPunishment",
+          ].includes(r.type),
+        )
+        .map((r) => ({ type: r.type, name: r.name, members: r.members })),
+    },
     yunStartRaw: dbg.yunStartRaw,
     yunStartLocal: dbg.yunStartLocal,
     yunForward: chart.yun.isForward,
@@ -234,6 +269,27 @@ function buildAcceptanceCase(
     reasoning: chart.facts.reasoning,
     isLateRatHour: chart.isLateRatHour,
     dayBoundaryLabel: chart.conventionsLabel,
+    boundaries: chart.boundaries,
+    /** Flat audit block (Case B′ yêu cầu nghiệm thu). */
+    auditFlat: {
+      birthLocal: dbg.birthLocal,
+      birthAbsolute: dbg.birthAbsolute,
+      clockForJieYun: dbg.libraryTermClock,
+      libraryTermClock: dbg.libraryTermClock,
+      prevJie: dbg.prevJie,
+      nextJie: dbg.nextJie,
+      minutesFromPrevJie,
+      daysFromJie: dbg.daysFromJie,
+      monthCommand: chart.monthCommand,
+      dayBoundaryMode,
+      dayPillar,
+      hourPillar,
+      relations: chart.relations,
+      yunStartRaw: dbg.yunStartRaw,
+      yunStartLocal: dbg.yunStartLocal,
+      usefulGod: chart.usefulGod,
+      directions: chart.directions,
+    },
     rawDebug10: {
       birthLocal: dbg.birthLocal,
       birthAbsolute: dbg.birthAbsolute,
@@ -248,6 +304,15 @@ function buildAcceptanceCase(
     },
   };
 }
+
+const SPRINT2_FIXES = [
+  "1. Hybrid TZ DoD-B′: Year/Month/Jie/Yun trên libraryTermClock (Asia/Shanghai khi instant_consistent); Day/Hour giữ localCivil + Dạ Tý.",
+  "2. relations[]: thêm sourceId; transformStatus combineOnly|transformCandidate (Core không tự transformed); contested/contestedWith cho tranh hợp.",
+  "3. Tam hình: branchPunishmentPair (2/3, vd 寅申刑) vs branchThreePunishment (3/3 đủ bộ); không gắn 寅巳申刑 khi thiếu 巳.",
+  "4. nearZiBoundary thu hẹp ±10′ quanh 23:00/00:00; cửa sổ rộng 22:00–00:59 → nearZiWindowWide (không feed timezoneSensitive).",
+  "5. Same-UTC multi-TZ tests: HCM / Shanghai / New_York cùng absolute → Year/Month/Jie/Yun term nhất quán.",
+  "6. Release: engine 0.3.1-core · rule-set bazi-core-2026-10-03-sprint2 · acceptance pack workingTreeDirty=false.",
+];
 
 function runChecklist(): ChecklistRow[] {
   const rows: ChecklistRow[] = [];
@@ -834,19 +899,49 @@ describe("export Core acceptance pack", () => {
         "Repo không có stem-branch-relations.ts — file quan hệ can chi là src/lib/core/relations.ts.",
     };
 
+    const passCount = checklist.filter((r) => r.status === "PASS").length;
+    const failCountPre = checklist.filter((r) => r.status === "FAIL").length;
+    const vitestSummary = vitestLog
+      .split(/\r?\n/)
+      .filter((l) => /✓|×|PASS|FAIL|Tests |Test Files/.test(l))
+      .join("\n");
+
     const pack = {
       exportedAt: new Date().toISOString(),
+      purpose: "Acceptance pack Core BaziVN — nghiệm thu sau 6 hạng mục Sprint 2",
+      sprint2Fixes: SPRINT2_FIXES,
       versionScope,
       checklist,
+      checklistSummary: {
+        pass: passCount,
+        fail: failCountPre,
+        total: checklist.length,
+      },
+      vitestSummary,
+      highlights: {
+        tamHinhCaseA: caseA.relationsMeta.punishments,
+        relationsSourceId: caseA.relationsMeta.allHaveSourceId,
+        transformStatusSamples: caseA.relationsMeta.withTransformStatus.slice(
+          0,
+          8,
+        ),
+        contestedSamples: caseA.relationsMeta.contested,
+        nearZiBoundary: {
+          note: "tight ±10′; wide = nearZiWindowWide",
+          sampleCaseBBoundaries: caseBInstant.boundaries,
+        },
+        sameUtcMultiTz: checklist.find((c) =>
+          c.name.includes("same-UTC"),
+        ),
+        caseBPrimeAuditFlat: caseBInstant.auditFlat,
+      },
       caseA,
       caseB,
       caseBInstant,
+      caseAAuditFlat: caseA.auditFlat,
+      caseBInstantAuditFlat: caseBInstant.auditFlat,
       caseBRaw10: caseB.rawDebug10,
       caseBInstantRaw10: caseBInstant.rawDebug10,
-      vitestSummary: vitestLog
-        .split(/\r?\n/)
-        .filter((l) => /✓|×|PASS|FAIL|Tests |Test Files/.test(l))
-        .join("\n"),
     };
 
     mkdirSync(outDir, { recursive: true });
@@ -883,13 +978,16 @@ describe("export Core acceptance pack", () => {
     ];
 
     const children = [
-      h1("BaziVN — Pack nghiệm thu Core (vòng cuối)"),
+      h1("BaziVN — Acceptance Pack Core (Sprint 2 / 6 hạng mục)"),
       p(
         `Xuất: ${new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`,
       ),
       p(
-        "Gồm 4 nhóm: (1) code core hiện hành · (2) raw JSON 2 case chuẩn · (3) test log · (4) version/scope. Chấm PASS / FAIL / CẦN SỬA.",
+        "Nghiệm thu: artifact/version → raw facts → regression → logic chuyên môn. Chỉ Core — không gồm WIP UI.",
       ),
+
+      h1("0. Sáu hạng mục vừa sửa"),
+      ...SPRINT2_FIXES.map((line) => p(line)),
 
       h1("4. Version & scope"),
       p(`git commit: ${versionScope.gitCommit}`),
@@ -909,42 +1007,80 @@ describe("export Core acceptance pack", () => {
       note(versionScope.noteStemBranchFile),
 
       h1("3. Test log / regression checklist"),
-      p(`Vitest: ${pack.vitestSummary || "(xem sidecar JSON)"}`),
+      p(
+        `Checklist: ${passCount}/${checklist.length} PASS · FAIL=${failCountPre}`,
+      ),
+      p(`Vitest: ${vitestSummary || "(xem sidecar JSON)"}`),
       ...checklist.map((r) =>
         p(`[${r.status}] ${r.name}${r.detail ? ` — ${r.detail}` : ""}`, {
           bold: r.status === "FAIL",
           color: r.status === "FAIL" ? "B00020" : "1B5E20",
         }),
       ),
+      h2("Highlights logic"),
+      ...codeBlock(JSON.stringify(pack.highlights, null, 2)),
 
-      h1("2. Raw JSON / Fact Graph — 2 case chuẩn"),
+      h1("2. Raw JSON / Fact Graph — Case A + Case B′"),
       h2("Case A — 12/11/1986 17:45 – Phú Thọ – Nam – Asia/Ho_Chi_Minh"),
+      ...codeBlock(JSON.stringify(caseA.auditFlat, null, 2)),
+      h2("Case A — full Fact Graph"),
       ...codeBlock(JSON.stringify(caseA, null, 2)),
-      h2("Case B — 05/05/2026 23:46 – Hà Nội – Nữ – vn_civil (default)"),
-      ...codeBlock(JSON.stringify(caseB, null, 2)),
-      h2("Case B — raw 10 field (vn_civil)"),
-      ...codeBlock(JSON.stringify(caseB.rawDebug10, null, 2)),
-      h2("Case B′ — cùng birth civil, instant_consistent hybrid"),
+      h2("Case B′ — 05/05/2026 23:46 – Hà Nội – Nữ – instant_consistent hybrid"),
       note(
-        "Year/Month/Jie/Yun trên libraryTermClock Asia/Shanghai; Day/Hour giữ local civil + Dạ Tý.",
+        "clockForJieYun = libraryTermClock Asia/Shanghai; dayPillar/hourPillar từ local civil + Dạ Tý.",
       ),
+      ...codeBlock(JSON.stringify(caseBInstant.auditFlat, null, 2)),
+      h2("Case B′ — full Fact Graph"),
       ...codeBlock(JSON.stringify(caseBInstant, null, 2)),
-      h2("Case B′ — raw 10 field (instant_consistent)"),
-      ...codeBlock(JSON.stringify(caseBInstant.rawDebug10, null, 2)),
+      h2("Case B (vn_civil) — tham chiếu DoD-A"),
+      ...codeBlock(JSON.stringify(caseB.auditFlat, null, 2)),
 
-      h1("1. Code core hiện hành (7 file)"),
+      h1("1. Code core trọng yếu (Hybrid TZ / relations / boundary)"),
       note(
-        "File quan hệ can chi trong repo: relations.ts (checklist gọi stem-branch-relations.ts).",
+        "Toàn file: astrology-engine (hybrid dual Solar), time-basis, jieqi-boundaries, relations, month-command, conventions, daymaster-qi, bazi-shen-sha.",
       ),
     ];
 
-    for (const f of coreFiles) {
+    const focusFiles = [
+      {
+        title: "src/lib/astrology-engine.ts (hybrid term/civil)",
+        rel: "src/lib/astrology-engine.ts",
+      },
+      { title: "src/lib/core/time-basis.ts", rel: "src/lib/core/time-basis.ts" },
+      {
+        title: "src/lib/core/jieqi-boundaries.ts",
+        rel: "src/lib/core/jieqi-boundaries.ts",
+      },
+      {
+        title: "src/lib/core/relations.ts",
+        rel: "src/lib/core/relations.ts",
+      },
+      {
+        title: "src/lib/core/month-command.ts",
+        rel: "src/lib/core/month-command.ts",
+      },
+      {
+        title: "src/lib/core/conventions.ts",
+        rel: "src/lib/core/conventions.ts",
+      },
+    ];
+    for (const f of focusFiles) {
+      children.push(h2(f.title));
+      children.push(...codeBlock(read(f.rel)));
+    }
+
+    children.push(h1("1b. Phụ lục code còn lại"));
+    const restFiles = coreFiles.filter(
+      (f) => !focusFiles.some((x) => x.rel === f.rel),
+    );
+
+    for (const f of restFiles) {
       children.push(h2(f.title));
       children.push(...codeBlock(read(f.rel)));
     }
 
     children.push(h1("Phụ lục — vitest stdout (rút gọn)"));
-    children.push(...codeBlock(pack.vitestSummary || vitestLog.slice(0, 4000)));
+    children.push(...codeBlock(vitestSummary || vitestLog.slice(0, 4000)));
 
     const doc = new Document({
       sections: [
@@ -970,14 +1106,25 @@ describe("export Core acceptance pack", () => {
     console.log("Wrote", jsonPath);
     // eslint-disable-next-line no-console
     console.log("Bytes docx", buffer.length);
+    // eslint-disable-next-line no-console
+    console.log("workingTreeDirty=", dirty, "buildId=", versionScope.buildId);
     for (const r of checklist) {
       // eslint-disable-next-line no-console
       console.log(`  [${r.status}] ${r.name}`);
     }
 
     expect(failCount, JSON.stringify(checklist, null, 2)).toBe(0);
+    expect(dirty, "Acceptance pack must be exported on clean tree").toBe(false);
     expect(caseA.usefulGod).toBeNull();
-    expect(caseB.usefulGod).toBeNull();
-    expect(caseB.rawDebug10.birthLocal).toBe("2026-05-05 23:46:00");
+    expect(caseBInstant.usefulGod).toBeNull();
+    expect(caseBInstant.directions).toBeNull();
+    expect(caseBInstant.auditFlat.dayPillar).toBe("己卯");
+    expect(caseBInstant.auditFlat.clockForJieYun).toBe("2026-05-06 00:46:00");
+    expect(caseA.relationsMeta.punishments.some((x) => x.name === "寅申刑")).toBe(
+      true,
+    );
+    expect(
+      caseA.relationsMeta.punishments.some((x) => x.name === "寅巳申刑"),
+    ).toBe(false);
   }, 120_000);
 });
