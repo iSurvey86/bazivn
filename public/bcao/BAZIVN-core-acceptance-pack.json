@@ -1,29 +1,30 @@
 {
-  "exportedAt": "2026-10-03T07:25:40.521Z",
-  "purpose": "Acceptance pack Core BaziVN — nghiệm thu sau 6 hạng mục Sprint 2",
-  "sprint2Fixes": [
-    "1. Hybrid TZ DoD-B′: Year/Month/Jie/Yun trên libraryTermClock (Asia/Shanghai khi instant_consistent); Day/Hour giữ localCivil + Dạ Tý.",
-    "2. relations[]: thêm sourceId; transformStatus combineOnly|transformCandidate (Core không tự transformed); contested/contestedWith cho tranh hợp.",
-    "3. Tam hình: branchPunishmentPair (2/3, vd 寅申刑) vs branchThreePunishment (3/3 đủ bộ); không gắn 寅巳申刑 khi thiếu 巳.",
-    "4. nearZiBoundary thu hẹp ±10′ quanh 23:00/00:00; cửa sổ rộng 22:00–00:59 → nearZiWindowWide (không feed timezoneSensitive).",
-    "5. Same-UTC multi-TZ tests: HCM / Shanghai / New_York cùng absolute → Year/Month/Jie/Yun term nhất quán.",
-    "6. Release: engine 0.3.1-core · rule-set bazi-core-2026-10-03-sprint2 · acceptance pack workingTreeDirty=false."
+  "exportedAt": "2026-10-03T07:43:54.611Z",
+  "purpose": "Acceptance pack Core BaziVN — lock-rc (4 hạng mục khóa)",
+  "lockFixes": [
+    "1. Default timeBasis = instant_consistent (DoD-B′ hybrid) cho mọi TZ kể cả VN; vn_civil = Legacy override explicit.",
+    "2. monthCommand ziPingZhenQuan_v1 tableVersion 1.1.0: 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18 (《子平真诠》).",
+    "3. relations: tách branchHalfHarmony (bán hợp, có trung thần) vs branchArchHarmony (拱合, thiếu trung thần).",
+    "4. tranh hợp: contested/contestedWith + comboKey phân biệt cùng tên; golden case trong pack highlights.",
+    "5. Hybrid TZ: Year/Month/Jie/Yun trên libraryTermClock Asia/Shanghai; Day/Hour localCivil + Dạ Tý.",
+    "6. Release: engine 0.3.2-core · rule-set bazi-core-2026-10-03-lock-rc · acceptance pack workingTreeDirty=false."
   ],
   "versionScope": {
-    "gitCommit": "d29fddbc37cc3e3198bbd0928c26db16dea3bd7e",
-    "gitCommitShort": "d29fddb",
+    "gitCommit": "56826db53f404f986377993896188f73bd10552c",
+    "gitCommitShort": "56826db",
     "gitBranch": "main",
     "workingTreeDirty": false,
-    "buildId": "acceptance-d29fddb-sprint2",
+    "buildId": "acceptance-56826db-lock-rc",
     "packageVersion": "0.1.1",
-    "engineVersion": "0.3.1-core",
-    "ruleSetVersion": "bazi-core-2026-10-03-sprint2",
-    "scope": "DoD-A: vn_civil = compatibility mode (default HCM), NOT astronomical vô khuyết. DoD-B′: instant_consistent hybrid — Year/Month/Jie/Yun on Asia/Shanghai libraryTermClock; Day/Hour on birth localCivil + Dạ Tý.",
+    "engineVersion": "0.3.2-core",
+    "ruleSetVersion": "bazi-core-2026-10-03-lock-rc",
+    "scope": "Lock-rc: default instant_consistent (DoD-B′ hybrid) mọi TZ kể cả VN — Year/Month/Jie/Yun trên Asia/Shanghai libraryTermClock; Day/Hour localCivil + Dạ Tý. vn_civil = Legacy override explicit (DoD-A compatibility, NOT vô khuyết).",
     "dayBoundaryModeDefault": "midnight_00",
     "renModeDefault": "ziPingYangRenOnly",
     "monthCommandModeDefault": "ziPingZhenQuan_v1",
+    "monthCommandTableVersion": "1.1.0",
     "yunSect": 2,
-    "timeBasisModeDefault": "auto: HCM→vn_civil; else→instant_consistent",
+    "timeBasisModeDefault": "instant_consistent",
     "trueSolarTimeEnabled": false,
     "codeFiles": [
       "src/lib/astrology-engine.ts",
@@ -45,7 +46,7 @@
     {
       "name": "trước/sau Jie",
       "status": "PASS",
-      "detail": "month 戊戌→己亥; daysFromJie after=0.45; prevJie=立冬"
+      "detail": "month 戊戌→己亥; daysFromJie after=0.49; prevJie=立冬"
     },
     {
       "name": "22:59 / 23:00 / 23:59 / 00:00 (midnight_00 + zi_start_23)",
@@ -53,9 +54,9 @@
       "detail": "mid day=辛亥/辛亥/辛亥→壬子; zi@23:00=壬子"
     },
     {
-      "name": "case nữ 05/05/2026 23:46",
+      "name": "case nữ 05/05/2026 23:46 (default hybrid)",
       "status": "PASS",
-      "detail": "pillars=丙午/癸巳/己卯/丙子; forward=false; lateRat=true"
+      "detail": "mode=instant_consistent; lib=2026-05-06 00:46:00; day=己卯; table=1.1.0"
     },
     {
       "name": "thuận/nghịch Đại vận",
@@ -65,7 +66,7 @@
     {
       "name": "monthCommand",
       "status": "PASS",
-      "detail": "mode=ziPingZhenQuan_v1; stem=戊; daysFromJie=4.69"
+      "detail": "mode=ziPingZhenQuan_v1; stem=戊; daysFromJie=4.73"
     },
     {
       "name": "relations[] sourceId + hợp hóa + tam hình 2/3",
@@ -78,9 +79,14 @@
       "detail": "22:30 nearZi=false wide=true; 23:05 nearZi=true"
     },
     {
-      "name": "DoD-B′ hybrid Case B + same-UTC multi-TZ",
+      "name": "DoD-B′ hybrid default + same-UTC multi-TZ",
       "status": "PASS",
-      "detail": "lib=2026-05-06 00:46:00; min=298; day=己卯; absMatch=true"
+      "detail": "mode=instant_consistent; lib=2026-05-06 00:46:00; min=298; day=己卯; absMatch=true"
+    },
+    {
+      "name": "bán hợp vs củng hợp + tranh hợp golden",
+      "status": "PASS",
+      "detail": "half=申子半合; arch=申辰拱合; tranh=4"
     },
     {
       "name": "Dịch Mã",
@@ -104,11 +110,11 @@
     }
   ],
   "checklistSummary": {
-    "pass": 13,
+    "pass": 14,
     "fail": 0,
-    "total": 13
+    "total": 14
   },
-  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (26 tests) 73ms\n Test Files  1 passed (1)\n      Tests  26 passed (26)",
+  "vitestSummary": " ✓ src/lib/core/core-engine.test.ts (28 tests) 78ms\n Test Files  1 passed (1)\n      Tests  28 passed (28)",
   "highlights": {
     "tamHinhCaseA": [
       {
@@ -132,6 +138,77 @@
       }
     ],
     "contestedSamples": [],
+    "goldenTranhHop": [
+      {
+        "name": "乙庚合",
+        "members": [
+          "year.gan.庚",
+          "day.gan.乙"
+        ],
+        "contested": true,
+        "contestedWith": [
+          "乙庚合"
+        ],
+        "transformStatus": "combineOnly",
+        "sourceId": "relations.stemCombination.wuHe.v1"
+      },
+      {
+        "name": "乙庚合",
+        "members": [
+          "year.gan.庚",
+          "hour.gan.乙"
+        ],
+        "contested": true,
+        "contestedWith": [
+          "乙庚合"
+        ],
+        "transformStatus": "combineOnly",
+        "sourceId": "relations.stemCombination.wuHe.v1"
+      },
+      {
+        "name": "乙庚合",
+        "members": [
+          "month.gan.庚",
+          "day.gan.乙"
+        ],
+        "contested": true,
+        "contestedWith": [
+          "乙庚合"
+        ],
+        "transformStatus": "combineOnly",
+        "sourceId": "relations.stemCombination.wuHe.v1"
+      },
+      {
+        "name": "乙庚合",
+        "members": [
+          "month.gan.庚",
+          "hour.gan.乙"
+        ],
+        "contested": true,
+        "contestedWith": [
+          "乙庚合"
+        ],
+        "transformStatus": "combineOnly",
+        "sourceId": "relations.stemCombination.wuHe.v1"
+      }
+    ],
+    "halfVsArch": {
+      "half": [
+        {
+          "type": "branchHalfHarmony",
+          "name": "申子半合",
+          "sourceId": "relations.branchHalfHarmony.v1"
+        }
+      ],
+      "arch": [
+        {
+          "type": "branchArchHarmony",
+          "name": "申辰拱合",
+          "sourceId": "relations.branchArchHarmony.v1"
+        }
+      ]
+    },
+    "monthCommandTableVersion": "1.1.0",
     "nearZiBoundary": {
       "note": "tight ±10′; wide = nearZiWindowWide",
       "sampleCaseBBoundaries": {
@@ -144,9 +221,9 @@
       }
     },
     "sameUtcMultiTz": {
-      "name": "DoD-B′ hybrid Case B + same-UTC multi-TZ",
+      "name": "DoD-B′ hybrid default + same-UTC multi-TZ",
       "status": "PASS",
-      "detail": "lib=2026-05-06 00:46:00; min=298; day=己卯; absMatch=true"
+      "detail": "mode=instant_consistent; lib=2026-05-06 00:46:00; min=298; day=己卯; absMatch=true"
     },
     "caseBPrimeAuditFlat": {
       "birthLocal": "2026-05-05 23:46:00",
@@ -188,8 +265,8 @@
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -330,8 +407,8 @@
     "place": "Phú Thọ",
     "gender": "Nam",
     "timezone": "Asia/Ho_Chi_Minh",
-    "engineVersion": "0.3.1-core",
-    "ruleSetVersion": "bazi-core-2026-10-03-sprint2",
+    "engineVersion": "0.3.2-core",
+    "ruleSetVersion": "bazi-core-2026-10-03-lock-rc",
     "conventions": {
       "dayBoundaryMode": "midnight_00",
       "yunSect": 2,
@@ -343,10 +420,10 @@
     "dayBoundaryMode": "midnight_00",
     "birthLocal": "1986-11-12 17:45:00",
     "birthAbsolute": "1986-11-12T10:45:00.000Z",
-    "clockForJieYun": "1986-11-12 17:45:00",
-    "libraryTermClock": "1986-11-12 17:45:00",
-    "timeBasisMode": "vn_civil",
-    "libraryTermTimezone": "Asia/Ho_Chi_Minh",
+    "clockForJieYun": "1986-11-12 18:45:00",
+    "libraryTermClock": "1986-11-12 18:45:00",
+    "timeBasisMode": "instant_consistent",
+    "libraryTermTimezone": "Asia/Shanghai",
     "dayPillar": "庚申",
     "hourPillar": "乙酉",
     "dayPillarVi": "Canh Thân",
@@ -791,19 +868,19 @@
       },
       "ymdHms": "1986-12-07 18:00:56"
     },
-    "minutesFromPrevJie": 6753,
-    "daysFromJie": 4.69,
+    "minutesFromPrevJie": 6813,
+    "daysFromJie": 4.73,
     "monthCommand": {
       "branch": "亥",
-      "daysFromJie": 4.69,
+      "daysFromJie": 4.73,
       "commandingStem": "戊",
       "phase": "Mậu Thổ tư lệnh",
       "phaseIndex": 0,
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
@@ -813,16 +890,16 @@
         },
         {
           "stem": "甲",
-          "days": 7,
+          "days": 5,
           "label": "Giáp Mộc tư lệnh"
         },
         {
           "stem": "壬",
-          "days": 16,
+          "days": 18,
           "label": "Nhâm Thủy tư lệnh"
         }
       ],
-      "note": "Sau giao Jie ~4.69 ngày → Mậu Thổ tư lệnh."
+      "note": "Sau giao Jie ~4.73 ngày → Mậu Thổ tư lệnh."
     },
     "relations": [
       {
@@ -987,26 +1064,26 @@
     "yunStartRaw": {
       "year": 1995,
       "month": 3,
-      "day": 13,
-      "hour": 23,
+      "day": 11,
+      "hour": 0,
       "minute": 45,
       "second": 0,
-      "ymdHms": "1995-03-13 23:45:00"
+      "ymdHms": "1995-03-11 00:45:00"
     },
     "yunStartLocal": {
       "year": 1995,
       "month": 3,
-      "day": 13,
+      "day": 10,
       "hour": 23,
       "minute": 45,
       "second": 0,
-      "ymdHms": "1995-03-13 23:45:00"
+      "ymdHms": "1995-03-10 23:45:00"
     },
     "yunForward": true,
     "startAge": {
       "years": 8,
-      "months": 4,
-      "days": 1,
+      "months": 3,
+      "days": 26,
       "hours": 6
     },
     "startAgeXu": 10,
@@ -1022,20 +1099,20 @@
         "startSolarExact": {
           "year": 1995,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "1995-03-13 23:45:00"
+          "ymdHms": "1995-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2005,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2005-03-13 23:45:00"
+          "ymdHms": "2005-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1059,20 +1136,20 @@
         "startSolarExact": {
           "year": 2005,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2005-03-13 23:45:00"
+          "ymdHms": "2005-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2015,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2015-03-13 23:45:00"
+          "ymdHms": "2015-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1112,20 +1189,20 @@
         "startSolarExact": {
           "year": 2015,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2015-03-13 23:45:00"
+          "ymdHms": "2015-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2025,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2025-03-13 23:45:00"
+          "ymdHms": "2025-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1162,20 +1239,20 @@
         "startSolarExact": {
           "year": 2025,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2025-03-13 23:45:00"
+          "ymdHms": "2025-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2035,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2035-03-13 23:45:00"
+          "ymdHms": "2035-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1205,20 +1282,20 @@
         "startSolarExact": {
           "year": 2035,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2035-03-13 23:45:00"
+          "ymdHms": "2035-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2045,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2045-03-13 23:45:00"
+          "ymdHms": "2045-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1242,20 +1319,20 @@
         "startSolarExact": {
           "year": 2045,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2045-03-13 23:45:00"
+          "ymdHms": "2045-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2055,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2055-03-13 23:45:00"
+          "ymdHms": "2055-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1295,20 +1372,20 @@
         "startSolarExact": {
           "year": 2055,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2055-03-13 23:45:00"
+          "ymdHms": "2055-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2065,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2065-03-13 23:45:00"
+          "ymdHms": "2065-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1332,20 +1409,20 @@
         "startSolarExact": {
           "year": 2065,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2065-03-13 23:45:00"
+          "ymdHms": "2065-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2075,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2075-03-13 23:45:00"
+          "ymdHms": "2075-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -1385,20 +1462,20 @@
         "startSolarExact": {
           "year": 2075,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2075-03-13 23:45:00"
+          "ymdHms": "2075-03-11 00:45:00"
         },
         "endSolarExact": {
           "year": 2085,
           "month": 3,
-          "day": 13,
-          "hour": 23,
+          "day": 11,
+          "hour": 0,
           "minute": 45,
           "second": 0,
-          "ymdHms": "2085-03-13 23:45:00"
+          "ymdHms": "2085-03-11 00:45:00"
         },
         "shenSha": [
           {
@@ -4202,7 +4279,7 @@
       "note": "Chưa luận Dụng thần chuyên sâu — Core không xuất heuristic."
     },
     "isLateRatHour": false,
-    "dayBoundaryLabel": "Dạ Tý: đổi Nhật trụ lúc 00:00 (midnight_00 / Late Rat)",
+    "dayBoundaryLabel": "Quy ước Giờ Tý: Đổi ngày lúc 00:00 (phân Dạ Tý – Tảo Tý)",
     "boundaries": {
       "nearZiBoundary": false,
       "nearZiWindowWide": false,
@@ -4214,8 +4291,8 @@
     "auditFlat": {
       "birthLocal": "1986-11-12 17:45:00",
       "birthAbsolute": "1986-11-12T10:45:00.000Z",
-      "clockForJieYun": "1986-11-12 17:45:00",
-      "libraryTermClock": "1986-11-12 17:45:00",
+      "clockForJieYun": "1986-11-12 18:45:00",
+      "libraryTermClock": "1986-11-12 18:45:00",
       "prevJie": {
         "name": "立冬",
         "solar": {
@@ -4240,19 +4317,19 @@
         },
         "ymdHms": "1986-12-07 18:00:56"
       },
-      "minutesFromPrevJie": 6753,
-      "daysFromJie": 4.69,
+      "minutesFromPrevJie": 6813,
+      "daysFromJie": 4.73,
       "monthCommand": {
         "branch": "亥",
-        "daysFromJie": 4.69,
+        "daysFromJie": 4.73,
         "commandingStem": "戊",
         "phase": "Mậu Thổ tư lệnh",
         "phaseIndex": 0,
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -4262,16 +4339,16 @@
           },
           {
             "stem": "甲",
-            "days": 7,
+            "days": 5,
             "label": "Giáp Mộc tư lệnh"
           },
           {
             "stem": "壬",
-            "days": 16,
+            "days": 18,
             "label": "Nhâm Thủy tư lệnh"
           }
         ],
-        "note": "Sau giao Jie ~4.69 ngày → Mậu Thổ tư lệnh."
+        "note": "Sau giao Jie ~4.73 ngày → Mậu Thổ tư lệnh."
       },
       "dayBoundaryMode": "midnight_00",
       "dayPillar": "庚申",
@@ -4415,20 +4492,20 @@
       "yunStartRaw": {
         "year": 1995,
         "month": 3,
-        "day": 13,
-        "hour": 23,
+        "day": 11,
+        "hour": 0,
         "minute": 45,
         "second": 0,
-        "ymdHms": "1995-03-13 23:45:00"
+        "ymdHms": "1995-03-11 00:45:00"
       },
       "yunStartLocal": {
         "year": 1995,
         "month": 3,
-        "day": 13,
+        "day": 10,
         "hour": 23,
         "minute": 45,
         "second": 0,
-        "ymdHms": "1995-03-13 23:45:00"
+        "ymdHms": "1995-03-10 23:45:00"
       },
       "usefulGod": null,
       "directions": null
@@ -4436,7 +4513,7 @@
     "rawDebug10": {
       "birthLocal": "1986-11-12 17:45:00",
       "birthAbsolute": "1986-11-12T10:45:00.000Z",
-      "libraryTermClock": "1986-11-12 17:45:00",
+      "libraryTermClock": "1986-11-12 18:45:00",
       "prevJie": {
         "name": "立冬",
         "solar": {
@@ -4461,19 +4538,19 @@
         },
         "ymdHms": "1986-12-07 18:00:56"
       },
-      "minutesFromPrevJie": 6753,
-      "daysFromJie": 4.69,
+      "minutesFromPrevJie": 6813,
+      "daysFromJie": 4.73,
       "monthCommand": {
         "branch": "亥",
-        "daysFromJie": 4.69,
+        "daysFromJie": 4.73,
         "commandingStem": "戊",
         "phase": "Mậu Thổ tư lệnh",
         "phaseIndex": 0,
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -4483,51 +4560,52 @@
           },
           {
             "stem": "甲",
-            "days": 7,
+            "days": 5,
             "label": "Giáp Mộc tư lệnh"
           },
           {
             "stem": "壬",
-            "days": 16,
+            "days": 18,
             "label": "Nhâm Thủy tư lệnh"
           }
         ],
-        "note": "Sau giao Jie ~4.69 ngày → Mậu Thổ tư lệnh."
+        "note": "Sau giao Jie ~4.73 ngày → Mậu Thổ tư lệnh."
       },
       "yunStartRaw": {
         "year": 1995,
         "month": 3,
-        "day": 13,
-        "hour": 23,
+        "day": 11,
+        "hour": 0,
         "minute": 45,
         "second": 0,
-        "ymdHms": "1995-03-13 23:45:00"
+        "ymdHms": "1995-03-11 00:45:00"
       },
       "yunStartLocal": {
         "year": 1995,
         "month": 3,
-        "day": 13,
+        "day": 10,
         "hour": 23,
         "minute": 45,
         "second": 0,
-        "ymdHms": "1995-03-13 23:45:00"
+        "ymdHms": "1995-03-10 23:45:00"
       }
     }
   },
   "caseB": {
-    "label": "Case B — 05/05/2026 23:46 Hà Nội Nữ (vn_civil default)",
+    "label": "Case B Legacy — 05/05/2026 23:46 Hà Nội Nữ (vn_civil explicit)",
     "place": "Hà Nội",
     "gender": "Nữ",
     "timezone": "Asia/Ho_Chi_Minh",
-    "engineVersion": "0.3.1-core",
-    "ruleSetVersion": "bazi-core-2026-10-03-sprint2",
+    "engineVersion": "0.3.2-core",
+    "ruleSetVersion": "bazi-core-2026-10-03-lock-rc",
     "conventions": {
       "dayBoundaryMode": "midnight_00",
       "yunSect": 2,
       "renMode": "ziPingYangRenOnly",
       "hiddenStemSchool": "lunar-typescript-ZHI_HIDE_GAN",
       "monthCommandSchool": "ziPingZhenQuan_v1",
-      "trueSolarTimeEnabled": false
+      "trueSolarTimeEnabled": false,
+      "timeBasisMode": "vn_civil"
     },
     "dayBoundaryMode": "midnight_00",
     "birthLocal": "2026-05-05 23:46:00",
@@ -4950,8 +5028,8 @@
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
@@ -8260,7 +8338,7 @@
       "note": "Chưa luận Dụng thần chuyên sâu — Core không xuất heuristic."
     },
     "isLateRatHour": true,
-    "dayBoundaryLabel": "Dạ Tý: đổi Nhật trụ lúc 00:00 (midnight_00 / Late Rat)",
+    "dayBoundaryLabel": "Quy ước Giờ Tý: Đổi ngày lúc 00:00 (phân Dạ Tý – Tảo Tý)",
     "boundaries": {
       "nearZiBoundary": false,
       "nearZiWindowWide": true,
@@ -8309,8 +8387,8 @@
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -8484,8 +8562,8 @@
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -8527,20 +8605,19 @@
     }
   },
   "caseBInstant": {
-    "label": "Case B′ — 05/05/2026 23:46 Hà Nội Nữ (instant_consistent hybrid)",
+    "label": "Case B′ — 05/05/2026 23:46 Hà Nội Nữ (instant_consistent default hybrid)",
     "place": "Hà Nội",
     "gender": "Nữ",
     "timezone": "Asia/Ho_Chi_Minh",
-    "engineVersion": "0.3.1-core",
-    "ruleSetVersion": "bazi-core-2026-10-03-sprint2",
+    "engineVersion": "0.3.2-core",
+    "ruleSetVersion": "bazi-core-2026-10-03-lock-rc",
     "conventions": {
       "dayBoundaryMode": "midnight_00",
       "yunSect": 2,
       "renMode": "ziPingYangRenOnly",
       "hiddenStemSchool": "lunar-typescript-ZHI_HIDE_GAN",
       "monthCommandSchool": "ziPingZhenQuan_v1",
-      "trueSolarTimeEnabled": false,
-      "timeBasisMode": "instant_consistent"
+      "trueSolarTimeEnabled": false
     },
     "dayBoundaryMode": "midnight_00",
     "birthLocal": "2026-05-05 23:46:00",
@@ -8963,8 +9040,8 @@
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
@@ -12273,7 +12350,7 @@
       "note": "Chưa luận Dụng thần chuyên sâu — Core không xuất heuristic."
     },
     "isLateRatHour": true,
-    "dayBoundaryLabel": "Dạ Tý: đổi Nhật trụ lúc 00:00 (midnight_00 / Late Rat)",
+    "dayBoundaryLabel": "Quy ước Giờ Tý: Đổi ngày lúc 00:00 (phân Dạ Tý – Tảo Tý)",
     "boundaries": {
       "nearZiBoundary": false,
       "nearZiWindowWide": true,
@@ -12322,8 +12399,8 @@
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -12497,8 +12574,8 @@
         "mode": "ziPingZhenQuan_v1",
         "ruleSet": "monthCommand.ziPingZhenQuan.v1",
         "sourceId": "monthCommand.ziPingZhenQuan.v1",
-        "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-        "tableVersion": "1.0.0",
+        "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+        "tableVersion": "1.1.0",
         "method": "days_elapsed_from_month_jie",
         "schedule": [
           {
@@ -12542,8 +12619,8 @@
   "caseAAuditFlat": {
     "birthLocal": "1986-11-12 17:45:00",
     "birthAbsolute": "1986-11-12T10:45:00.000Z",
-    "clockForJieYun": "1986-11-12 17:45:00",
-    "libraryTermClock": "1986-11-12 17:45:00",
+    "clockForJieYun": "1986-11-12 18:45:00",
+    "libraryTermClock": "1986-11-12 18:45:00",
     "prevJie": {
       "name": "立冬",
       "solar": {
@@ -12568,19 +12645,19 @@
       },
       "ymdHms": "1986-12-07 18:00:56"
     },
-    "minutesFromPrevJie": 6753,
-    "daysFromJie": 4.69,
+    "minutesFromPrevJie": 6813,
+    "daysFromJie": 4.73,
     "monthCommand": {
       "branch": "亥",
-      "daysFromJie": 4.69,
+      "daysFromJie": 4.73,
       "commandingStem": "戊",
       "phase": "Mậu Thổ tư lệnh",
       "phaseIndex": 0,
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
@@ -12590,16 +12667,16 @@
         },
         {
           "stem": "甲",
-          "days": 7,
+          "days": 5,
           "label": "Giáp Mộc tư lệnh"
         },
         {
           "stem": "壬",
-          "days": 16,
+          "days": 18,
           "label": "Nhâm Thủy tư lệnh"
         }
       ],
-      "note": "Sau giao Jie ~4.69 ngày → Mậu Thổ tư lệnh."
+      "note": "Sau giao Jie ~4.73 ngày → Mậu Thổ tư lệnh."
     },
     "dayBoundaryMode": "midnight_00",
     "dayPillar": "庚申",
@@ -12743,20 +12820,20 @@
     "yunStartRaw": {
       "year": 1995,
       "month": 3,
-      "day": 13,
-      "hour": 23,
+      "day": 11,
+      "hour": 0,
       "minute": 45,
       "second": 0,
-      "ymdHms": "1995-03-13 23:45:00"
+      "ymdHms": "1995-03-11 00:45:00"
     },
     "yunStartLocal": {
       "year": 1995,
       "month": 3,
-      "day": 13,
+      "day": 10,
       "hour": 23,
       "minute": 45,
       "second": 0,
-      "ymdHms": "1995-03-13 23:45:00"
+      "ymdHms": "1995-03-10 23:45:00"
     },
     "usefulGod": null,
     "directions": null
@@ -12801,8 +12878,8 @@
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
@@ -12976,8 +13053,8 @@
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
@@ -13056,8 +13133,8 @@
       "mode": "ziPingZhenQuan_v1",
       "ruleSet": "monthCommand.ziPingZhenQuan.v1",
       "sourceId": "monthCommand.ziPingZhenQuan.v1",
-      "sourceTitle": "人元司令时段表 · 子平真诠系统 (沈孝瞻《子平真诠》人元司令传统表 — BaziVN curated single table ziPingZhenQuan_v1; không pha bảng phái khác)",
-      "tableVersion": "1.0.0",
+      "sourceTitle": "人元司令分野表 · 沈孝瞻《子平真诠》(ziPingZhenQuan_v1 — 申=戊10/壬3/庚17 · 亥=戊7/甲5/壬18; tableVersion 1.1.0)",
+      "tableVersion": "1.1.0",
       "method": "days_elapsed_from_month_jie",
       "schedule": [
         {
