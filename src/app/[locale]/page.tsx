@@ -29,12 +29,18 @@ export default async function HomePage({ params }: HomePageProps) {
               {t("titleLine2")}
             </span>
           </h1>
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <Link
               href="/bazi"
               className="inline-flex min-w-[15rem] items-center justify-center rounded-lg bg-accent px-10 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-accent-hover"
             >
               {tCommon("homeCta")}
+            </Link>
+            <Link
+              href="/account/overview"
+              className="inline-flex min-w-[15rem] items-center justify-center rounded-lg border border-border bg-[#2f6f5e] px-10 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:opacity-95"
+            >
+              Không gian cá nhân
             </Link>
           </div>
         </div>

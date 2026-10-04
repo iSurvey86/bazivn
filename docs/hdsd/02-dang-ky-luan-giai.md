@@ -30,7 +30,11 @@
 - **B:** chọn lĩnh vực → nhập mốc (ngày/tháng/năm) → mốc neo → tương lai đã biết → câu hỏi → gửi.
 - **C:** khoảng giờ + nguồn nhớ → ít nhất 8 mốc định vị → tương lai → câu hỏi → gửi.
 
+## Sau khi gửi thông tin
+
+Vào **Không gian cá nhân** để xem tiến độ luận giải và các mục mệnh thư — xem [03-khong-gian-ca-nhan.md](./03-khong-gian-ca-nhan.md).
+
 ## Lưu ý
 
 - Thanh toán thật (PayOS/Stripe) chưa nối; nút demo chỉ dùng để thử luồng.
-- Tiến độ luận giải theo tài khoản riêng sẽ làm ở bước sau.
+- Đăng nhập Auth + chỉ chủ đơn đọc — làm ở bước sau.

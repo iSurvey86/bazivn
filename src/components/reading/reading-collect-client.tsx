@@ -94,6 +94,14 @@ export function ReadingCollectClient({ order }: Props) {
             <strong>{METHOD_LABEL[method]}</strong> đã được ghi nhận. Giữ{" "}
             <strong>Mã mệnh thư</strong> để tra cứu tiến độ luận giải.
           </p>
+          <button
+            type="button"
+            onClick={() => router.push("/account/overview")}
+            className="mt-4 inline-flex rounded-xl px-4 py-2.5 text-sm font-bold text-white"
+            style={{ backgroundColor: READING_UI.confirm.bg }}
+          >
+            Vào không gian cá nhân →
+          </button>
         </div>
       </div>
     );

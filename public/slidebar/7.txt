@@ -1,0 +1,17 @@
+[ SIDEBAR DỌC ]                     || ⚙️ CÀI ĐẶT TÀI KHOẢN
+                                    || 
+( Avatar ) ĐỖ MINH PHƯƠNG           || 👤 THÔNG TIN CÁ NHÂN
+                                    || Họ tên: Đỗ Minh Phương
+📊 Tổng quan Mệnh cục               || Cấp độ thành viên: Premium
+                                    || 
+柱 Chi tiết Tứ Trụ                  || 🔔 CÀI ĐẶT THÔNG BÁO & NHẮC NHỞ
+                                    || 
+📈 Đại Vận & Lưu Niên               || [x] Gửi email khi có phân tích Lưu niên năm mới.
+                                    || [x] Nhắc nhở vận trình vào ngày 1 và 15 Dương lịch hàng tháng.
+⏳ Nhật ký Nghiệm chứng             || [ ] Bật thông báo qua Zalo/Telegram.
+                                    || 
+🎯 Khuyến nghị & Giải đáp           || 🔒 BẢO MẬT DỮ LIỆU
+                                    || [x] Ẩn thông tin cá nhân (Họ tên thật) khi xuất file PDF.
+💬 Liên hệ Chuyên gia               || [ ] Yêu cầu mã PIN khi truy cập Nhật ký nghiệm chứng.
+                                    || 
+⚙️ Cài đặt (Active)                 || [ LƯU CÀI ĐẶT ]

@@ -2,6 +2,19 @@
 
 Mới nhất ở trên. Chỉ thêm mục khi bump `version` trong `package.json`.
 
+## 0.4.0
+
+### Mới
+
+- Không gian cá nhân (sidebar): tổng quan, tứ trụ, đại vận/lưu niên, nhật ký nghiệm chứng, khuyến nghị & giải đáp, liên hệ, cài đặt.
+- Nền shell «ban mai trên giấy» cho các trang BaziShell / account.
+- Demo 1 user; tự gắn mã mệnh thư / trụ từ đơn đăng ký gần nhất nếu có.
+
+### Cải thiện
+
+- Trang chủ và màn sau đăng ký có lối vào không gian cá nhân.
+- Lưu mockup sidebar nguồn tại `public/slidebar`.
+
 ## 0.3.0
 
 ### Mới
